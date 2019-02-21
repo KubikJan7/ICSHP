@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace ICSHP_cv_01_p_04
 {
-    //hádání čísla
     class Program
     {
         static void Main(string[] args)
@@ -17,14 +16,15 @@ namespace ICSHP_cv_01_p_04
             for (int i = 0; i < 10; i++)
             {
                 Console.WriteLine("Guess generated number");
-                guess = int.Parse(Console.ReadLine());
-                Console.WriteLine(rndNum);
+                int.TryParse(Console.ReadLine(), out guess);
                 if (guess == rndNum)
                 {
                     Console.WriteLine("You are right, the number is " + rndNum + ".");
                     return;
-                }
-                Console.WriteLine("That's not the number." + "Attempts left: " + (9-i));
+                }if(guess>rndNum)
+                    Console.WriteLine("The number is lower." + "Attempts left: " + (9-i));
+                else
+                    Console.WriteLine("The number is higher." + "Attempts left: " + (9 - i));
             }
             Console.WriteLine("Game lost. You do not have any more attempts.");
         }
