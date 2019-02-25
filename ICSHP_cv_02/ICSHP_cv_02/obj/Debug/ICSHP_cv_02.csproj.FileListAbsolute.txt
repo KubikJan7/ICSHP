@@ -1,0 +1,10 @@
+C:\Users\Legol\Documents\GitHub\ICSHP\ICSHP_cv_02\ICSHP_cv_02\bin\Debug\ICSHP_cv_02.exe.config
+C:\Users\Legol\Documents\GitHub\ICSHP\ICSHP_cv_02\ICSHP_cv_02\bin\Debug\ICSHP_cv_02.exe
+C:\Users\Legol\Documents\GitHub\ICSHP\ICSHP_cv_02\ICSHP_cv_02\bin\Debug\ICSHP_cv_02.pdb
+C:\Users\Legol\Documents\GitHub\ICSHP\ICSHP_cv_02\ICSHP_cv_02\bin\Debug\Utils.dll
+C:\Users\Legol\Documents\GitHub\ICSHP\ICSHP_cv_02\ICSHP_cv_02\bin\Debug\Utils.pdb
+C:\Users\Legol\Documents\GitHub\ICSHP\ICSHP_cv_02\ICSHP_cv_02\obj\Debug\ICSHP_cv_02.csprojAssemblyReference.cache
+C:\Users\Legol\Documents\GitHub\ICSHP\ICSHP_cv_02\ICSHP_cv_02\obj\Debug\ICSHP_cv_02.csproj.CoreCompileInputs.cache
+C:\Users\Legol\Documents\GitHub\ICSHP\ICSHP_cv_02\ICSHP_cv_02\obj\Debug\ICSHP_cv_02.csproj.CopyComplete
+C:\Users\Legol\Documents\GitHub\ICSHP\ICSHP_cv_02\ICSHP_cv_02\obj\Debug\ICSHP_cv_02.exe
+C:\Users\Legol\Documents\GitHub\ICSHP\ICSHP_cv_02\ICSHP_cv_02\obj\Debug\ICSHP_cv_02.pdb
