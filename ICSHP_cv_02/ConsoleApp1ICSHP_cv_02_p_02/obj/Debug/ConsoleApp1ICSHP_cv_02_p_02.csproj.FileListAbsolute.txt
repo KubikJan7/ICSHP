@@ -1,0 +1,10 @@
+C:\Users\Legol\OneDrive\Dokumenty\GitHub\ICSHP\ICSHP_cv_02\ConsoleApp1ICSHP_cv_02_p_02\bin\Debug\ConsoleApp1ICSHP_cv_02_p_02.exe.config
+C:\Users\Legol\OneDrive\Dokumenty\GitHub\ICSHP\ICSHP_cv_02\ConsoleApp1ICSHP_cv_02_p_02\bin\Debug\ConsoleApp1ICSHP_cv_02_p_02.exe
+C:\Users\Legol\OneDrive\Dokumenty\GitHub\ICSHP\ICSHP_cv_02\ConsoleApp1ICSHP_cv_02_p_02\bin\Debug\ConsoleApp1ICSHP_cv_02_p_02.pdb
+C:\Users\Legol\OneDrive\Dokumenty\GitHub\ICSHP\ICSHP_cv_02\ConsoleApp1ICSHP_cv_02_p_02\bin\Debug\BaseLib.dll
+C:\Users\Legol\OneDrive\Dokumenty\GitHub\ICSHP\ICSHP_cv_02\ConsoleApp1ICSHP_cv_02_p_02\bin\Debug\BaseLib.pdb
+C:\Users\Legol\OneDrive\Dokumenty\GitHub\ICSHP\ICSHP_cv_02\ConsoleApp1ICSHP_cv_02_p_02\obj\Debug\ConsoleApp1ICSHP_cv_02_p_02.csprojAssemblyReference.cache
+C:\Users\Legol\OneDrive\Dokumenty\GitHub\ICSHP\ICSHP_cv_02\ConsoleApp1ICSHP_cv_02_p_02\obj\Debug\ConsoleApp1ICSHP_cv_02_p_02.csproj.CoreCompileInputs.cache
+C:\Users\Legol\OneDrive\Dokumenty\GitHub\ICSHP\ICSHP_cv_02\ConsoleApp1ICSHP_cv_02_p_02\obj\Debug\ConsoleApp1ICSHP_cv_02_p_02.csproj.CopyComplete
+C:\Users\Legol\OneDrive\Dokumenty\GitHub\ICSHP\ICSHP_cv_02\ConsoleApp1ICSHP_cv_02_p_02\obj\Debug\ConsoleApp1ICSHP_cv_02_p_02.exe
+C:\Users\Legol\OneDrive\Dokumenty\GitHub\ICSHP\ICSHP_cv_02\ConsoleApp1ICSHP_cv_02_p_02\obj\Debug\ConsoleApp1ICSHP_cv_02_p_02.pdb

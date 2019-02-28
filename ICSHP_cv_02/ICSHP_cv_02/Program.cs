@@ -38,7 +38,6 @@ namespace ICSHP_cv_02
 
         private static void WorkNullableTypes()
         {
-            int number1 = 3;
             int? number2 = null; // ? - nulovatelný integer
             ComplexNumber number3 = null;
             if (number2.HasValue)
@@ -63,8 +62,6 @@ namespace ICSHP_cv_02
             //WorkWithStaticClass();
             WorkWithDataTypes();
             WorkNullableTypes();
-            int a = 2;
-            int b = 2;
 
             int[,] array01 = new int[2,3];
             int[][] array02 = new int[2][];
