@@ -50,10 +50,10 @@ namespace ICSHP_cv_03.SamplesLibrary
             Value = value;
             Signed = signed;
         }
-        public MyInteger(int v)
-        {
-            return new MyInteger() { Value = (uint)Math.Abs(v), Signed = v < 0 };
-        }
+        //public MyInteger(int v)
+        //{
+        //    return new MyInteger() { Value = (uint)Math.Abs(v), Signed = v < 0 };
+        //}
     }
 
     class ClassTest
@@ -62,8 +62,6 @@ namespace ICSHP_cv_03.SamplesLibrary
         {
             MyInteger MyInteger = new MyInteger() { Value = 33 };
             MyInteger myInteger2 = new MyInteger(33, true);
-
-            MyInteger myInteger3 = 125;
         }
 
     }
