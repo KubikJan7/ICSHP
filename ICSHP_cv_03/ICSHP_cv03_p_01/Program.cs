@@ -18,7 +18,7 @@ namespace ICSHP_cv03_p_01
             while (option != 0)
             {
                 SortCallback sortCallback = null;
-
+                Console.Clear();
                 Console.WriteLine("Options: ");
                 Console.WriteLine("1. Load students.");
                 Console.WriteLine("2. Display students.");
@@ -26,13 +26,10 @@ namespace ICSHP_cv03_p_01
                 Console.WriteLine("4. Sort students by name.");
                 Console.WriteLine("5. Sort students by faculty.");
                 Console.WriteLine("0. Close program.");
-                Console.WriteLine("\nChoose an option: ");
-                int.TryParse(Console.ReadLine(), out option);
                 Console.WriteLine("\n-------------------------------------------------------------");
                 switch (option)
                 {
                     case 1:
-                        Console.Clear();
                         Console.WriteLine("Type in number of students");
                         int.TryParse(Console.ReadLine(), out int arrayLength);
                         students = new Students(arrayLength);
@@ -50,24 +47,22 @@ namespace ICSHP_cv03_p_01
                         }
                         break;
                     case 2:
-                        Console.Clear();
                         students.WriteStudents();
                         break;
                     case 3:
-                        Console.Clear();
                         sortCallback = students.SortById;
                         break;
                     case 4:
-                        Console.Clear();
                         sortCallback = students.SortByName;
                         break;
                     case 5:
-                        Console.Clear();
                         sortCallback = students.SortByFaculty;
                         break;
                 }
                 sortCallback?.Invoke();
                 Console.WriteLine("-------------------------------------------------------------");
+                Console.WriteLine("\nChoose an option: ");
+                int.TryParse(Console.ReadLine(), out option);
             }
 
         }

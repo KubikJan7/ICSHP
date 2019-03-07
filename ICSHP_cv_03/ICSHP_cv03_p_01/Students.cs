@@ -22,6 +22,7 @@ namespace ICSHP_cv03_p_01
         }
         public void WriteStudents()
         {
+            Console.WriteLine("Students:\n");
             for (int i = 0; i < Array.Length; i++)
             {
                 Console.WriteLine("Id: " + Array[i].Id + " Name: "+ Array[i].Name + " Faculty: " + Array[i].Faculty);
