@@ -8,8 +8,31 @@ namespace ICSHP_cv03_p_01
 {
     class Student
     {
-        public string Name { get; set; }
-        public int Id { get; set; }
-        public Faculty Faculty { get; set; }
+        private string name;
+        private int id;
+        private Faculty faculty;
+
+        public string Name
+        {
+            get { return name; }
+            set { name = value; }
+        }
+        public int Id
+        {
+            get { return id; }
+            set { id = value; }
+        }
+        public Faculty Faculty
+        {
+            get { return faculty; }
+            set { faculty = value; }
+        }
+
+        public Student(int id, string name, Faculty faculty)
+        {
+            this.id = id;
+            this.name = name;
+            this.faculty = faculty;
+        }
     }
 }
