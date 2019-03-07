@@ -32,6 +32,7 @@ namespace ICSHP_cv03_p_01
                 switch (option)
                 {
                     case 1:
+                        Console.Clear();
                         Console.WriteLine("Type in number of students");
                         int.TryParse(Console.ReadLine(), out int arrayLength);
                         students = new Students(arrayLength);
@@ -49,15 +50,19 @@ namespace ICSHP_cv03_p_01
                         }
                         break;
                     case 2:
+                        Console.Clear();
                         students.WriteStudents();
                         break;
                     case 3:
+                        Console.Clear();
                         sortCallback = students.SortById;
                         break;
                     case 4:
+                        Console.Clear();
                         sortCallback = students.SortByName;
                         break;
                     case 5:
+                        Console.Clear();
                         sortCallback = students.SortByFaculty;
                         break;
                 }
