@@ -1,7 +1,0 @@
-C:\Users\Legol\Documents\GitHub\ICSHP\ICSHP_cv_01\ICSHP_cv_01_p_03\bin\Debug\ICSHP_cv_01_p_03.exe.config
-C:\Users\Legol\Documents\GitHub\ICSHP\ICSHP_cv_01\ICSHP_cv_01_p_03\bin\Debug\ICSHP_cv_01_p_03.exe
-C:\Users\Legol\Documents\GitHub\ICSHP\ICSHP_cv_01\ICSHP_cv_01_p_03\bin\Debug\ICSHP_cv_01_p_03.pdb
-C:\Users\Legol\Documents\GitHub\ICSHP\ICSHP_cv_01\ICSHP_cv_01_p_03\obj\Debug\ICSHP_cv_01_p_03.csprojAssemblyReference.cache
-C:\Users\Legol\Documents\GitHub\ICSHP\ICSHP_cv_01\ICSHP_cv_01_p_03\obj\Debug\ICSHP_cv_01_p_03.csproj.CoreCompileInputs.cache
-C:\Users\Legol\Documents\GitHub\ICSHP\ICSHP_cv_01\ICSHP_cv_01_p_03\obj\Debug\ICSHP_cv_01_p_03.exe
-C:\Users\Legol\Documents\GitHub\ICSHP\ICSHP_cv_01\ICSHP_cv_01_p_03\obj\Debug\ICSHP_cv_01_p_03.pdb

@@ -38,17 +38,16 @@ namespace MessageLogger
         }
         private void OutputEnabledCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            CheckBox enableCheckBox = sender as CheckBox;
             EventHandler checkedChangedEventHandler = null;
             if (sender == LeftPanelCheckBox)
                 checkedChangedEventHandler = sendTextToLeftOutputEventHandler;
-            if (sender == LeftPanelCheckBox)
+            else if (sender == RightPanelCheckBox)
                 checkedChangedEventHandler = sendTextToRightOutputEventHandler;
 
-            if (sender == sender as CheckBox)
-                SendBtn.Click += sendTextToLeftOutputEventHandler;
+            if ((sender as CheckBox).Checked)
+                SendBtn.Click += checkedChangedEventHandler;
             else
-                SendBtn.Click -= sendTextToLeftOutputEventHandler;
+                SendBtn.Click -= checkedChangedEventHandler;
         }
     }
 }

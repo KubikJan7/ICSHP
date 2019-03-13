@@ -1,6 +1,0 @@
-C:\Users\st52531\source\repos\ICSHP_cv_01\ICSHP_cv_01_p_02\bin\Debug\ICSHP_cv_01_p_02.exe.config
-C:\Users\st52531\source\repos\ICSHP_cv_01\ICSHP_cv_01_p_02\bin\Debug\ICSHP_cv_01_p_02.exe
-C:\Users\st52531\source\repos\ICSHP_cv_01\ICSHP_cv_01_p_02\bin\Debug\ICSHP_cv_01_p_02.pdb
-C:\Users\st52531\source\repos\ICSHP_cv_01\ICSHP_cv_01_p_02\obj\Debug\ICSHP_cv_01_p_02.csproj.CoreCompileInputs.cache
-C:\Users\st52531\source\repos\ICSHP_cv_01\ICSHP_cv_01_p_02\obj\Debug\ICSHP_cv_01_p_02.exe
-C:\Users\st52531\source\repos\ICSHP_cv_01\ICSHP_cv_01_p_02\obj\Debug\ICSHP_cv_01_p_02.pdb
