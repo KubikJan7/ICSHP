@@ -51,7 +51,7 @@
             this.gameListBox.Name = "gameListBox";
             this.gameListBox.Size = new System.Drawing.Size(595, 140);
             this.gameListBox.TabIndex = 0;
-            this.gameListBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.KeyDown);
+            this.gameListBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.KeyDownEvent);
             // 
             // statusStrip1
             // 
@@ -70,25 +70,25 @@
             // correctLabel
             // 
             this.correctLabel.Name = "correctLabel";
-            this.correctLabel.Size = new System.Drawing.Size(49, 17);
-            this.correctLabel.Text = "Correct:";
+            this.correctLabel.Size = new System.Drawing.Size(58, 17);
+            this.correctLabel.Text = "Correct: 0";
             // 
             // missedLabel
             // 
             this.missedLabel.Name = "missedLabel";
-            this.missedLabel.Size = new System.Drawing.Size(47, 17);
-            this.missedLabel.Text = "Missed:";
+            this.missedLabel.Size = new System.Drawing.Size(56, 17);
+            this.missedLabel.Text = "Missed: 0";
             // 
             // accuracyLabel
             // 
             this.accuracyLabel.Name = "accuracyLabel";
-            this.accuracyLabel.Size = new System.Drawing.Size(59, 17);
-            this.accuracyLabel.Text = "Accuracy:";
+            this.accuracyLabel.Size = new System.Drawing.Size(68, 17);
+            this.accuracyLabel.Text = "Accuracy: 0";
             // 
             // difficultyLabel
             // 
             this.difficultyLabel.Name = "difficultyLabel";
-            this.difficultyLabel.Size = new System.Drawing.Size(323, 17);
+            this.difficultyLabel.Size = new System.Drawing.Size(265, 17);
             this.difficultyLabel.Spring = true;
             this.difficultyLabel.Text = "Difficulty:";
             this.difficultyLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;

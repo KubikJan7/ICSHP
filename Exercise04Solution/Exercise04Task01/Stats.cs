@@ -11,7 +11,7 @@ namespace Exercise04Task01
     {
         public int Correct { get; private set; }
         public int Missed { get; private set; }
-        public int Accuracy { get; private set; }
+        public double Accuracy { get; private set; }
         public event UpdatedStatsEventHandler UpdatedStats;
 
         private void OnUpdatedStats()
@@ -28,7 +28,8 @@ namespace Exercise04Task01
             else
                 Missed++;
 
-            Accuracy = Correct / (Correct + Missed) * 100;
+            double inTotal = Correct + Missed;
+            Accuracy = Math.Round(Correct / (inTotal) * 100);
             OnUpdatedStats();
         }
     }
