@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace Exercise05Task01
 {
-    public partial class ChampionsLeagueForm : Form
+    public partial class BestClubForm : Form
     {
-        public ChampionsLeagueForm()
+        public BestClubForm()
         {
             InitializeComponent();
         }
