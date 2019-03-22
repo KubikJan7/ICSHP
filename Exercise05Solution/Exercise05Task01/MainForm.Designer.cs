@@ -33,111 +33,123 @@
             this.removeBtn = new System.Windows.Forms.Button();
             this.modifyBtn = new System.Windows.Forms.Button();
             this.bestClubBtn = new System.Windows.Forms.Button();
-            this.signUpBtn = new System.Windows.Forms.Button();
-            this.cancelBtn = new System.Windows.Forms.Button();
+            this.registerBtn = new System.Windows.Forms.Button();
+            this.unregisterBtn = new System.Windows.Forms.Button();
             this.quitBtn = new System.Windows.Forms.Button();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.playersGridView = new System.Windows.Forms.DataGridView();
             this.nameCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.clubCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.goalsCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.playersGridView)).BeginInit();
             this.SuspendLayout();
             // 
             // detailsListBox
             // 
             this.detailsListBox.FormattingEnabled = true;
-            this.detailsListBox.ItemHeight = 16;
-            this.detailsListBox.Location = new System.Drawing.Point(12, 318);
+            this.detailsListBox.Location = new System.Drawing.Point(9, 258);
+            this.detailsListBox.Margin = new System.Windows.Forms.Padding(2);
             this.detailsListBox.Name = "detailsListBox";
             this.detailsListBox.ScrollAlwaysVisible = true;
-            this.detailsListBox.Size = new System.Drawing.Size(776, 116);
+            this.detailsListBox.Size = new System.Drawing.Size(583, 95);
             this.detailsListBox.TabIndex = 0;
             // 
             // addBtn
             // 
-            this.addBtn.Location = new System.Drawing.Point(691, 16);
+            this.addBtn.Location = new System.Drawing.Point(518, 13);
+            this.addBtn.Margin = new System.Windows.Forms.Padding(2);
             this.addBtn.Name = "addBtn";
-            this.addBtn.Size = new System.Drawing.Size(101, 37);
+            this.addBtn.Size = new System.Drawing.Size(76, 30);
             this.addBtn.TabIndex = 1;
             this.addBtn.Text = "Add";
             this.addBtn.UseVisualStyleBackColor = true;
-            this.addBtn.Click += new System.EventHandler(this.addBtn_Click);
+            this.addBtn.Click += new System.EventHandler(this.AddBtn_Click);
             // 
             // removeBtn
             // 
-            this.removeBtn.Location = new System.Drawing.Point(691, 60);
+            this.removeBtn.Location = new System.Drawing.Point(518, 49);
+            this.removeBtn.Margin = new System.Windows.Forms.Padding(2);
             this.removeBtn.Name = "removeBtn";
-            this.removeBtn.Size = new System.Drawing.Size(101, 37);
+            this.removeBtn.Size = new System.Drawing.Size(76, 30);
             this.removeBtn.TabIndex = 2;
             this.removeBtn.Text = "Remove";
             this.removeBtn.UseVisualStyleBackColor = true;
+            this.removeBtn.Click += new System.EventHandler(this.RemoveBtn_Click);
             // 
             // modifyBtn
             // 
-            this.modifyBtn.Location = new System.Drawing.Point(691, 103);
+            this.modifyBtn.Location = new System.Drawing.Point(518, 84);
+            this.modifyBtn.Margin = new System.Windows.Forms.Padding(2);
             this.modifyBtn.Name = "modifyBtn";
-            this.modifyBtn.Size = new System.Drawing.Size(101, 37);
+            this.modifyBtn.Size = new System.Drawing.Size(76, 30);
             this.modifyBtn.TabIndex = 3;
             this.modifyBtn.Text = "Modify";
             this.modifyBtn.UseVisualStyleBackColor = true;
+            this.modifyBtn.Click += new System.EventHandler(this.ModifyBtn_Click);
             // 
             // bestClubBtn
             // 
-            this.bestClubBtn.Location = new System.Drawing.Point(691, 146);
+            this.bestClubBtn.Location = new System.Drawing.Point(518, 119);
+            this.bestClubBtn.Margin = new System.Windows.Forms.Padding(2);
             this.bestClubBtn.Name = "bestClubBtn";
-            this.bestClubBtn.Size = new System.Drawing.Size(101, 37);
+            this.bestClubBtn.Size = new System.Drawing.Size(76, 30);
             this.bestClubBtn.TabIndex = 4;
             this.bestClubBtn.Text = "Best club";
             this.bestClubBtn.UseVisualStyleBackColor = true;
-            this.bestClubBtn.Click += new System.EventHandler(this.bestClubBtn_Click);
+            this.bestClubBtn.Click += new System.EventHandler(this.BestClubBtn_Click);
             // 
-            // signUpBtn
+            // registerBtn
             // 
-            this.signUpBtn.Location = new System.Drawing.Point(691, 189);
-            this.signUpBtn.Name = "signUpBtn";
-            this.signUpBtn.Size = new System.Drawing.Size(101, 37);
-            this.signUpBtn.TabIndex = 5;
-            this.signUpBtn.Text = "Sign up";
-            this.signUpBtn.UseVisualStyleBackColor = true;
+            this.registerBtn.Location = new System.Drawing.Point(518, 154);
+            this.registerBtn.Margin = new System.Windows.Forms.Padding(2);
+            this.registerBtn.Name = "registerBtn";
+            this.registerBtn.Size = new System.Drawing.Size(76, 30);
+            this.registerBtn.TabIndex = 5;
+            this.registerBtn.Text = "Register";
+            this.registerBtn.UseVisualStyleBackColor = true;
             // 
-            // cancelBtn
+            // unregisterBtn
             // 
-            this.cancelBtn.Location = new System.Drawing.Point(691, 232);
-            this.cancelBtn.Name = "cancelBtn";
-            this.cancelBtn.Size = new System.Drawing.Size(101, 37);
-            this.cancelBtn.TabIndex = 6;
-            this.cancelBtn.Text = "Cancel";
-            this.cancelBtn.UseVisualStyleBackColor = true;
+            this.unregisterBtn.Location = new System.Drawing.Point(518, 188);
+            this.unregisterBtn.Margin = new System.Windows.Forms.Padding(2);
+            this.unregisterBtn.Name = "unregisterBtn";
+            this.unregisterBtn.Size = new System.Drawing.Size(76, 30);
+            this.unregisterBtn.TabIndex = 6;
+            this.unregisterBtn.Text = "Unregister";
+            this.unregisterBtn.UseVisualStyleBackColor = true;
             // 
             // quitBtn
             // 
-            this.quitBtn.Location = new System.Drawing.Point(691, 275);
+            this.quitBtn.Location = new System.Drawing.Point(518, 223);
+            this.quitBtn.Margin = new System.Windows.Forms.Padding(2);
             this.quitBtn.Name = "quitBtn";
-            this.quitBtn.Size = new System.Drawing.Size(101, 37);
+            this.quitBtn.Size = new System.Drawing.Size(76, 30);
             this.quitBtn.TabIndex = 7;
             this.quitBtn.Text = "Quit";
             this.quitBtn.UseVisualStyleBackColor = true;
+            this.quitBtn.Click += new System.EventHandler(this.QuitBtn_Click);
             // 
-            // dataGridView1
+            // playersGridView
             // 
-            this.dataGridView1.AllowUserToAddRows = false;
-            this.dataGridView1.AllowUserToDeleteRows = false;
-            this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dataGridView1.BackgroundColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.playersGridView.AllowUserToAddRows = false;
+            this.playersGridView.AllowUserToDeleteRows = false;
+            this.playersGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.playersGridView.BackgroundColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.playersGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.playersGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.nameCol,
             this.clubCol,
             this.goalsCol});
-            this.dataGridView1.Location = new System.Drawing.Point(12, 12);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.ReadOnly = true;
-            this.dataGridView1.RowHeadersVisible = false;
-            this.dataGridView1.RowHeadersWidth = 10;
-            this.dataGridView1.RowTemplate.Height = 24;
-            this.dataGridView1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.dataGridView1.Size = new System.Drawing.Size(673, 300);
-            this.dataGridView1.TabIndex = 8;
+            this.playersGridView.Location = new System.Drawing.Point(9, 10);
+            this.playersGridView.Margin = new System.Windows.Forms.Padding(2);
+            this.playersGridView.Name = "playersGridView";
+            this.playersGridView.ReadOnly = true;
+            this.playersGridView.RowHeadersVisible = false;
+            this.playersGridView.RowHeadersWidth = 10;
+            this.playersGridView.RowTemplate.Height = 24;
+            this.playersGridView.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.playersGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.playersGridView.Size = new System.Drawing.Size(505, 244);
+            this.playersGridView.TabIndex = 8;
             // 
             // nameCol
             // 
@@ -162,21 +174,22 @@
             // 
             // ChampionsLeagueForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.dataGridView1);
+            this.ClientSize = new System.Drawing.Size(600, 366);
+            this.Controls.Add(this.playersGridView);
             this.Controls.Add(this.quitBtn);
-            this.Controls.Add(this.cancelBtn);
-            this.Controls.Add(this.signUpBtn);
+            this.Controls.Add(this.unregisterBtn);
+            this.Controls.Add(this.registerBtn);
             this.Controls.Add(this.bestClubBtn);
             this.Controls.Add(this.modifyBtn);
             this.Controls.Add(this.removeBtn);
             this.Controls.Add(this.addBtn);
             this.Controls.Add(this.detailsListBox);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "ChampionsLeagueForm";
             this.Text = "Champions League";
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.playersGridView)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -188,10 +201,10 @@
         private System.Windows.Forms.Button removeBtn;
         private System.Windows.Forms.Button modifyBtn;
         private System.Windows.Forms.Button bestClubBtn;
-        private System.Windows.Forms.Button signUpBtn;
-        private System.Windows.Forms.Button cancelBtn;
+        private System.Windows.Forms.Button registerBtn;
+        private System.Windows.Forms.Button unregisterBtn;
         private System.Windows.Forms.Button quitBtn;
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridView playersGridView;
         private System.Windows.Forms.DataGridViewTextBoxColumn nameCol;
         private System.Windows.Forms.DataGridViewTextBoxColumn clubCol;
         private System.Windows.Forms.DataGridViewTextBoxColumn goalsCol;

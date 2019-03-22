@@ -8,11 +8,17 @@ namespace Exercise05Task01
 {
     public static class FootballClubInfo
     {
-        readonly static int Count;
+        readonly public static int Count = 6;
 
-        static string DejNazev()
+        public static string GetNazev(int constant)
         {
-            return "dsf";
+            return ((FootballClub)constant).ToString().Replace("_"," ");
+        }
+
+        public static FootballClub GetEnumType(string nazev)
+        {
+            Enum.TryParse(nazev.Replace(" ", "_"), out FootballClub enumType);
+            return enumType;
         }
     }
 }

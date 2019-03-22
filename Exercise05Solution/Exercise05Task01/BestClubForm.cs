@@ -12,9 +12,27 @@ namespace Exercise05Task01
 {
     public partial class BestClubForm : Form
     {
-        public BestClubForm()
+        ChampionsLeagueForm MainForm;
+        public BestClubForm(ChampionsLeagueForm ParentForm)
         {
+            this.MainForm = ParentForm;
             InitializeComponent();
+            FillDialog();
+        }
+
+        private void OkBtn_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void FillDialog()
+        {
+            var bestClubs = MainForm.players.FindBestClubs();
+            goalsCountTextBox.Text = bestClubs.Item2.ToString();
+            foreach (FootballClub v in bestClubs.Item1)
+            {
+                clubListBox.Items.Add(FootballClubInfo.GetNazev((int)v));
+            }
         }
     }
 }
