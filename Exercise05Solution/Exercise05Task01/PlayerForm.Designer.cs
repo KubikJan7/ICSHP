@@ -97,7 +97,6 @@
             // 
             // clubComboBox
             // 
-            this.clubComboBox.FormattingEnabled = true;
             this.clubComboBox.Location = new System.Drawing.Point(71, 32);
             this.clubComboBox.Name = "clubComboBox";
             this.clubComboBox.Size = new System.Drawing.Size(121, 21);

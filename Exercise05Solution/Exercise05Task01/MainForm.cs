@@ -20,6 +20,14 @@ namespace Exercise05Task01
             players = new Players(100);
         }
 
+        private void CountChangedHandler(int count)
+        {
+            if(addingProcedure)
+                detailsListBox.Items.Add("Player count was changed. Former value: " + count + ". New value: " + ++count + ".");
+            else
+                detailsListBox.Items.Add("Player count was changed. Former value: " + count + ". New value: " + --count + ".");
+        }
+
         private void AddBtn_Click(object sender, EventArgs e)
         {
             addingProcedure = true;
@@ -76,6 +84,7 @@ namespace Exercise05Task01
 
         private void RemoveBtn_Click(object sender, EventArgs e)
         {
+            addingProcedure = false;
             for (int i = 0; i < players.Count; i++)
             {
                 if (GetSelectedRow().Equals(players[i]))
@@ -84,6 +93,18 @@ namespace Exercise05Task01
                 }
             }
             RefreshGridView();
+        }
+
+        private void RegisterBtn_Click(object sender, EventArgs e)
+        {
+            detailsListBox.Items.Add("Event handler was registered.");
+            players.CountChanged += CountChangedHandler;
+        }
+
+        private void UnregisterBtn_Click(object sender, EventArgs e)
+        {
+            detailsListBox.Items.Add("Event handler was unregistered.");
+            players.CountChanged -= CountChangedHandler;
         }
     }
 }

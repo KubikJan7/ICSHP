@@ -106,6 +106,7 @@
             this.registerBtn.TabIndex = 5;
             this.registerBtn.Text = "Register";
             this.registerBtn.UseVisualStyleBackColor = true;
+            this.registerBtn.Click += new System.EventHandler(this.RegisterBtn_Click);
             // 
             // unregisterBtn
             // 
@@ -116,6 +117,7 @@
             this.unregisterBtn.TabIndex = 6;
             this.unregisterBtn.Text = "Unregister";
             this.unregisterBtn.UseVisualStyleBackColor = true;
+            this.unregisterBtn.Click += new System.EventHandler(this.UnregisterBtn_Click);
             // 
             // quitBtn
             // 

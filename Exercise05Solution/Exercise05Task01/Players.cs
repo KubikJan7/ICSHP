@@ -8,7 +8,7 @@ namespace Exercise05Task01
 {
     public class Players
     {
-        public delegate void CountChangedEventHandler(object sender, EventArgs e);
+        public delegate void CountChangedEventHandler(int count);
         public int Count { set; get; }
 
         private Player[] Array;
@@ -16,11 +16,13 @@ namespace Exercise05Task01
 
         public void Remove(int index)
         {
+            OnCountChanged(Count);
             Array[index] = Array[--Count];
             Array[Count] = null;
         }
         public void Add(Player p)
         {
+            OnCountChanged(Count);
             Array[Count] = p;
             Count++;
         }
@@ -73,11 +75,9 @@ namespace Exercise05Task01
             }
             return (c, maxCount);
         }
-        private void OnCountChanged()
+        private void OnCountChanged(int count)
         {
-            CountChangedEventHandler handler = CountChanged;
-            if (handler != null)
-                handler(this, new EventArgs());
+            CountChanged?.Invoke(Count);
         }
         public Players(int arrayLength)
         {

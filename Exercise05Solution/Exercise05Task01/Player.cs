@@ -31,5 +31,9 @@ namespace Exercise05Task01
             return Name == p.Name && Club == p.Club && GoalCount == p.GoalCount;
         }
 
+        public override int GetHashCode()
+        {
+            return 0;
+        }
     }
 }

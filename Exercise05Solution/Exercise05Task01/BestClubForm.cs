@@ -27,6 +27,13 @@ namespace Exercise05Task01
 
         private void FillDialog()
         {
+            if (MainForm.players[0] == null)
+            {
+                goalsCountTextBox.Text = "0";
+                clubListBox.Items.Clear();
+                return;
+            }
+
             var bestClubs = MainForm.players.FindBestClubs();
             goalsCountTextBox.Text = bestClubs.Item2.ToString();
             foreach (FootballClub v in bestClubs.Item1)
