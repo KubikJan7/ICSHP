@@ -45,50 +45,54 @@
             this.gameListBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gameListBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 80F);
             this.gameListBox.FormattingEnabled = true;
-            this.gameListBox.ItemHeight = 120;
+            this.gameListBox.ItemHeight = 152;
             this.gameListBox.Location = new System.Drawing.Point(0, 0);
+            this.gameListBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.gameListBox.MultiColumn = true;
             this.gameListBox.Name = "gameListBox";
-            this.gameListBox.Size = new System.Drawing.Size(595, 140);
+            this.gameListBox.Size = new System.Drawing.Size(793, 172);
             this.gameListBox.TabIndex = 0;
+            this.gameListBox.SelectedIndexChanged += new System.EventHandler(this.gameListBox_SelectedIndexChanged);
             this.gameListBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.KeyDownEvent);
             // 
             // statusStrip1
             // 
+            this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.correctLabel,
             this.missedLabel,
             this.accuracyLabel,
             this.difficultyLabel,
             this.difficultyProgressBar});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 118);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 146);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(595, 22);
+            this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 19, 0);
+            this.statusStrip1.Size = new System.Drawing.Size(793, 26);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // correctLabel
             // 
             this.correctLabel.Name = "correctLabel";
-            this.correctLabel.Size = new System.Drawing.Size(58, 17);
+            this.correctLabel.Size = new System.Drawing.Size(72, 21);
             this.correctLabel.Text = "Correct: 0";
             // 
             // missedLabel
             // 
             this.missedLabel.Name = "missedLabel";
-            this.missedLabel.Size = new System.Drawing.Size(56, 17);
+            this.missedLabel.Size = new System.Drawing.Size(70, 21);
             this.missedLabel.Text = "Missed: 0";
             // 
             // accuracyLabel
             // 
             this.accuracyLabel.Name = "accuracyLabel";
-            this.accuracyLabel.Size = new System.Drawing.Size(68, 17);
+            this.accuracyLabel.Size = new System.Drawing.Size(83, 21);
             this.accuracyLabel.Text = "Accuracy: 0";
             // 
             // difficultyLabel
             // 
             this.difficultyLabel.Name = "difficultyLabel";
-            this.difficultyLabel.Size = new System.Drawing.Size(265, 17);
+            this.difficultyLabel.Size = new System.Drawing.Size(413, 21);
             this.difficultyLabel.Spring = true;
             this.difficultyLabel.Text = "Difficulty:";
             this.difficultyLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -97,7 +101,7 @@
             // 
             this.difficultyProgressBar.Maximum = 800;
             this.difficultyProgressBar.Name = "difficultyProgressBar";
-            this.difficultyProgressBar.Size = new System.Drawing.Size(100, 16);
+            this.difficultyProgressBar.Size = new System.Drawing.Size(133, 20);
             // 
             // timer1
             // 
@@ -107,13 +111,13 @@
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(595, 140);
+            this.ClientSize = new System.Drawing.Size(793, 172);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.gameListBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Margin = new System.Windows.Forms.Padding(2);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Form1";

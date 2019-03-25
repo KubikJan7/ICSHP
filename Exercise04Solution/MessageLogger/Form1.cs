@@ -20,6 +20,7 @@ namespace MessageLogger
             InitializeComponent();
             sendTextToLeftOutputEventHandler = new EventHandler((SendTextToLeftOutput));
             sendTextToRightOutputEventHandler = new EventHandler((SendTextToRightOutput));
+            Text = Properties.Resources.ApplicationTitle;
         }
 
         private void SendBtnClick(object sender, EventArgs e)

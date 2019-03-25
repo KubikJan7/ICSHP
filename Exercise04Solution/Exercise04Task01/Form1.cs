@@ -33,7 +33,7 @@ namespace Exercise04Task01
         bool gameOver;
         private void Tick(object sender, EventArgs e)
         {
-            gameListBox.Items.Add((Keys)random.Next(65, 90));
+            gameListBox.Items.Add((Keys)random.Next(65, 91));
             if (gameListBox.Items.Count > 6)
             {
                 timer1.Stop();
@@ -69,6 +69,11 @@ namespace Exercise04Task01
                 }
                 else
                     stats.Update(false);
+
+        }
+
+        private void gameListBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
 
         }
     }
