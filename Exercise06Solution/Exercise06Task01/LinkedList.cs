@@ -11,7 +11,9 @@ namespace Exercise05Task01
     {
         private ListElement first;
         private ListElement last;
+        private ListElement current;
         private int elementCount;
+        private int elementIndex;
 
         T IList<T>.this[int index] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
@@ -46,40 +48,79 @@ namespace Exercise05Task01
             elementCount = 0;
             first = null;
             last = null;
+            current = null;
+            elementIndex = 0;
         }
 
         public bool Contains(T item)
         {
-            throw new NotImplementedException();
+            IEnumerator e = GetEnumerator();
+            while (e.MoveNext())
+                if (item.Equals((T)e.Current))
+                    return true;
+
+            return false;
         }
 
         public void CopyTo(T[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            IEnumerator e = GetEnumerator();
+            while (e.MoveNext())
+            {
+                T data = (T)e.Current;
+                if (elementIndex == arrayIndex)
+                {
+                    array[arrayIndex] = (T) e.Current;
+                }
+            }
         }
 
         public IEnumerator GetEnumerator()
         {
             ListElement current = first;
+            elementIndex = 0;
             while (current != null)
             {
+                this.current = current;
                 yield return current.Data;
                 current = current.Next;
+                elementIndex++;
             }
         }
 
         public int IndexOf(T item)
         {
-            throw new NotImplementedException();
+            IEnumerator e = GetEnumerator();
+            while(e.MoveNext())
+            {
+                if (item.Equals(e.Current))
+                    return elementIndex;
+            }
+            return 0;
         }
-
+        /// <summary>
+        /// Insert new element before element with given index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="item"></param>
         public void Insert(int index, T item)
         {
-            throw new NotImplementedException();
+            //TODO insert as first
+            //TODO insert as last
+            IEnumerator e = GetEnumerator();
+            while (e.MoveNext())
+            {
+                if(index == elementIndex)
+                {
+                    ListElement newEl = new ListElement(item,current,current.Previous);
+                    current = newEl;
+
+                }
+            }
         }
 
         /// <summary>
-        /// Removes the chosen element
+        /// Removes element with data in parameter
         /// </summary>
         /// <param name="item"></param>
         /// <returns>Returns true if the element is present</returns>
@@ -87,17 +128,36 @@ namespace Exercise05Task01
         {
             IEnumerator e = GetEnumerator();
             while (e.MoveNext())
-                if (item.Equals((T) e.Current))
+            {
+                T data = (T)e.Current;
+                if (item.Equals((T)e.Current))
                 {
 
                 }
+            }
             return false;
 
         }
-
+        /// <summary>
+        /// Removes element at the given index
+        /// </summary>
+        /// <param name="index"></param>
         public void RemoveAt(int index)
         {
-            throw new NotImplementedException();
+            // TODO - Remove first
+            // TODO - Remove last
+            // TODO - invalid index
+            IEnumerator e = GetEnumerator();
+            while (e.MoveNext())
+            {
+                if(index == elementIndex)
+                {
+                    ListElement el = current.Next;
+                    current = current.Previous;
+                    current.Next = el;
+                    elementIndex--;
+                }
+            }
         }
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
