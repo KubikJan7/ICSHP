@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Exercise05Task01
+namespace Exercise06Task01
 {
     public partial class ChampionsLeagueForm : Form
     {
@@ -17,7 +17,7 @@ namespace Exercise05Task01
         public ChampionsLeagueForm()
         {
             InitializeComponent();
-            players = new Players(100);
+            players = new Players();
         }
 
         private void CountChangedHandler(int count)

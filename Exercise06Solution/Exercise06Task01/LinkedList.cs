@@ -5,27 +5,36 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
 
-namespace Exercise05Task01
+namespace Exercise06Task01
 {
     public class LinkedList<T> : IEnumerable<T>, ICollection<T>, IList<T>
     {
         private ListElement first;
         private ListElement last;
         private ListElement current;
-        private int elementCount;
         private int elementIndex;
 
-        T IList<T>.this[int index] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        T IList<T>.this[int index] { get => GetDataOf(index); set => throw new NotImplementedException(); }
 
         public bool IsReadOnly => false;
 
         public bool IsFixedSize => false;
 
-        public int Count => throw new NotImplementedException();
+        public int Count { set; get; }
 
         public object SyncRoot => this;
 
         public bool IsSynchronized => false;
+
+        public bool IsEmpty()
+        {
+            return Count == 0;
+        }
+
+        public LinkedList()
+        {
+            Clear();
+        }
 
         /// <summary>
         /// Add element to the last position
@@ -34,18 +43,23 @@ namespace Exercise05Task01
         public void Add(T item)
         {
             ListElement newEl = new ListElement(item);
-            if (elementCount == 0)
-                newEl.Previous = null;
+            if (IsEmpty())
+            {
+                first = newEl;
+                last = first;
+            }
             else
+            {
                 newEl.Previous = last;
-            newEl.Next = null;
+                last.Next = newEl;
+            }
             last = newEl;
-            elementCount++;
+            Count++;
         }
 
         public void Clear()
         {
-            elementCount = 0;
+            Count = 0;
             first = null;
             last = null;
             current = null;
@@ -56,7 +70,7 @@ namespace Exercise05Task01
         {
             IEnumerator e = GetEnumerator();
             while (e.MoveNext())
-                if (item.Equals((T)e.Current))
+                if (item.Equals(e.Current))
                     return true;
 
             return false;
@@ -70,7 +84,7 @@ namespace Exercise05Task01
                 T data = (T)e.Current;
                 if (elementIndex == arrayIndex)
                 {
-                    array[arrayIndex] = (T) e.Current;
+                    array[arrayIndex] = (T)e.Current;
                 }
             }
         }
@@ -87,16 +101,40 @@ namespace Exercise05Task01
                 elementIndex++;
             }
         }
+        /// <summary>
+        /// Gets data of element with given index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns>returns data type T</returns>
+        public T GetDataOf(int index)
+        {
+            IEnumerator e = GetEnumerator();
+            while (e.MoveNext())
+            {
+                if (index.Equals(elementIndex))
+                    return (T)e.Current;
+            }
+            try
+            {
+                throw new System.ArgumentException("This list does not contain element with given index");
+            }
+            catch (ArgumentException) { return default(T); }
+        }
 
         public int IndexOf(T item)
         {
             IEnumerator e = GetEnumerator();
-            while(e.MoveNext())
+            while (e.MoveNext())
             {
                 if (item.Equals(e.Current))
                     return elementIndex;
             }
-            return 0;
+            try
+            {
+                throw new System.ArgumentException("This list does not contain element with given data");
+            }
+            catch (ArgumentException) { return -1; }
+
         }
         /// <summary>
         /// Insert new element before element with given index
@@ -110,9 +148,9 @@ namespace Exercise05Task01
             IEnumerator e = GetEnumerator();
             while (e.MoveNext())
             {
-                if(index == elementIndex)
+                if (index == elementIndex)
                 {
-                    ListElement newEl = new ListElement(item,current,current.Previous);
+                    ListElement newEl = new ListElement(item, current, current.Previous);
                     current = newEl;
 
                 }
@@ -126,17 +164,17 @@ namespace Exercise05Task01
         /// <returns>Returns true if the element is present</returns>
         public bool Remove(T item)
         {
+            if (IsEmpty())
+                throw new ArgumentNullException("The list does not contain any elements");
             IEnumerator e = GetEnumerator();
             while (e.MoveNext())
             {
-                T data = (T)e.Current;
                 if (item.Equals((T)e.Current))
                 {
-
+                    DeleteElement();
                 }
             }
             return false;
-
         }
         /// <summary>
         /// Removes element at the given index
@@ -150,19 +188,41 @@ namespace Exercise05Task01
             IEnumerator e = GetEnumerator();
             while (e.MoveNext())
             {
-                if(index == elementIndex)
+                if (index == elementIndex)
                 {
-                    ListElement el = current.Next;
-                    current = current.Previous;
-                    current.Next = el;
-                    elementIndex--;
+                    DeleteElement();
                 }
             }
         }
 
+        private void DeleteElement()
+        {
+            if (current.Equals(first))
+            {
+                first = first.Next;
+                first.Previous = null;
+                current = first;
+            }
+            else if (current.Equals(last))
+            {
+                last = last.Previous;
+                last.Next = null;
+                current = last;
+                elementIndex--;
+            }
+            else
+            {
+                ListElement el = current.Previous;
+                el.Next = current.Next;
+                current = current.Next;
+                current.Previous = el;
+            }
+            Count--;
+        }
+
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            throw new NotImplementedException();
+            return (IEnumerator<T>)GetEnumerator();
         }
 
         private class ListElement

@@ -4,36 +4,36 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Exercise05Task01
+namespace Exercise06Task01
 {
     public class Players
     {
         public delegate void CountChangedEventHandler(int count);
         public int Count { set; get; }
 
-        private Player[] Array;
+        private LinkedList<Player> List;
         public event CountChangedEventHandler CountChanged;
 
         public void Remove(int index)
         {
             OnCountChanged(Count);
-            Array[index] = Array[--Count];
-            Array[Count] = null;
+            List.RemoveAt(index);
+            Count = List.Count;
         }
         public void Add(Player p)
         {
             OnCountChanged(Count);
-            Array[Count] = p;
-            Count++;
+            List.Add(p);
+            Count = List.Count;
         }
         public Player this[int index]
         {
-            get => Array[index];
+            get => List.GetDataOf(index);
             set
             {
-                Array[index].Name = value.Name;
-                Array[index].Club = value.Club;
-                Array[index].GoalCount = value.GoalCount;
+                List.GetDataOf(index).Name = value.Name;
+                List.GetDataOf(index).Club = value.Club;
+                List.GetDataOf(index).GoalCount = value.GoalCount;
             }
         }
         public (FootballClub[], int) FindBestClubs()
@@ -47,9 +47,9 @@ namespace Exercise05Task01
                 int count = 0;
                 for (int j = 0; j < Count; j++)
                 {
-                    if (Array[j].Club.Equals(FootballClubInfo.GetEnumType(FootballClubInfo.GetNazev(i))))
+                    if (List.GetDataOf(j).Club.Equals(FootballClubInfo.GetEnumType(FootballClubInfo.GetNazev(i))))
                     {
-                        count += Array[j].GoalCount;
+                        count += List.GetDataOf(j).GoalCount;
                     }
                 }
                 if (count > maxCount)
@@ -79,9 +79,10 @@ namespace Exercise05Task01
         {
             CountChanged?.Invoke(Count);
         }
-        public Players(int arrayLength)
+        public Players()
         {
-            Array = new Player[arrayLength];
+            List = new LinkedList<Player>();
+            this.Count = List.Count;
         }
     }
 }

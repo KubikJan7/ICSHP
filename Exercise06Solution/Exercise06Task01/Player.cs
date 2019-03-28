@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Exercise05Task01
+namespace Exercise06Task01
 {
     public class Player
     {

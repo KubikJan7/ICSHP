@@ -1,4 +1,4 @@
-﻿namespace Exercise05Task01
+﻿namespace Exercise06Task01
 {
     partial class PlayerForm
     {
