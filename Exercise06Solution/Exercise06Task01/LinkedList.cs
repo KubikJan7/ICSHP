@@ -199,12 +199,26 @@ namespace Exercise06Task01
         {
             if (current.Equals(first))
             {
+
+                if (Count == 1)
+                {
+                    Clear();
+                    return;
+                }
+
                 first = first.Next;
                 first.Previous = null;
                 current = first;
+
             }
             else if (current.Equals(last))
             {
+                if (Count == 1)
+                {
+                    Clear();
+                    return;
+                }
+
                 last = last.Previous;
                 last.Next = null;
                 current = last;

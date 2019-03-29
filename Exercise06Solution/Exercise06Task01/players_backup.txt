@@ -1,0 +1,5 @@
+A None 1
+E FC_Porto 6
+B Arsenal 2
+F Arsenal 3
+C Real_Madrid 4
