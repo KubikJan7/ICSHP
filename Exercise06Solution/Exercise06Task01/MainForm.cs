@@ -44,7 +44,13 @@ namespace Exercise06Task01
 
         private void QuitBtn_Click(object sender, EventArgs e)
         {
-            Application.Exit();
+            var confirmResult = MessageBox.Show("Are you sure you want to quit?",
+                                     "Confirm Exit!",
+                                     MessageBoxButtons.YesNo);
+            if (confirmResult == DialogResult.Yes)
+            {
+                Application.Exit();
+            }
         }
 
         public void RefreshGridView()
