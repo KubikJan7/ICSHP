@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Exercise07Task01.Properties
+namespace TermWork.Properties
 {
 
 
