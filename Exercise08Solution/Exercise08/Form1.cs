@@ -13,11 +13,8 @@ namespace Exercise08
 {
     public partial class Form1 : Form
     {
-        private FileInfo[] files;
-        private string[] subDirectories;
         private FolderBrowserDialog fbd;
-        private DirectoryInfo d;
-        private string currentPath;
+        private string directoryPath = ".";
         public Form1()
         {
             InitializeComponent();
@@ -33,68 +30,30 @@ namespace Exercise08
                 {
                     chosenDirTextBox.Text = fbd.SelectedPath;
 
-                    currentPath = fbd.SelectedPath;
-                    d = new DirectoryInfo(currentPath);
-
+                    directoryPath = fbd.SelectedPath;
                 }
             }
         }
 
         private void AnalyseBtn_Click(object sender, EventArgs e)
         {
-            string[] fileExtensions = new string[20];
-
             infoListBox.Items.Clear();
-            if (d == null)
-            {
-                currentPath = ".";
-                d = new DirectoryInfo(currentPath);
-            }
-
-            files = d.GetFiles();
-            subDirectories = Directory.GetDirectories(currentPath);
-
-            foreach (var dir in Directory.GetDirectories(currentPath))
-            {
-
-            }
-
-            foreach (FileInfo file in files)
-            {
-                for (int i = 0; i < fileExtensions.Length; i++)
-                {
-                    if (file.Extension != fileExtensions[i])
-                    {
-
-                    }
-                }
-
-            }
-
-            if (showDirInfoCheckBox.Checked)
-            {
-                infoListBox.Items.Add(files.Length.ToString());
-                for (int i = 0; i < files.Length; i++)
-                {
-                    infoListBox.Items.Add(files[i].Name);
-                }
-                for (int i = 0; i < subDirectories.Length; i++)
-                {
-                    infoListBox.Items.Add(subDirectories[i]);
-
-                }
-            }
 
             if (saveToFileCheckBox.Checked)
             {
-                using (System.IO.StreamWriter file =
-            new System.IO.StreamWriter(currentPath + "\\AnalysisInfo.txt"))
+                DirectoryAnalysis.WriteInfosIntoFile = true;
+            }
+            else
+                DirectoryAnalysis.WriteInfosIntoFile = false;
+
+
+            DirectoryAnalysis.Analyze(directoryPath);
+
+            if (showDirInfoCheckBox.Checked)
+            {
+                foreach (var item in DirectoryAnalysis.DirectoryInfoList)
                 {
-                    file.WriteLine(files.Length.ToString());
-                    for (int i = 0; i < files.Length; i++)
-                    {
-                        file.WriteLine(files[i].Name);
-                    }
+                    infoListBox.Items.Add(item);
                 }
             }
         }
