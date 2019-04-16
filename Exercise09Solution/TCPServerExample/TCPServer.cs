@@ -10,43 +10,44 @@ namespace TCPServerExample
 {
     class TCPServer
     {
-        public const string DefaultIpAddress = "127.0.0.1";
-        public const int DefaultPort = 1200;
+        public const string DefaultIPAddress = "127.0.0.1";
+        public const int DefualtPort = 1200;
+        public const int ListenerCount = 1;
+        Socket socket;
 
         private IMessageProcessor processor;
-        private int ListenerCount = 1;
-        Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
         public TCPServer(IMessageProcessor processor, string ipAddress, int port)
         {
             this.processor = processor;
+            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
             IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(ipAddress), port);
             processor?.Process($"TCP Server listening on {endPoint.ToString()}");
-            socket.Bind(endPoint);
+            socket.Bind(endPoint);      //  bind socketu na poslouchani tohoto endPointu
 
             socket.Listen(ListenerCount);
-
-            
         }
 
         public void Listen()
         {
             Socket acceptedSocket = socket.Accept();
-            Byte[] receiveData = new byte[acceptedSocket.SendBufferSize];
+            byte[] recivedData = new byte[acceptedSocket.SendBufferSize];
             while (true)
             {
-                int bufferSize = acceptedSocket.Receive(receiveData);
-                byte[] data = new byte[bufferSize];
-                for (int i = 0; i < bufferSize; i++)
+                int bufferCount = acceptedSocket.Receive(recivedData);
+                byte[] data = new byte[bufferCount];
+                for (int i = 0; i < bufferCount; i++)
                 {
-                    data[i] = receiveData[i];
+                    data[i] = recivedData[i];
                 }
                 string message = Encoding.Default.GetString(data);
-                Console.WriteLine(message);
+                if (message.Equals("exit"))
+                {
+                    Environment.Exit(0);
+                }
                 processor?.Process(message);
-            }   
-
+            }
         }
-
     }
 }
