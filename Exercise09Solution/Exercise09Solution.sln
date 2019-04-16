@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.438
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCPServerExample", "TCPServerExample\TCPServerExample.csproj", "{E5BB3D59-B49C-4799-A8AC-5086058CAD52}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCPServer", "TCPServer\TCPServer.csproj", "{E5BB3D59-B49C-4799-A8AC-5086058CAD52}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCPClient", "TCPClient\TCPClient.csproj", "{6BFF96CB-E86C-4391-91E0-BCCD7056E18B}"
 EndProject
