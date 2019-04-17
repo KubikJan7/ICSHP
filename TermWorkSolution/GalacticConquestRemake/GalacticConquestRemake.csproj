@@ -94,5 +94,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GalacticConquestRemake.Common\GalacticConquestRemake.Common.csproj">
+      <Project>{19c28776-fd67-4b86-8c7e-5d8091d20b07}</Project>
+      <Name>GalacticConquestRemake.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
