@@ -14,8 +14,8 @@ namespace GalacticConquestRemake.Common
         public Point DodgePoints { get; }
 
         public const int borderPoints = 32;
-        public const float contactRadius = 1.0f;
-        public const float dodgeRadius = 1.4f;
+        public const double contactRadius = 1.0f;
+        public const double dodgeRadius = 1.4f;
 
         public override void Update(float lastUpdate)
         {
@@ -32,6 +32,10 @@ namespace GalacticConquestRemake.Common
         {
             this.Size = size;
             this.OwnerColor = ownerColor;
+        }
+        public Planet()
+        {
+
         }
 
         public void SpaceShipArrival(SpaceShip spaceShip)
