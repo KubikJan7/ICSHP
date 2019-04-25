@@ -95,12 +95,22 @@ namespace TermWork
                     {
                         Width = p.Size,
                         Height = p.Size,
-                        Fill = (SolidColorBrush)new BrushConverter().ConvertFromString(p.OwnerColor)
+                        Fill = (SolidColorBrush)new BrushConverter().ConvertFromString(p.OwnerColor),
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center
                     };
                     Canvas.SetLeft(el, (p.Position.X - (p.Size / 2)));
                     Canvas.SetTop(el, (p.Position.Y - (p.Size / 2)));
-                    el.MouseEnter += OnPlanetMouseEnter;
-                    el.MouseLeave += OnPlanetMouseLeave;
+
+                    Border b = new Border();
+                    b.Width = p.Size;
+                    b.Height = p.Size;
+                    b.CornerRadius = new CornerRadius(80);
+                    //b.BorderBrush = Brushes.Black;
+                    //b.BorderThickness = new Thickness(4, 4, 4, 4);
+                    Canvas.SetLeft(b, (p.Position.X - (p.Size / 2)));
+                    Canvas.SetTop(b, (p.Position.Y - (p.Size / 2)));
+
                     TextBlock t = new TextBlock
                     {
                         Text = p.UnitCount.ToString(),
@@ -109,29 +119,34 @@ namespace TermWork
                         Width = 4,
                         Height = 4,
                         TextAlignment = TextAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center
                     };
                     Canvas.SetLeft(t, (p.Position.X - (t.Width / 2)));
                     Canvas.SetTop(t, (p.Position.Y - (t.Height / 2)));
-                    BackgroundCanvas.Children.Add(el);
-                    BackgroundCanvas.Children.Add(t);
+                    Grid grid = new Grid();
+                    grid.MouseEnter += OnPlanetMouseEnter;
+                    grid.MouseLeave += OnPlanetMouseLeave;
+                    grid.Children.Add(el);
+                    grid.Children.Add(t);
+                    b.Child = grid;
+                    BackgroundCanvas.Children.Add(b);
                 }
             }
         }
 
         private void OnPlanetMouseEnter(object sender, MouseEventArgs e)
         {
-            (sender as Ellipse).Fill = Brushes.Orange;
+            Ellipse el = (Ellipse) (sender as Grid).Children[0];
+            el.Fill = Brushes.Orange;
         }
         private void OnPlanetMouseLeave(object sender, MouseEventArgs e)
         {
-            Ellipse el = (sender as Ellipse);
-            System.Windows.Point p = e.GetPosition(this);
-            // Check if mouse cursor is not on TextBlock
-            if (GetDistance(Canvas.GetLeft(el) + el.Width / 2, p.X, Canvas.GetTop(el) + el.Height / 2, p.Y) > (el.Width/2 * el.Width/2))
+            Ellipse el = (Ellipse)(sender as Grid).Children[0];
                 foreach (var item in gameObjects)
                 {
                     if (item.GetType() != typeof(SpaceShip))
-                        if (item.Position.X == (Canvas.GetLeft(el) + item.Size / 2) && item.Position.Y == (Canvas.GetTop(el) + item.Size / 2))
+                        if (PlanetEqualsEllipse((Planet)item, el))
                         {
                             el.Fill = (SolidColorBrush)new BrushConverter().ConvertFromString(item.OwnerColor);
                         }
@@ -141,6 +156,10 @@ namespace TermWork
         private double GetDistance(double x1, double x2, double y1, double y2)
         {
             return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+        }
+        private bool PlanetEqualsEllipse(Planet p, Ellipse el)
+        {
+            return p.Position.X == (Canvas.GetLeft(el) + p.Size / 2) && p.Position.Y == (Canvas.GetTop(el) + p.Size / 2);
         }
     }
 }
