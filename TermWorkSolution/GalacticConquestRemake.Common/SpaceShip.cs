@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace GalacticConquestRemake.Common
         public Point Path { set; get; }
         public int CoveredDistance { set; get; }
 
-        public override void Update(float lastUpdate)
+        public override void Update(double lastUpdateTime)
         {
             throw new NotImplementedException();
         }

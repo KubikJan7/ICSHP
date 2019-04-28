@@ -13,7 +13,8 @@ namespace GalacticConquestRemake.Common
         public virtual string OwnerColor { set; get; }
         public virtual bool CompletionIndication { set; get; }
 
-        public abstract void Update(float lastUpdate);
+        public abstract void Update(double lastUpdateTime);
+        public virtual double Sum { set; get; }
     }
 
     public class Position
