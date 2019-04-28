@@ -66,9 +66,11 @@ namespace TermWork
                 while (comparingFinished == false)
                 {
                     int size = rand.Next(16, 49);
-                    Position pos = new Position(rand.Next((int)(0 + (size / 2 * Planet.dodgeRadiusMultiple)), (int)(winWidth - (size / 2 * Planet.dodgeRadiusMultiple)) + 1), rand.Next((int)(0 + (size / 2 * Planet.dodgeRadiusMultiple)), (int)(winHeight - (size / 2 * Planet.dodgeRadiusMultiple)) + 1));
-                    Planet p = new Planet(pos,rand.Next(16, 49), color);
-                    
+                    double screenBorderRadius = size / 2.0 * Planet.dodgeRadiusMultiple;
+                    Point pos = new Point(rand.Next((int)Math.Round((0 + screenBorderRadius)), (int)Math.Round((winWidth - screenBorderRadius))),
+                        rand.Next(Convert.ToInt32((0 + screenBorderRadius)), Convert.ToInt32((winHeight - screenBorderRadius))));
+                    Planet p = new Planet(pos, size, color);
+
                     bool intersect = false;
 
                     for (int j = 0; j < gameObjects.Count; j++)
@@ -77,8 +79,8 @@ namespace TermWork
                             continue;
                         // Distance between centers C1 and C2 -> C1C2 = sqrt((x1 - x2)2 + (y1 - y2)2).
                         double dist = GetDistance(p.Position.X, gameObjects[j].Position.X, p.Position.Y, gameObjects[j].Position.Y);
-                        double radSum = ((p.Size / 2 * Planet.dodgeRadiusMultiple) + (gameObjects[j].Size / 2 * Planet.dodgeRadiusMultiple)) *
-                                        ((p.Size / 2 * Planet.dodgeRadiusMultiple) + (gameObjects[j].Size / 2 * Planet.dodgeRadiusMultiple));
+                        double radSum = ((p.Size / 2.0 * Planet.dodgeRadiusMultiple) + (gameObjects[j].Size / 2.0 * Planet.dodgeRadiusMultiple)) *
+                                        ((p.Size / 2.0 * Planet.dodgeRadiusMultiple) + (gameObjects[j].Size / 2.0 * Planet.dodgeRadiusMultiple));
 
                         // 1.If C1C2 == R1 + R2
                         //     Circle A and B are touch to each other.
@@ -125,11 +127,12 @@ namespace TermWork
                         Height = p.Size,
                         CornerRadius = new CornerRadius(80)
                     };
-                    Canvas.SetLeft(b, (p.Position.X - (p.Size / 2)));
-                    Canvas.SetTop(b, (p.Position.Y - (p.Size / 2)));
+                    Canvas.SetLeft(b, (p.Position.X - (p.Size / 2.0)));
+                    Canvas.SetTop(b, (p.Position.Y - (p.Size / 2.0)));
                     b.MouseEnter += OnPlanetMouseEnter;
                     b.MouseEnter += CreatePath;
                     b.MouseLeave += OnPlanetMouseLeave;
+                    b.MouseLeave += DestroyPath;
                     b.MouseLeftButtonDown += OnPlanetLeftMouseClick;
                     b.MouseRightButtonDown += OnPlanetRightMouseClick;
 
@@ -137,9 +140,9 @@ namespace TermWork
                     {
                         Text = p.UnitCount.ToString(),
                         Foreground = Brushes.Yellow,
-                        FontSize = 3,
-                        Width = 5,
-                        Height = 4,
+                        FontSize = 3.0,
+                        Width = 5.0,
+                        Height = 4.0,
                         TextAlignment = TextAlignment.Center,
                         HorizontalAlignment = HorizontalAlignment.Center,
                         VerticalAlignment = VerticalAlignment.Center
@@ -155,24 +158,24 @@ namespace TermWork
                     {
                         Ellipse elPoint = new Ellipse
                         {
-                            Width = 1,
-                            Height = 1,
+                            Width = 1.0,
+                            Height = 1.0,
                             Fill = Brushes.Black,
                         };
-                        Canvas.SetLeft(elPoint, point.X);
-                        Canvas.SetTop(elPoint, point.Y);
+                        Canvas.SetLeft(elPoint, point.X - (elPoint.Width / 2));
+                        Canvas.SetTop(elPoint, point.Y - (elPoint.Height / 2));
                         BackgroundCanvas.Children.Add(elPoint);
                     }
                     foreach (var point in p.DodgePoints)
                     {
                         Ellipse elPoint = new Ellipse
                         {
-                            Width = 1,
-                            Height = 1,
+                            Width = 1.0,
+                            Height = 1.0,
                             Fill = Brushes.Green,
                         };
-                        Canvas.SetLeft(elPoint, point.X);
-                        Canvas.SetTop(elPoint, point.Y);
+                        Canvas.SetLeft(elPoint, point.X - (elPoint.Width / 2));
+                        Canvas.SetTop(elPoint, point.Y - (elPoint.Height / 2));
                         BackgroundCanvas.Children.Add(elPoint);
                     }
                     #endregion
@@ -183,6 +186,84 @@ namespace TermWork
 
         private void OnPlanetRightMouseClick(object sender, MouseButtonEventArgs e)
         {
+            PathGeometry animationPath = new PathGeometry();
+        }
+
+        private (Point?, Point?) CheckIfExistsStraightPath(Planet destinationPlanet)
+        {
+            double shortestDist = double.MaxValue;
+            Point? bestOrigP = null;
+            Point? bestDestP = null;
+            foreach (var origP in chosenPlanet.ContactPoints)
+            {
+                foreach (var destP in destinationPlanet.ContactPoints)
+                {
+                    double dist = GetDistance(origP.X, destP.X, origP.Y, destP.Y);
+                    bool intersection = false;
+                    foreach (var item in gameObjects)
+                    {
+                        if (item.GetType() == typeof(Planet))
+                        {
+                            Planet p = (Planet)item;
+                            if (LineAndCircleIntersectionExists(p.Position.X, p.Position.Y, p.Size / 2.0 * Planet.dodgeRadiusMultiple, origP, destP))
+                            {
+                                intersection = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (dist < shortestDist && !intersection)
+                    {
+                        shortestDist = dist;
+                        bestOrigP = origP;
+                        bestDestP = destP;
+                    }
+                }
+            }
+            return (bestOrigP, bestDestP);
+        }
+        private void DesignAlternativePath()
+        {
+
+        }
+
+        private void CreatePath(object sender, MouseEventArgs e)
+        {
+            Point? origP;
+            Point? destP = null;
+            if (chosenPlanet != null)
+            {
+                if (FindPlanetByBorder(sender as Border) != chosenPlanet)
+                {
+                    (origP, destP) = CheckIfExistsStraightPath(FindPlanetByBorder(sender as Border));
+                    if (origP == null || destP == null)
+                        DesignAlternativePath();
+                    else
+                    {
+                        PointCollection points = new PointCollection
+                    {
+                        (Point)origP,
+                        (Point)destP
+                    };
+                        Polyline pl = new Polyline
+                        {
+                            StrokeThickness = 1,
+                            Stroke = Brushes.Blue,
+                            Points = points
+                        };
+                        BackgroundCanvas.Children.Add(pl);
+                    }
+                }
+            }
+        }
+
+        private void DestroyPath(object sender, MouseEventArgs e)
+        {
+            for (int i = 0; i < BackgroundCanvas.Children.Count; i++)
+            {
+                if (BackgroundCanvas.Children[i].GetType() == typeof(Polyline))
+                    BackgroundCanvas.Children.Remove(BackgroundCanvas.Children[i]);
+            }
 
         }
 
@@ -214,16 +295,6 @@ namespace TermWork
                 el.Fill = Brushes.Orange;
             }
         }
-        private void CreatePath(object sender, MouseEventArgs e)
-        {
-            if (chosenPlanet != null)
-            {
-                if (FindPlanetByBorder((sender as Border)) != chosenPlanet)
-                {
-                    Line l = new Line();
-                }
-            }
-        }
         private void OnPlanetMouseEnter(object sender, MouseEventArgs e)
         {
             Grid grid = (Grid)(sender as Border).Child;
@@ -239,14 +310,30 @@ namespace TermWork
                 el.Fill = (SolidColorBrush)new BrushConverter().ConvertFromString(p.OwnerColor);
 
         }
+        /// <summary>
+        /// Returns distance between 2 points
+        /// </summary>
+        /// <param name="x1"></param>
+        /// <param name="x2"></param>
+        /// <param name="y1"></param>
+        /// <param name="y2"></param>
+        /// <returns>distance in double</returns>
         private double GetDistance(double x1, double x2, double y1, double y2)
         {
             return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
         }
+
+        /// <summary>
+        /// Checks equlity of coordinations of given planet and border component
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="b"></param>
+        /// <returns>boolean value</returns>
         private bool PlanetEqualsBorder(Planet p, Border b)
         {
-            return p.Position.X == (Canvas.GetLeft(b) + p.Size / 2) && p.Position.Y == (Canvas.GetTop(b) + p.Size / 2);
+            return p.Position.X == (Canvas.GetLeft(b) + p.Size / 2.0) && p.Position.Y == (Canvas.GetTop(b) + p.Size / 2.0);
         }
+
         private void RemoveCompletedObjects()
         {
             foreach (var ob in gameObjects)
@@ -274,6 +361,11 @@ namespace TermWork
             }
         }
 
+        /// <summary>
+        /// Method finds appropriate Planet by a specific Border component
+        /// </summary>
+        /// <param name="b"></param>
+        /// <returns>object of type Planet</returns>
         private Planet FindPlanetByBorder(Border b)
         {
             foreach (var item in gameObjects)
@@ -284,6 +376,12 @@ namespace TermWork
             }
             throw new NullReferenceException();
         }
+
+        /// <summary>
+        /// Method finds appropriate Border component by a specific Planet
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns>object of type Border</returns>
         private Border FindBorderByPlanet(Planet p)
         {
             foreach (var item in BackgroundCanvas.Children)
@@ -299,6 +397,34 @@ namespace TermWork
                 }
             }
             throw new NullReferenceException();
+        }
+        // Find the points of intersection.
+        private bool LineAndCircleIntersectionExists(
+            double cx, double cy, double radius,
+            Point point1, Point point2)
+        {
+            double dx, dy, A, B, C, det;
+
+            dx = point2.X - point1.X;
+            dy = point2.Y - point1.Y;
+
+            A = dx * dx + dy * dy;
+            B = 2 * (dx * (point1.X - cx) + dy * (point1.Y - cy));
+            C = (point1.X - cx) * (point1.X - cx) +
+                (point1.Y - cy) * (point1.Y - cy) -
+                radius * radius;
+
+            det = B * B - 4 * A * C;
+            if ((A <= 0.0000001) || (det < 0) || (det == 0))
+            {
+                // no or one intersection
+                return false;
+            }
+            else
+            {
+                // two intersections
+                return true;
+            }
         }
     }
 }

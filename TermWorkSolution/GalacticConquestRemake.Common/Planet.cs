@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Drawing;
+using System.Windows;
 
 namespace GalacticConquestRemake.Common
 {
@@ -29,7 +29,7 @@ namespace GalacticConquestRemake.Common
             }
         }
 
-        public Planet(Position position, int size, string ownerColor)
+        public Planet(Point position, int size, string ownerColor)
         {
             this.Position = position;
             this.Size = size;
@@ -46,13 +46,14 @@ namespace GalacticConquestRemake.Common
         private List<Point> InitializePointsAroundPlanet(double radiusMultiple)
         {
             List<Point> points = new List<Point>();
-            double angle = 360 / borderPointCount * Math.PI / 180.0f;
-            double radius = Size / 2 * radiusMultiple;
+            double angle = (360.0 / borderPointCount) * Math.PI / 180.0;
+            double radius = (Size / 2.0) * radiusMultiple;
+            Point center = new Point(Position.X, Position.Y);
             for (int i = 0; i < borderPointCount; i++)
             {
-                double x = Position.X + Math.Cos(angle * i) * radius;
-                double y = Position.Y + Math.Sin(angle * i) * radius;
-                points.Add(new Point((int)x, (int)y));
+                double x = center.X + Math.Cos(angle * i) * radius;
+                double y = center.Y + Math.Sin(angle * i) * radius;
+                points.Add(new Point(x, y));
             }
 
             return points;
