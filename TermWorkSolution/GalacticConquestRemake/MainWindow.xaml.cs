@@ -9,6 +9,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -186,7 +187,73 @@ namespace TermWork
 
         private void OnPlanetRightMouseClick(object sender, MouseButtonEventArgs e)
         {
+            PointCollection pointCol = currentPolyLine.Points;
+            // Create a NameScope for the page so that
+            // we can use Storyboards.
+            NameScope.SetNameScope(this, new NameScope());
+
+            // Create the EllipseGeometry to animate.
+            EllipseGeometry animatedEllipseGeometry =
+                new EllipseGeometry(pointCol[0], 1, 1);
+
+            // Register the EllipseGeometry's name with
+            // the page so that it can be targeted by a
+            // storyboard.
+            this.RegisterName("AnimatedEllipseGeometry", animatedEllipseGeometry);
+
+            // Create a Path element to display the geometry.
+            Path ellipsePath = new Path
+            {
+                Data = animatedEllipseGeometry,
+                Fill = Brushes.Red,
+            };
+
+            BackgroundCanvas.Children.Add(ellipsePath);
+
+            // Create the animation path.
             PathGeometry animationPath = new PathGeometry();
+            PathFigure pFigure = new PathFigure();
+            pFigure.StartPoint = pointCol[0];
+            PolyBezierSegment pBezierSegment = new PolyBezierSegment();
+            for (int i = 1; i < pointCol.Count; i++)
+            {
+                pBezierSegment.Points.Add(pointCol[i]);
+                pBezierSegment.Points.Add(pointCol[i]);
+                pBezierSegment.Points.Add(pointCol[i]);
+            }
+            
+            pFigure.Segments.Add(pBezierSegment);
+            animationPath.Figures.Add(pFigure);
+
+            // Freeze the PathGeometry for performance benefits.
+            animationPath.Freeze();
+
+            // Create a PointAnimationgUsingPath to move
+            // the EllipseGeometry along the animation path.
+            PointAnimationUsingPath centerPointAnimation =
+                new PointAnimationUsingPath();
+            centerPointAnimation.PathGeometry = animationPath;
+            centerPointAnimation.Duration = TimeSpan.FromSeconds(5);
+            centerPointAnimation.RepeatBehavior = new RepeatBehavior(1);
+
+            // Set the animation to target the Center property
+            // of the EllipseGeometry named "AnimatedEllipseGeometry".
+            Storyboard.SetTargetName(centerPointAnimation, "AnimatedEllipseGeometry");
+            Storyboard.SetTargetProperty(centerPointAnimation,
+                new PropertyPath(EllipseGeometry.CenterProperty));
+
+            // Create a Storyboard to contain and apply the animation.
+            Storyboard pathAnimationStoryboard = new Storyboard();
+            pathAnimationStoryboard.RepeatBehavior = new RepeatBehavior(1);
+            pathAnimationStoryboard.AutoReverse = false;
+            pathAnimationStoryboard.Children.Add(centerPointAnimation);
+
+            // Start the Storyboard when ellipsePath is loaded.
+            ellipsePath.Loaded += delegate (object sender2, RoutedEventArgs evArgs)
+            {
+                // Start the storyboard.
+                pathAnimationStoryboard.Begin(this);
+            };
         }
 
         private (Point?, Point?) CheckIfExistsStraightPath(Planet destinationPlanet)
@@ -200,18 +267,18 @@ namespace TermWork
                 {
                     double dist = GetDistance(origP.X, destP.X, origP.Y, destP.Y);
                     bool intersection = false;
-                    foreach (var item in gameObjects)
-                    {
-                        if (item.GetType() == typeof(Planet))
-                        {
-                            Planet p = (Planet)item;
-                            if (LineAndCircleIntersectionExists(p.Position.X, p.Position.Y, p.Size / 2.0 * Planet.dodgeRadiusMultiple, origP, destP))
-                            {
-                                intersection = true;
-                                break;
-                            }
-                        }
-                    }
+                    //foreach (var item in gameObjects)
+                    //{
+                    //    if (item.GetType() == typeof(Planet))
+                    //    {
+                    //        Planet p = (Planet)item;
+                    //        if (LineAndCircleIntersectionExists(p.Position.X, p.Position.Y, p.Size / 2.0 * Planet.dodgeRadiusMultiple, origP, destP))
+                    //        {
+                    //            intersection = true;
+                    //            break;
+                    //        }
+                    //    }
+                    //}
                     if (dist < shortestDist && !intersection)
                     {
                         shortestDist = dist;
@@ -226,7 +293,7 @@ namespace TermWork
         {
 
         }
-
+        Polyline currentPolyLine = new Polyline();
         private void CreatePath(object sender, MouseEventArgs e)
         {
             Point? origP;
@@ -245,13 +312,10 @@ namespace TermWork
                         (Point)origP,
                         (Point)destP
                     };
-                        Polyline pl = new Polyline
-                        {
-                            StrokeThickness = 1,
-                            Stroke = Brushes.Blue,
-                            Points = points
-                        };
-                        BackgroundCanvas.Children.Add(pl);
+                        currentPolyLine.StrokeThickness = 1;
+                        currentPolyLine.Stroke = Brushes.Blue;
+                        currentPolyLine.Points = points;
+                        BackgroundCanvas.Children.Add(currentPolyLine);
                     }
                 }
             }
@@ -259,12 +323,7 @@ namespace TermWork
 
         private void DestroyPath(object sender, MouseEventArgs e)
         {
-            for (int i = 0; i < BackgroundCanvas.Children.Count; i++)
-            {
-                if (BackgroundCanvas.Children[i].GetType() == typeof(Polyline))
-                    BackgroundCanvas.Children.Remove(BackgroundCanvas.Children[i]);
-            }
-
+            BackgroundCanvas.Children.Remove(currentPolyLine);
         }
 
         private void OnPlanetLeftMouseClick(object sender, MouseButtonEventArgs e)
