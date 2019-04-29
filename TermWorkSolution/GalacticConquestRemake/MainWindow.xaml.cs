@@ -408,15 +408,17 @@ namespace TermWork
             {
                 //Canvas.SetLeft(b, (p.Position.X - (p.Size / 2)));
                 //Canvas.SetTop(b, (p.Position.Y - (p.Size / 2)));
-                if (ob.GetType() == typeof(Planet))
+                if(ob is Planet planet)
                 {
-                    Planet p = (Planet)ob;
-                    Border b = FindBorderByPlanet(p);
-                    Grid grid = (Grid)b.Child;
-                    TextBlock tb = (TextBlock)grid.Children[1];
-                    tb.Text = p.UnitCount.ToString();
+                    if (planet.NeedOfUpdate)
+                    {
+                        Border b = FindBorderByPlanet(planet);
+                        Grid grid = (Grid)b.Child;
+                        TextBlock tb = (TextBlock)grid.Children[1];
+                        tb.Text = planet.UnitCount.ToString();
+                        planet.NeedOfUpdate = false;
+                    }
                 }
-                ob.Update(ob.Sum);
             }
         }
 

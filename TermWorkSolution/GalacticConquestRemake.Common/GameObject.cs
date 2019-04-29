@@ -16,6 +16,5 @@ namespace GalacticConquestRemake.Common
         public virtual bool CompletionIndication { set; get; }
 
         public abstract void Update(double lastUpdateTime);
-        public virtual double Sum { set; get; }
     }
 }

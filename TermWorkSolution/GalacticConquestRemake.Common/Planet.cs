@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 
 namespace GalacticConquestRemake.Common
@@ -17,15 +18,15 @@ namespace GalacticConquestRemake.Common
         public const double contactRadiusMultiple = 1.0;
         public const double dodgeRadiusMultiple = 1.4;
 
+        public bool NeedOfUpdate { get; set; }
+        private Timer timer;
+
         public override void Update(double lastUpdateTime)
         {
-            int ts = Size <= 32 ? Size - 8 : Size;
-            double updateTime = (Math.Log10(50 - ts) * 10) / 20;
-            Sum = lastUpdateTime + updateTime;
-            if (OwnerColor != "Gray" && UnitCount < Size * 3 && Sum >= ts)
+            if (OwnerColor != "Gray" && UnitCount < Size * 3)
             {
                 UnitCount++;
-                Sum = 0;
+                NeedOfUpdate = true;
             }
         }
 
@@ -36,6 +37,7 @@ namespace GalacticConquestRemake.Common
             this.OwnerColor = ownerColor;
             this.ContactPoints = InitializePointsAroundPlanet(contactRadiusMultiple);
             this.DodgePoints = InitializePointsAroundPlanet(dodgeRadiusMultiple);
+            InitializeTimer();
         }
 
         public void SpaceShipArrival(SpaceShip spaceShip)
@@ -57,6 +59,22 @@ namespace GalacticConquestRemake.Common
             }
 
             return points;
+        }
+        private void InitializeTimer()
+        {
+            int ts = Size <= 32 ? Size - 8 : Size;
+            double updateInterval = (Math.Log10(50 - ts) * 10) / 20;
+            // Create a timer with a two second interval.
+            timer = new Timer(updateInterval*1000);
+            // Hook up the Elapsed event for the timer. 
+            timer.Elapsed += OnTimedEvent;
+            timer.AutoReset = true;
+            timer.Enabled = true;
+            timer.Start();
+        }
+        private void OnTimedEvent(Object source, ElapsedEventArgs e)
+        {
+            Update(timer.Interval);
         }
     }
 }
