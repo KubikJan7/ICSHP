@@ -322,6 +322,53 @@ namespace TermWork
                     }
                 }
             }
+            // sorting by distance from origin
+            if (planetList.Count > 1)
+                planetList.OrderBy(t => MathClass.GetDistance(chosenPlanet.Position.X, t.Position.X, chosenPlanet.Position.Y, t.Position.Y)).ToList();
+
+            planetList.Insert(0, chosenPlanet); // add origin planet at the start of list
+            planetList.Insert(planetList.Count, destinationPlanet); // add destination planet at the end of list
+            Point? bestPointA = null;
+            Point? bestPointB = null;
+            for (int i = 0; i < planetList.Count; i++)
+            {
+                double shortestDist = double.MaxValue;
+                if (i == planetList.Count - 1)
+                    break;
+                foreach (Point a in planetList[i].DodgePoints)
+                {
+                    foreach (Point b in planetList[i + 1].DodgePoints)
+                    {
+                        double dist = MathClass.GetDistance(a.X, b.X, a.Y, b.Y);
+                        // gets points for straight path
+                        if (dist < shortestDist)
+                        {
+                            shortestDist = dist;
+                            bestPointA = a;
+                            bestPointB = b;
+                        }
+                    }
+                }
+                if (bestPointA != null && bestPointB != null)
+                {
+                    if (i != 0 && i != planetList.Count - 1)
+                    {
+                        bool startDrawing = false;
+                        foreach (Point point in planetList[i].DodgePoints)
+                        {
+                            if (point == bestPointA)
+                                startDrawing = false;
+                            if (startDrawing)
+                                points.Add(point);
+                            if (point == points.Last())
+                                startDrawing = true;
+                        }
+                    }
+                    points.Add((Point)bestPointA);
+                    points.Add((Point)bestPointB);
+                }
+
+            }
             return points;
         }
         Polyline currentPolyLine = new Polyline();
