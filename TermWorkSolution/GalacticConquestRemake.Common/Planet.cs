@@ -30,7 +30,7 @@ namespace GalacticConquestRemake.Common
             }
         }
 
-        public Planet(Point position, int size, string ownerColor)
+        public Planet(Position position, int size, string ownerColor)
         {
             this.Position = position;
             this.Size = size;
@@ -64,9 +64,7 @@ namespace GalacticConquestRemake.Common
         {
             int ts = Size <= 32 ? Size - 8 : Size;
             double updateInterval = (Math.Log10(50 - ts) * 10) / 20;
-            // Create a timer with a two second interval.
             timer = new Timer(updateInterval*1000);
-            // Hook up the Elapsed event for the timer. 
             timer.Elapsed += OnTimedEvent;
             timer.AutoReset = true;
             timer.Enabled = true;
