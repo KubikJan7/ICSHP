@@ -23,15 +23,22 @@ namespace TermWork
     /// </summary>
     public partial class MainWindow : Window
     {
+        private const int PLANET_COUNT = 10;
+        private const int PLAYER_PLANET_COUNT = 3;
+        private const int NPC_PLANET_COUNT = 3;
+
+        private string playerColor = "Red";
+        private string npcColor = "Blue";
+        private string neutralColor = "Gray";
+
         private List<GameObject> gameObjects = new List<GameObject>();
         private DispatcherTimer MainTimer = new DispatcherTimer();
         private DispatcherTimer AITimer = new DispatcherTimer();
         private int RatioOfSentUnits = 50;
         private Planet chosenPlanet;
-        private string playerColor = "Red";
-        private string npcColor = "Blue";
+        
         private Random rand = new Random();
-        private const int PLANET_COUNT = 10;
+        
         private bool gameWon;
 
         Polyline currentPolyLine = new Polyline();
@@ -57,6 +64,7 @@ namespace TermWork
         {
             UpdateGameObjects();
             RemoveCompletedObjects();
+            CheckIfNPCLost();
         }
 
         private void AITimer_Tick(object sender, EventArgs e)
@@ -75,86 +83,13 @@ namespace TermWork
                 }
             }
             if (counter == 0)
+            {
                 gameWon = true;
-
-        }
-        private void AILogic()
-        {
-            DestroyAIPath();
-            int targetPlanetNum;
-            int originPlanetNum;
-
-            bool targetPlanetChosen = false;
-            do
-            {
-                targetPlanetNum = rand.Next(gameObjects.Count);
-
-                if (gameObjects[targetPlanetNum].GetType() == typeof(Planet))
-                    targetPlanetChosen = true;
-                if (gameWon)
-                    break;
+                AITimer.Stop();
             }
-            while (!targetPlanetChosen);
 
-            bool originPlanetChosen = false;
-            do
-            {
-                originPlanetNum = rand.Next(gameObjects.Count);
-                if (gameObjects[originPlanetNum].GetType() == typeof(Planet) && gameObjects[originPlanetNum].OwnerColor == "Blue" && originPlanetNum != targetPlanetNum)
-                    originPlanetChosen = true;
-                if (gameWon)
-                    break;
-            }
-            while (!originPlanetChosen);
-            if (gameWon)
-                return;
-            Planet origin = gameObjects[originPlanetNum] as Planet;
-            Planet target = gameObjects[targetPlanetNum] as Planet;
-            CreateAIPath(origin, target);
-            AnimateAIShips(origin, target);
         }
-        private void AnimateAIShips(Planet originPlanet, Planet targetPlanet)
-        {
-            if (currentAIPolyLine.Points.Count == 0)
-                return;
-            int unitCount = (int)Math.Round(originPlanet.UnitCount / 100.0 * 50);
-            if (unitCount == 0)
-                return;
-            originPlanet.UnitCount -= unitCount;
-            originPlanet.UnitCountChanged = true;
-            SpaceShip spaceShip = new SpaceShip(originPlanet, targetPlanet, unitCount, currentAIPolyLine.Points.ToList(), npcColor);
-            AnimateSpaceShipPath(MathClass.GetDistanceBetweenPointsInList(currentAIPolyLine.Points.ToList()), npcColor, currentAIPolyLine.Points);
-            gameObjects.Add(spaceShip);
-        }
-        private void CreateAIPath(Planet origin, Planet target)
-        {
-            Point? origP;
-            Point? destP = null;
-            Point[] straightPathPoints;
-            if (target != origin)
-            {
-                PointCollection points = new PointCollection();
-
-                (straightPathPoints, origP, destP) = CheckIfExistsStraightPath(origin, target);
-                if (origP == null || destP == null)
-                    points = DesignAlternativePath(origin, target, straightPathPoints);
-                else
-                {
-                    points.Add((Point)origP);
-                    points.Add((Point)destP);
-                }
-                #region Draw AI Path
-                //currentAIPolyLine.StrokeThickness = .8;
-                //currentAIPolyLine.Stroke = Brushes.Green;
-                //currentAIPolyLine.Points = points;
-                #endregion
-                BackgroundCanvas.Children.Add(currentAIPolyLine);
-            }
-        }
-        private void DestroyAIPath()
-        {
-            BackgroundCanvas.Children.Remove(currentAIPolyLine);
-        }
+        
         private void GeneratePlanets()
         {
             BackgroundCanvas.Children.Clear();
@@ -166,11 +101,11 @@ namespace TermWork
             {
                 bool comparingFinished = false;
 
-                string color = "Red";
-                if (i >= 3 && i < 6)
-                    color = "Blue";
-                else if (i >= 6)
-                    color = "Gray";
+                string color = playerColor;
+                if (i >= PLAYER_PLANET_COUNT && i < NPC_PLANET_COUNT + PLAYER_PLANET_COUNT)
+                    color = npcColor;
+                else if (i >= NPC_PLANET_COUNT + PLAYER_PLANET_COUNT)
+                    color = neutralColor;
                 Planet planet;
                 while (comparingFinished == false)
                 {
@@ -369,14 +304,8 @@ namespace TermWork
             PointAnimationUsingPath centerPointAnimation =
                 new PointAnimationUsingPath();
             centerPointAnimation.PathGeometry = animationPath;
-
-            // 20 ms .......... 20/8
-            //  1 ms .......... x
-            //---------------------------
-            // 1/20      =      x/(20/8)
-            //  x        =      0.125
-            double speedControl = 1.95;
-            centerPointAnimation.Duration = TimeSpan.FromMilliseconds((distance / (0.125)) * speedControl); // t = s/v,  distance*25.4 => transfer from inches to mm
+            double speedControl = 1.97;
+            centerPointAnimation.Duration = TimeSpan.FromMilliseconds((distance / (0.125)) * speedControl);
             centerPointAnimation.RepeatBehavior = new RepeatBehavior(1);
 
             // Set the animation to target the Center property
@@ -714,7 +643,6 @@ namespace TermWork
                     {
                         Ellipse el = (Ellipse)grid.Children[0];
                         el.Fill = (SolidColorBrush)new BrushConverter().ConvertFromString(planet.OwnerColor);
-                        CheckIfNPCLost();
                         planet.OwnerChanged = false;
                     }
 
@@ -760,5 +688,88 @@ namespace TermWork
             }
             throw new NullReferenceException();
         }
+
+        #region AI methods
+        private void AILogic()
+        {
+            if (gameWon)
+                return;
+            DestroyAIPath();
+            int targetPlanetNum;
+            int originPlanetNum;
+
+            bool targetPlanetChosen = false;
+            do
+            {
+                targetPlanetNum = rand.Next(gameObjects.Count);
+
+                if (gameObjects[targetPlanetNum].GetType() == typeof(Planet))
+                    targetPlanetChosen = true;
+                if (gameWon)
+                    break;
+            }
+            while (!targetPlanetChosen);
+
+            bool originPlanetChosen = false;
+            do
+            {
+                originPlanetNum = rand.Next(gameObjects.Count);
+                if (gameObjects[originPlanetNum].GetType() == typeof(Planet) && gameObjects[originPlanetNum].OwnerColor == "Blue" && originPlanetNum != targetPlanetNum)
+                    originPlanetChosen = true;
+                if (gameWon)
+                    break;
+            }
+            while (!originPlanetChosen);
+            if (gameWon)
+                return;
+            Planet origin = gameObjects[originPlanetNum] as Planet;
+            Planet target = gameObjects[targetPlanetNum] as Planet;
+            CreateAIPath(origin, target);
+            AnimateAIShips(origin, target);
+        }
+        private void AnimateAIShips(Planet originPlanet, Planet targetPlanet)
+        {
+            if (currentAIPolyLine.Points.Count == 0)
+                return;
+            int unitCount = (int)Math.Round(originPlanet.UnitCount / 100.0 * 50);
+            if (unitCount == 0)
+                return;
+            originPlanet.UnitCount -= unitCount;
+            originPlanet.UnitCountChanged = true;
+            SpaceShip spaceShip = new SpaceShip(originPlanet, targetPlanet, unitCount, currentAIPolyLine.Points.ToList(), npcColor);
+            AnimateSpaceShipPath(MathClass.GetDistanceBetweenPointsInList(currentAIPolyLine.Points.ToList()), npcColor, currentAIPolyLine.Points);
+            gameObjects.Add(spaceShip);
+        }
+        private void CreateAIPath(Planet origin, Planet target)
+        {
+            Point? origP;
+            Point? destP = null;
+            Point[] straightPathPoints;
+            if (target != origin)
+            {
+                PointCollection points = new PointCollection();
+
+                (straightPathPoints, origP, destP) = CheckIfExistsStraightPath(origin, target);
+                if (origP == null || destP == null)
+                    points = DesignAlternativePath(origin, target, straightPathPoints);
+                else
+                {
+                    points.Add((Point)origP);
+                    points.Add((Point)destP);
+                }
+                #region Draw AI Path
+                //currentAIPolyLine.StrokeThickness = .8;
+                //currentAIPolyLine.Stroke = Brushes.Green;
+                #endregion
+                currentAIPolyLine.Points = points;
+                BackgroundCanvas.Children.Add(currentAIPolyLine);
+            }
+        }
+        private void DestroyAIPath()
+        {
+            BackgroundCanvas.Children.Remove(currentAIPolyLine);
+        }
+        #endregion
+
     }
 }

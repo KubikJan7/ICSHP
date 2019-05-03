@@ -24,7 +24,7 @@ namespace GalacticConquestRemake.Common
             CoveredDistance += lastUpdateTime / 8.0;
 
             SetPosition();
-            if (CoveredDistance>=finalDistance)
+            if (CoveredDistance>=finalDistance&&CompletionIndication==false)
             {
                 TargetPlanet.SpaceShipArrival(this);
                 CompletionIndication = true;
