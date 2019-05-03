@@ -25,7 +25,7 @@ namespace TermWork
     {
         private List<GameObject> gameObjects = new List<GameObject>();
         private DispatcherTimer timer = new DispatcherTimer();
-        private uint spaceShipUnitCount = 50;
+        private int spaceShipUnitCount = 50;
         private Planet chosenPlanet;
         private string playerColor = "Red";
         public MainWindow()
@@ -42,7 +42,7 @@ namespace TermWork
         }
         private void Timer_Tick(object sender, EventArgs e)
         {
-            UpdatePlanetUnits();
+            UpdateGameObjects();
             RemoveCompletedObjects();
         }
 
@@ -153,31 +153,31 @@ namespace TermWork
                     b.Child = grid;
                     BackgroundCanvas.Children.Add(b);
 
-                    #region Draw border points
-                    foreach (var point in p.ContactPoints)
-                    {
-                        Ellipse elPoint = new Ellipse
-                        {
-                            Width = 1.0,
-                            Height = 1.0,
-                            Fill = Brushes.Black,
-                        };
-                        Canvas.SetLeft(elPoint, point.X - (elPoint.Width / 2));
-                        Canvas.SetTop(elPoint, point.Y - (elPoint.Height / 2));
-                        BackgroundCanvas.Children.Add(elPoint);
-                    }
-                    foreach (var point in p.DodgePoints)
-                    {
-                        Ellipse elPoint = new Ellipse
-                        {
-                            Width = 1.0,
-                            Height = 1.0,
-                            Fill = Brushes.Green,
-                        };
-                        Canvas.SetLeft(elPoint, point.X - (elPoint.Width / 2));
-                        Canvas.SetTop(elPoint, point.Y - (elPoint.Height / 2));
-                        BackgroundCanvas.Children.Add(elPoint);
-                    }
+                    #region Draw contact and dodge points
+                    //foreach (var point in p.ContactPoints)
+                    //{
+                    //    Ellipse elPoint = new Ellipse
+                    //    {
+                    //        Width = 1.0,
+                    //        Height = 1.0,
+                    //        Fill = Brushes.Black,
+                    //    };
+                    //    Canvas.SetLeft(elPoint, point.X - (elPoint.Width / 2));
+                    //    Canvas.SetTop(elPoint, point.Y - (elPoint.Height / 2));
+                    //    BackgroundCanvas.Children.Add(elPoint);
+                    //}
+                    //foreach (var point in p.DodgePoints)
+                    //{
+                    //    Ellipse elPoint = new Ellipse
+                    //    {
+                    //        Width = 1.0,
+                    //        Height = 1.0,
+                    //        Fill = Brushes.Green,
+                    //    };
+                    //    Canvas.SetLeft(elPoint, point.X - (elPoint.Width / 2));
+                    //    Canvas.SetTop(elPoint, point.Y - (elPoint.Height / 2));
+                    //    BackgroundCanvas.Children.Add(elPoint);
+                    //}
                     #endregion
                 }
 
@@ -188,6 +188,13 @@ namespace TermWork
         {
             if (currentPolyLine.Points.Count == 0)
                 return;
+            Planet targetPlanet = FindPlanetByBorder(sender as Border);
+            SpaceShip spaceShip = new SpaceShip(chosenPlanet, targetPlanet, spaceShipUnitCount,currentPolyLine.Points.ToList());
+            AnimateSpaceShipPath(MathClass.GetDistance(chosenPlanet.Position.X, targetPlanet.Position.X, chosenPlanet.Position.Y, targetPlanet.Position.Y));
+            
+        }
+        public void AnimateSpaceShipPath(double distance)
+        {
             PointCollection pointCol = currentPolyLine.Points;
             // Create a NameScope for the page so that
             // we can use Storyboards.
@@ -234,7 +241,8 @@ namespace TermWork
             PointAnimationUsingPath centerPointAnimation =
                 new PointAnimationUsingPath();
             centerPointAnimation.PathGeometry = animationPath;
-            centerPointAnimation.Duration = TimeSpan.FromSeconds(5);
+            //centerPointAnimation.Duration = TimeSpan.FromSeconds(5);
+            centerPointAnimation.Duration = TimeSpan.FromMilliseconds(distance / (20 / 8));
             centerPointAnimation.RepeatBehavior = new RepeatBehavior(1);
 
             // Set the animation to target the Center property
@@ -274,14 +282,15 @@ namespace TermWork
                     {
                         if (item is Planet planet)
                         {
-                            // find collision with other planets
-                            if (planet == chosenPlanet || planet == destinationPlanet)
+                            int collision = FindCollision(planet, destinationPlanet, origP, destP);
+                            if (collision == -1)
                                 continue;
-                            if (MathClass.LineAndCircleIntersectionExists(planet.Position.X, planet.Position.Y, planet.Size / 2.0 * Planet.dodgeRadiusMultiple, origP, destP))
+                            else if (collision == 1)
                             {
                                 intersection = true;
                                 break;
                             }
+                            else { }
                         }
                     }
                     double dist = MathClass.GetDistance(origP.X, destP.X, origP.Y, destP.Y);
@@ -304,40 +313,71 @@ namespace TermWork
             }
             return (straightPathPoints, bestOrigP, bestDestP);
         }
+        private int FindCollision(Planet collisionPlanet, Planet destinationPlanet, Point origP, Point destP)
+        {
+            Point midPoint = new Point((chosenPlanet.Position.X + destinationPlanet.Position.X) / 2, (chosenPlanet.Position.Y + destinationPlanet.Position.Y) / 2); // midpoint between origin and target
+            double midPointTargetDist = MathClass.GetDistance(midPoint.X, destinationPlanet.Position.X, midPoint.Y, destinationPlanet.Position.Y);
+            double midPointCollisionPlanetDist = MathClass.GetDistance(midPoint.X, collisionPlanet.Position.X, midPoint.Y, collisionPlanet.Position.Y);
+            // find collision with other planets and check if the other planets aren't too far away
+            if (collisionPlanet == chosenPlanet || collisionPlanet == destinationPlanet || midPointTargetDist < midPointCollisionPlanetDist)
+                return -1;
+            if (MathClass.LineAndCircleIntersectionExists(collisionPlanet.Position.X, collisionPlanet.Position.Y, collisionPlanet.Size / 2.0 * Planet.dodgeRadiusMultiple, origP, destP))
+            {
+                return 1; // intersection
+            }
+            return 0; // no collision
+        }
         private PointCollection DesignAlternativePath(Planet destinationPlanet, Point[] straightPathPoints)
         {
             PointCollection points = new PointCollection();
             List<Planet> planetList = new List<Planet>();
+            // finds collisions between default and final position
             foreach (var item in gameObjects)
             {
                 if (item is Planet planet)
                 {
-                    // find collision with other planets
-                    if (planet == chosenPlanet || planet == destinationPlanet)
+                    int collision = FindCollision(planet, destinationPlanet, new Point(chosenPlanet.Position.X, chosenPlanet.Position.Y), new Point(destinationPlanet.Position.X, destinationPlanet.Position.Y));
+                    if (collision == -1)
                         continue;
-                    if (MathClass.LineAndCircleIntersectionExists(planet.Position.X, planet.Position.Y, planet.Size / 2.0 * Planet.dodgeRadiusMultiple, straightPathPoints[0], straightPathPoints[1]))
+                    else if (collision == 1)
                     {
                         planetList.Add(planet);
-                        break;
                     }
+                    else { }
                 }
             }
             // sorting by distance from origin
             if (planetList.Count > 1)
-                planetList.OrderBy(t => MathClass.GetDistance(chosenPlanet.Position.X, t.Position.X, chosenPlanet.Position.Y, t.Position.Y)).ToList();
+                planetList.Sort((x, y) => MathClass.GetDistance(chosenPlanet.Position.X, x.Position.X, chosenPlanet.Position.Y, x.Position.Y)
+                .CompareTo(MathClass.GetDistance(chosenPlanet.Position.X, y.Position.X, chosenPlanet.Position.Y, y.Position.Y)));
 
             planetList.Insert(0, chosenPlanet); // add origin planet at the start of list
             planetList.Insert(planetList.Count, destinationPlanet); // add destination planet at the end of list
             Point? bestPointA = null;
             Point? bestPointB = null;
+            List<Point> defaultPlanetPathPoints;
+            List<Point> targetPlanetPathPoints;
             for (int i = 0; i < planetList.Count; i++)
             {
                 double shortestDist = double.MaxValue;
-                if (i == planetList.Count - 1)
+                if (i == planetList.Count - 1) // if i == last planet, loop will be ended
                     break;
-                foreach (Point a in planetList[i].DodgePoints)
+
+                #region Deciding between contact or dodge points connection
+                if (i == 0)
+                    defaultPlanetPathPoints = planetList[i].ContactPoints;
+                else
+                    defaultPlanetPathPoints = planetList[i].DodgePoints;
+
+                if (i == planetList.Count - 2)
+                    targetPlanetPathPoints = planetList[i + 1].ContactPoints;
+                else
+                    targetPlanetPathPoints = planetList[i + 1].DodgePoints;
+                #endregion
+
+                foreach (Point a in defaultPlanetPathPoints)
                 {
-                    foreach (Point b in planetList[i + 1].DodgePoints)
+                    foreach (Point b in targetPlanetPathPoints)
                     {
                         double dist = MathClass.GetDistance(a.X, b.X, a.Y, b.Y);
                         // gets points for straight path
@@ -353,23 +393,52 @@ namespace TermWork
                 {
                     if (i != 0 && i != planetList.Count - 1)
                     {
-                        bool startDrawing = false;
-                        foreach (Point point in planetList[i].DodgePoints)
-                        {
-                            if (point == bestPointA)
-                                startDrawing = false;
-                            if (startDrawing)
-                                points.Add(point);
-                            if (point == points.Last())
-                                startDrawing = true;
-                        }
+                        int clockwiseDirCount = FindDodgePointsPath(planetList, points, bestPointA, points.Last(), 1, i, false);
+                        int anticlockwiseDirCount = FindDodgePointsPath(planetList, points, bestPointA, points.Last(), -1, i, false);
+                        // finds out which path is shorter
+                        if(clockwiseDirCount<anticlockwiseDirCount)
+                            FindDodgePointsPath(planetList, points, bestPointA, points.Last(), 1, i, true);
+                        else
+                            FindDodgePointsPath(planetList, points, bestPointA, points.Last(), -1, i, true);
                     }
                     points.Add((Point)bestPointA);
                     points.Add((Point)bestPointB);
                 }
-
             }
             return points;
+        }
+        private int FindDodgePointsPath(List<Planet> planetList, PointCollection points, Point? origin, Point target, int direction, int planetList_i, bool savePoints)
+        {
+            bool pathCompleted = false;
+            int counter = 0;
+            int j = 0;
+            int walkThroughNum = 0;
+            bool startDrawing = false;
+            Point originP = points.Last();
+            while (!pathCompleted)
+            {
+                if (planetList[planetList_i].DodgePoints[j] == origin)
+                    startDrawing = false;
+                if (startDrawing)
+                {
+                    if (savePoints)
+                        points.Add(planetList[planetList_i].DodgePoints[j]);
+                    counter++;
+                }
+                if (planetList[planetList_i].DodgePoints[j] == originP)
+                {
+                    startDrawing = true;
+                    walkThroughNum++;
+                }
+                if (walkThroughNum == 2)
+                    pathCompleted = true;
+                j += direction;
+                if (j == Planet.borderPointCount && direction == 1)
+                    j = 0;
+                else if (j == -1 && direction == -1)
+                    j = Planet.borderPointCount - 1;
+            }
+            return counter;
         }
         Polyline currentPolyLine = new Polyline();
         private void CreatePath(object sender, MouseEventArgs e)
@@ -392,7 +461,7 @@ namespace TermWork
                         points.Add((Point)origP);
                         points.Add((Point)destP);
                     }
-                    currentPolyLine.StrokeThickness = 1;
+                    currentPolyLine.StrokeThickness = .8;
                     currentPolyLine.Stroke = Brushes.Blue;
                     currentPolyLine.Points = points;
                     BackgroundCanvas.Children.Add(currentPolyLine);
@@ -473,7 +542,7 @@ namespace TermWork
             }
         }
 
-        private void UpdatePlanetUnits()
+        private void UpdateGameObjects()
         {
             foreach (GameObject ob in gameObjects)
             {
@@ -490,6 +559,8 @@ namespace TermWork
                         planet.NeedOfUpdate = false;
                     }
                 }
+                if (ob is SpaceShip spaceShip)
+                    spaceShip.Update(timer.Interval.TotalMilliseconds);
             }
         }
 

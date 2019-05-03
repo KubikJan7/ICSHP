@@ -42,7 +42,13 @@ namespace GalacticConquestRemake.Common
 
         public void SpaceShipArrival(SpaceShip spaceShip)
         {
+            if (spaceShip.OwnerColor == OwnerColor)
+                UnitCount += spaceShip.UnitCount;
+            else
+                UnitCount -= spaceShip.UnitCount;
 
+            if (UnitCount < 0)
+                OwnerColor = spaceShip.OwnerColor;
         }
 
         private List<Point> InitializePointsAroundPlanet(double radiusMultiple)
