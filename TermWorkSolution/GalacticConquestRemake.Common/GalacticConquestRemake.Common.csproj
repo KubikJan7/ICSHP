@@ -47,5 +47,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpaceShip.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GalacticConquestRemake.MathLibrary\GalacticConquestRemake.MathLibrary.csproj">
+      <Project>{80db98ae-e903-4efa-8ff9-4e482cba782c}</Project>
+      <Name>GalacticConquestRemake.MathLibrary</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

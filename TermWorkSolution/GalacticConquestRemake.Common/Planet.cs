@@ -18,7 +18,8 @@ namespace GalacticConquestRemake.Common
         public const double contactRadiusMultiple = 1.0;
         public const double dodgeRadiusMultiple = 1.4;
 
-        public bool NeedOfUpdate { get; set; }
+        public bool UnitCountChanged { get; set; }
+        public bool OwnerChanged { get; set; }
         private Timer timer;
 
         public override void Update(double lastUpdateTime)
@@ -26,11 +27,11 @@ namespace GalacticConquestRemake.Common
             if (OwnerColor != "Gray" && UnitCount < Size * 3)
             {
                 UnitCount++;
-                NeedOfUpdate = true;
+                UnitCountChanged = true;
             }
         }
 
-        public Planet(Position position, int size, string ownerColor)
+        public Planet(Point position, int size, string ownerColor)
         {
             this.Position = position;
             this.Size = size;
@@ -43,12 +44,21 @@ namespace GalacticConquestRemake.Common
         public void SpaceShipArrival(SpaceShip spaceShip)
         {
             if (spaceShip.OwnerColor == OwnerColor)
+            {
                 UnitCount += spaceShip.UnitCount;
+                UnitCountChanged = true;
+            }
             else
+            {
                 UnitCount -= spaceShip.UnitCount;
-
+                UnitCountChanged = true;
+            }
             if (UnitCount < 0)
+            {
                 OwnerColor = spaceShip.OwnerColor;
+                UnitCount *= -1;
+                OwnerChanged = true;
+            }
         }
 
         private List<Point> InitializePointsAroundPlanet(double radiusMultiple)

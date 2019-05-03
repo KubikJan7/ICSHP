@@ -24,35 +24,143 @@ namespace TermWork
     public partial class MainWindow : Window
     {
         private List<GameObject> gameObjects = new List<GameObject>();
-        private DispatcherTimer timer = new DispatcherTimer();
-        private int spaceShipUnitCount = 50;
+        private DispatcherTimer MainTimer = new DispatcherTimer();
+        private DispatcherTimer AITimer = new DispatcherTimer();
+        private int RatioOfSentUnits = 50;
         private Planet chosenPlanet;
         private string playerColor = "Red";
+        private string npcColor = "Blue";
+        private Random rand = new Random();
+        private const int PLANET_COUNT = 10;
+        private bool gameWon;
+
+        Polyline currentPolyLine = new Polyline();
+        Polyline currentAIPolyLine = new Polyline();
+
         public MainWindow()
         {
             InitializeComponent();
             GeneratePlanets();
-            InitializeTimer();
+            InitializeTimers();
         }
-        private void InitializeTimer()
+        private void InitializeTimers()
         {
-            timer.Tick += new EventHandler(Timer_Tick);
-            timer.Interval = TimeSpan.FromMilliseconds(20);
-            timer.Start();
+            MainTimer.Tick += new EventHandler(MainTimer_Tick);
+            MainTimer.Interval = TimeSpan.FromMilliseconds(20);
+            MainTimer.Start();
+
+            AITimer.Tick += new EventHandler(AITimer_Tick);
+            AITimer.Interval = TimeSpan.FromMilliseconds(rand.Next(300, 701));
+            AITimer.Start();
         }
-        private void Timer_Tick(object sender, EventArgs e)
+        private void MainTimer_Tick(object sender, EventArgs e)
         {
             UpdateGameObjects();
             RemoveCompletedObjects();
         }
 
+        private void AITimer_Tick(object sender, EventArgs e)
+        {
+            AILogic();
+        }
+        public void CheckIfNPCLost()
+        {
+            int counter = 0;
+            foreach (var item in gameObjects)
+            {
+                if(item is Planet planet)
+                {
+                    if (planet.OwnerColor == npcColor)
+                        counter++;
+                }
+            }
+            if (counter == 0)
+                gameWon = true;
+
+        }
+        private void AILogic()
+        {
+            DestroyAIPath();
+            int targetPlanetNum;
+            int originPlanetNum;
+
+            bool targetPlanetChosen = false;
+            do
+            {
+                targetPlanetNum = rand.Next(gameObjects.Count);
+
+                if (gameObjects[targetPlanetNum].GetType() == typeof(Planet))
+                    targetPlanetChosen = true;
+                if (gameWon)
+                    break;
+            }
+            while (!targetPlanetChosen);
+
+            bool originPlanetChosen = false;
+            do
+            {
+                originPlanetNum = rand.Next(gameObjects.Count);
+                if (gameObjects[originPlanetNum].GetType() == typeof(Planet) && gameObjects[originPlanetNum].OwnerColor == "Blue" && originPlanetNum != targetPlanetNum)
+                    originPlanetChosen = true;
+                if (gameWon)
+                    break;
+            }
+            while (!originPlanetChosen);
+            if (gameWon)
+                return;
+            Planet origin = gameObjects[originPlanetNum] as Planet;
+            Planet target = gameObjects[targetPlanetNum] as Planet;
+            CreateAIPath(origin, target);
+            AnimateAIShips(origin, target);
+        }
+        private void AnimateAIShips(Planet originPlanet, Planet targetPlanet)
+        {
+            if (currentAIPolyLine.Points.Count == 0)
+                return;
+            int unitCount = (int)Math.Round(originPlanet.UnitCount / 100.0 * 50);
+            if (unitCount == 0)
+                return;
+            originPlanet.UnitCount -= unitCount;
+            originPlanet.UnitCountChanged = true;
+            SpaceShip spaceShip = new SpaceShip(originPlanet, targetPlanet, unitCount, currentAIPolyLine.Points.ToList(), npcColor);
+            AnimateSpaceShipPath(MathClass.GetDistanceBetweenPointsInList(currentAIPolyLine.Points.ToList()), npcColor, currentAIPolyLine.Points);
+            gameObjects.Add(spaceShip);
+        }
+        private void CreateAIPath(Planet origin, Planet target)
+        {
+            Point? origP;
+            Point? destP = null;
+            Point[] straightPathPoints;
+            if (target != origin)
+            {
+                PointCollection points = new PointCollection();
+
+                (straightPathPoints, origP, destP) = CheckIfExistsStraightPath(origin, target);
+                if (origP == null || destP == null)
+                    points = DesignAlternativePath(origin, target, straightPathPoints);
+                else
+                {
+                    points.Add((Point)origP);
+                    points.Add((Point)destP);
+                }
+                #region Draw AI Path
+                //currentAIPolyLine.StrokeThickness = .8;
+                //currentAIPolyLine.Stroke = Brushes.Green;
+                //currentAIPolyLine.Points = points;
+                #endregion
+                BackgroundCanvas.Children.Add(currentAIPolyLine);
+            }
+        }
+        private void DestroyAIPath()
+        {
+            BackgroundCanvas.Children.Remove(currentAIPolyLine);
+        }
         private void GeneratePlanets()
         {
             BackgroundCanvas.Children.Clear();
             double winHeight = BackgroundCanvas.Height;
             double winWidth = BackgroundCanvas.Width;
-            Random rand = new Random();
-            int planetCount = 10; //rand.Next(8, 13);
+            int planetCount = PLANET_COUNT;
 
             for (int i = 0; i < planetCount; i++)
             {
@@ -68,7 +176,7 @@ namespace TermWork
                 {
                     int size = rand.Next(16, 49);
                     double screenBorderRadius = size / 2.0 * Planet.dodgeRadiusMultiple;
-                    Position position = new Position(rand.Next((int)Math.Round(0 + screenBorderRadius), (int)Math.Round(winWidth - screenBorderRadius)),
+                    Point position = new Point(rand.Next((int)Math.Round(0 + screenBorderRadius), (int)Math.Round(winWidth - screenBorderRadius)),
                         rand.Next((int)Math.Round(0 + screenBorderRadius), (int)Math.Round(winHeight - screenBorderRadius)));
                     planet = new Planet(position, size, color);
 
@@ -135,6 +243,7 @@ namespace TermWork
                     b.MouseLeftButtonDown += OnPlanetLeftMouseClick;
                     b.MouseRightButtonDown += OnPlanetRightMouseClick;
 
+
                     TextBlock t = new TextBlock
                     {
                         Text = p.UnitCount.ToString(),
@@ -151,7 +260,7 @@ namespace TermWork
                     grid.Children.Add(t);
                     b.Child = grid;
                     BackgroundCanvas.Children.Add(b);
-
+                    BackgroundCanvas.MouseWheel += OnPlanetMouseWheelMove;
                     #region Draw contact and dodge points
                     //foreach (var point in p.ContactPoints)
                     //{
@@ -183,18 +292,38 @@ namespace TermWork
             }
         }
 
+        private void OnPlanetMouseWheelMove(object sender, MouseWheelEventArgs e)
+        {
+            if (e.Delta > 0)
+                RatioOfSentUnits += 10;
+            else
+                RatioOfSentUnits -= 20;
+
+            if (RatioOfSentUnits > 100)
+                RatioOfSentUnits = 100;
+            else if (RatioOfSentUnits < 10)
+                RatioOfSentUnits = 10;
+        }
+
         private void OnPlanetRightMouseClick(object sender, MouseButtonEventArgs e)
         {
-            if (currentPolyLine.Points.Count == 0)
-                return;
-            Planet targetPlanet = FindPlanetByBorder(sender as Border);
-            SpaceShip spaceShip = new SpaceShip(chosenPlanet, targetPlanet, spaceShipUnitCount,currentPolyLine.Points.ToList());
-            AnimateSpaceShipPath(MathClass.GetDistanceBetweenPointsInList(currentPolyLine.Points.ToList()));
-            
+            if (chosenPlanet != null)
+            {
+                if (currentPolyLine.Points.Count == 0)
+                    return;
+                int unitCount = (int)Math.Round(chosenPlanet.UnitCount / 100.0 * RatioOfSentUnits);
+                if (unitCount == 0)
+                    return;
+                chosenPlanet.UnitCount -= unitCount;
+                chosenPlanet.UnitCountChanged = true;
+                Planet targetPlanet = FindPlanetByBorder(sender as Border);
+                SpaceShip spaceShip = new SpaceShip(chosenPlanet, targetPlanet, unitCount, currentPolyLine.Points.ToList(), playerColor);
+                AnimateSpaceShipPath(MathClass.GetDistanceBetweenPointsInList(currentPolyLine.Points.ToList()), playerColor, currentPolyLine.Points);
+                gameObjects.Add(spaceShip);
+            }
         }
-        public void AnimateSpaceShipPath(double distance)
+        public void AnimateSpaceShipPath(double distance, string ownerColor, PointCollection pointCol)
         {
-            PointCollection pointCol = currentPolyLine.Points;
             // Create a NameScope for the page so that
             // we can use Storyboards.
             NameScope.SetNameScope(this, new NameScope());
@@ -212,7 +341,7 @@ namespace TermWork
             Path ellipsePath = new Path
             {
                 Data = animatedEllipseGeometry,
-                Fill = Brushes.Red,
+                Fill = (SolidColorBrush)new BrushConverter().ConvertFromString(ownerColor),
             };
 
             BackgroundCanvas.Children.Add(ellipsePath);
@@ -240,8 +369,14 @@ namespace TermWork
             PointAnimationUsingPath centerPointAnimation =
                 new PointAnimationUsingPath();
             centerPointAnimation.PathGeometry = animationPath;
-            //centerPointAnimation.Duration = TimeSpan.FromSeconds(5);
-            centerPointAnimation.Duration = TimeSpan.FromMilliseconds(distance*25/(20/8)); // t = s/v,  distance*25 => transfer from inches to mm
+
+            // 20 ms .......... 20/8
+            //  1 ms .......... x
+            //---------------------------
+            // 1/20      =      x/(20/8)
+            //  x        =      0.125
+            double speedControl = 1.95;
+            centerPointAnimation.Duration = TimeSpan.FromMilliseconds((distance / (0.125)) * speedControl); // t = s/v,  distance*25.4 => transfer from inches to mm
             centerPointAnimation.RepeatBehavior = new RepeatBehavior(1);
 
             // Set the animation to target the Center property
@@ -264,7 +399,7 @@ namespace TermWork
             };
         }
 
-        private (Point[], Point?, Point?) CheckIfExistsStraightPath(Planet destinationPlanet)
+        private (Point[], Point?, Point?) CheckIfExistsStraightPath(Planet originPlanet, Planet destinationPlanet)
         {
             double shortestDist = double.MaxValue;
             double shortestStraightPathDist = double.MaxValue;
@@ -272,7 +407,7 @@ namespace TermWork
             Point? bestDestP = null;
             Point[] straightPathPoints = new Point[2];
 
-            foreach (Point origP in chosenPlanet.ContactPoints)
+            foreach (Point origP in originPlanet.ContactPoints)
             {
                 foreach (Point destP in destinationPlanet.ContactPoints)
                 {
@@ -281,7 +416,7 @@ namespace TermWork
                     {
                         if (item is Planet planet)
                         {
-                            int collision = FindCollision(planet, destinationPlanet, origP, destP);
+                            int collision = FindCollision(originPlanet, planet, destinationPlanet, origP, destP);
                             if (collision == -1)
                                 continue;
                             else if (collision == 1)
@@ -312,13 +447,13 @@ namespace TermWork
             }
             return (straightPathPoints, bestOrigP, bestDestP);
         }
-        private int FindCollision(Planet collisionPlanet, Planet destinationPlanet, Point origP, Point destP)
+        private int FindCollision(Planet originPlanet, Planet collisionPlanet, Planet destinationPlanet, Point origP, Point destP)
         {
-            Point midPoint = new Point((chosenPlanet.Position.X + destinationPlanet.Position.X) / 2, (chosenPlanet.Position.Y + destinationPlanet.Position.Y) / 2); // midpoint between origin and target
+            Point midPoint = new Point((originPlanet.Position.X + destinationPlanet.Position.X) / 2, (originPlanet.Position.Y + destinationPlanet.Position.Y) / 2); // midpoint between origin and target
             double midPointTargetDist = MathClass.GetDistance(midPoint.X, destinationPlanet.Position.X, midPoint.Y, destinationPlanet.Position.Y);
             double midPointCollisionPlanetDist = MathClass.GetDistance(midPoint.X, collisionPlanet.Position.X, midPoint.Y, collisionPlanet.Position.Y);
             // find collision with other planets and check if the other planets aren't too far away
-            if (collisionPlanet == chosenPlanet || collisionPlanet == destinationPlanet || midPointTargetDist < midPointCollisionPlanetDist)
+            if (collisionPlanet == originPlanet || collisionPlanet == destinationPlanet || midPointTargetDist < midPointCollisionPlanetDist)
                 return -1;
             if (MathClass.LineAndCircleIntersectionExists(collisionPlanet.Position.X, collisionPlanet.Position.Y, collisionPlanet.Size / 2.0 * Planet.dodgeRadiusMultiple, origP, destP))
             {
@@ -326,7 +461,7 @@ namespace TermWork
             }
             return 0; // no collision
         }
-        private PointCollection DesignAlternativePath(Planet destinationPlanet, Point[] straightPathPoints)
+        private PointCollection DesignAlternativePath(Planet originPlanet, Planet destinationPlanet, Point[] straightPathPoints)
         {
             PointCollection points = new PointCollection();
             List<Planet> planetList = new List<Planet>();
@@ -335,7 +470,7 @@ namespace TermWork
             {
                 if (item is Planet planet)
                 {
-                    int collision = FindCollision(planet, destinationPlanet, new Point(chosenPlanet.Position.X, chosenPlanet.Position.Y), new Point(destinationPlanet.Position.X, destinationPlanet.Position.Y));
+                    int collision = FindCollision(originPlanet, planet, destinationPlanet, new Point(originPlanet.Position.X, originPlanet.Position.Y), new Point(destinationPlanet.Position.X, destinationPlanet.Position.Y));
                     if (collision == -1)
                         continue;
                     else if (collision == 1)
@@ -347,10 +482,10 @@ namespace TermWork
             }
             // sorting by distance from origin
             if (planetList.Count > 1)
-                planetList.Sort((x, y) => MathClass.GetDistance(chosenPlanet.Position.X, x.Position.X, chosenPlanet.Position.Y, x.Position.Y)
-                .CompareTo(MathClass.GetDistance(chosenPlanet.Position.X, y.Position.X, chosenPlanet.Position.Y, y.Position.Y)));
+                planetList.Sort((x, y) => MathClass.GetDistance(originPlanet.Position.X, x.Position.X, originPlanet.Position.Y, x.Position.Y)
+                .CompareTo(MathClass.GetDistance(originPlanet.Position.X, y.Position.X, originPlanet.Position.Y, y.Position.Y)));
 
-            planetList.Insert(0, chosenPlanet); // add origin planet at the start of list
+            planetList.Insert(0, originPlanet); // add origin planet at the start of list
             planetList.Insert(planetList.Count, destinationPlanet); // add destination planet at the end of list
             Point? bestPointA = null;
             Point? bestPointB = null;
@@ -395,7 +530,7 @@ namespace TermWork
                         int clockwiseDirCount = FindDodgePointsPath(planetList, points, bestPointA, points.Last(), 1, i, false);
                         int anticlockwiseDirCount = FindDodgePointsPath(planetList, points, bestPointA, points.Last(), -1, i, false);
                         // finds out which path is shorter
-                        if(clockwiseDirCount<anticlockwiseDirCount)
+                        if (clockwiseDirCount < anticlockwiseDirCount)
                             FindDodgePointsPath(planetList, points, bestPointA, points.Last(), 1, i, true);
                         else
                             FindDodgePointsPath(planetList, points, bestPointA, points.Last(), -1, i, true);
@@ -439,31 +574,33 @@ namespace TermWork
             }
             return counter;
         }
-        Polyline currentPolyLine = new Polyline();
         private void CreatePath(object sender, MouseEventArgs e)
         {
-            Point? origP;
-            Point? destP = null;
-            Point[] straightPathPoints;
             if (chosenPlanet != null)
             {
-                if (FindPlanetByBorder(sender as Border) != chosenPlanet)
+                Point? origP;
+                Point? destP = null;
+                Point[] straightPathPoints;
+                if (chosenPlanet != null)
                 {
-                    PointCollection points = new PointCollection();
-
-                    (straightPathPoints, origP, destP) = CheckIfExistsStraightPath(FindPlanetByBorder(sender as Border));
-                    if (origP == null || destP == null)
-                        points = DesignAlternativePath(FindPlanetByBorder(sender as Border), straightPathPoints);
-                    else
+                    if (FindPlanetByBorder(sender as Border) != chosenPlanet)
                     {
+                        PointCollection points = new PointCollection();
 
-                        points.Add((Point)origP);
-                        points.Add((Point)destP);
+                        (straightPathPoints, origP, destP) = CheckIfExistsStraightPath(chosenPlanet, FindPlanetByBorder(sender as Border));
+                        if (origP == null || destP == null)
+                            points = DesignAlternativePath(chosenPlanet, FindPlanetByBorder(sender as Border), straightPathPoints);
+                        else
+                        {
+
+                            points.Add((Point)origP);
+                            points.Add((Point)destP);
+                        }
+                        currentPolyLine.StrokeThickness = .8;
+                        currentPolyLine.Stroke = Brushes.Blue;
+                        currentPolyLine.Points = points;
+                        BackgroundCanvas.Children.Add(currentPolyLine);
                     }
-                    currentPolyLine.StrokeThickness = .8;
-                    currentPolyLine.Stroke = Brushes.Blue;
-                    currentPolyLine.Points = points;
-                    BackgroundCanvas.Children.Add(currentPolyLine);
                 }
             }
         }
@@ -534,21 +671,24 @@ namespace TermWork
 
         private void RemoveCompletedObjects()
         {
-            foreach (var ob in gameObjects)
+            for (int i = 0; i < gameObjects.Count; i++)
             {
-                if(ob is SpaceShip spaceShip)
+                if (gameObjects[i] is SpaceShip spaceShip)
                 {
                     if (spaceShip.CompletionIndication)
                     {
-                        foreach (var item in BackgroundCanvas.Children)
+                        for (int j = 0; j < BackgroundCanvas.Children.Count; j++)
                         {
-                            if(item is Path shipElement)
+                            if (BackgroundCanvas.Children[j] is Path shipElement)
                             {
-                                if ((Canvas.GetLeft(shipElement) + (shipElement.Width / 2)) == spaceShip.Position.X && (Canvas.GetTop(shipElement) + (shipElement.Height / 2)) == spaceShip.Position.Y)
+                                EllipseGeometry data = (EllipseGeometry)shipElement.Data;
+                                if ((int)data.Center.X == (int)spaceShip.Position.X && (int)data.Center.Y == (int)spaceShip.Position.Y)
+                                {
                                     BackgroundCanvas.Children.Remove(shipElement);
+                                    gameObjects.Remove(spaceShip);
+                                }
                             }
                         }
-                        gameObjects.Remove(ob);
                     }
                 }
             }
@@ -562,17 +702,25 @@ namespace TermWork
                 //Canvas.SetTop(b, (p.Position.Y - (p.Size / 2)));
                 if (ob is Planet planet)
                 {
-                    if (planet.NeedOfUpdate)
+                    Border b = FindBorderByPlanet(planet);
+                    Grid grid = (Grid)b.Child;
+                    if (planet.UnitCountChanged)
                     {
-                        Border b = FindBorderByPlanet(planet);
-                        Grid grid = (Grid)b.Child;
                         TextBlock tb = (TextBlock)grid.Children[1];
                         tb.Text = planet.UnitCount.ToString();
-                        planet.NeedOfUpdate = false;
+                        planet.UnitCountChanged = false;
                     }
+                    if (planet.OwnerChanged)
+                    {
+                        Ellipse el = (Ellipse)grid.Children[0];
+                        el.Fill = (SolidColorBrush)new BrushConverter().ConvertFromString(planet.OwnerColor);
+                        CheckIfNPCLost();
+                        planet.OwnerChanged = false;
+                    }
+
                 }
                 if (ob is SpaceShip spaceShip)
-                    spaceShip.Update(timer.Interval.TotalMilliseconds);
+                    spaceShip.Update(MainTimer.Interval.TotalMilliseconds);
             }
         }
 

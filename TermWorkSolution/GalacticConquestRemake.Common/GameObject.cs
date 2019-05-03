@@ -10,7 +10,7 @@ namespace GalacticConquestRemake.Common
 {
     public abstract class GameObject
     {
-        public virtual Position Position { set; get; }
+        public virtual Point Position { set; get; }
         public virtual int Size { set; get; }
         public virtual string OwnerColor { set; get; }
         public virtual bool CompletionIndication { set; get; }
