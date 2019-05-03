@@ -19,7 +19,7 @@ namespace GalacticConquestRemake.MathLibrary
         /// <returns>distance in double</returns>
         public static double GetDistance(double x1, double x2, double y1, double y2)
         {
-            return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+            return Math.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
         }
         /// <summary>
         ///Find the points of intersection.
@@ -61,6 +61,22 @@ namespace GalacticConquestRemake.MathLibrary
         {
             Random rand = new Random();
             return rand.Next(min, max + 1);
+        }
+        /// <summary>
+        /// Calculate distance between all points in a given list
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns>distance in double</returns>
+        public static double GetDistanceBetweenPointsInList(List<Point> list)
+        {
+            double distance = 0;
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (i == list.Count - 1)
+                    break;
+                distance += GetDistance(list[i].X, list[i + 1].X, list[i].Y, list[i + 1].Y);
+            }
+            return distance;
         }
     }
 }

@@ -79,8 +79,7 @@ namespace TermWork
                             continue;
                         //Distance between centers C1 and C2 -> C1C2 = sqrt((x1 - x2)2 + (y1 - y2)2).
                         double dist = MathClass.GetDistance(planet.Position.X, gameObjects[j].Position.X, planet.Position.Y, gameObjects[j].Position.Y);
-                        double radSum = ((planet.Size / 2.0 * Planet.dodgeRadiusMultiple) + (gameObjects[j].Size / 2.0 * Planet.dodgeRadiusMultiple)) *
-                                        ((planet.Size / 2.0 * Planet.dodgeRadiusMultiple) + (gameObjects[j].Size / 2.0 * Planet.dodgeRadiusMultiple));
+                        double radSum = ((planet.Size / 2.0 * Planet.dodgeRadiusMultiple) + (gameObjects[j].Size / 2.0 * Planet.dodgeRadiusMultiple));
 
                         //1.If C1C2 == R1 + R2
                         //     Circle A and B are touch to each other.
@@ -190,7 +189,7 @@ namespace TermWork
                 return;
             Planet targetPlanet = FindPlanetByBorder(sender as Border);
             SpaceShip spaceShip = new SpaceShip(chosenPlanet, targetPlanet, spaceShipUnitCount,currentPolyLine.Points.ToList());
-            AnimateSpaceShipPath(MathClass.GetDistance(chosenPlanet.Position.X, targetPlanet.Position.X, chosenPlanet.Position.Y, targetPlanet.Position.Y));
+            AnimateSpaceShipPath(MathClass.GetDistanceBetweenPointsInList(currentPolyLine.Points.ToList()));
             
         }
         public void AnimateSpaceShipPath(double distance)
@@ -242,7 +241,7 @@ namespace TermWork
                 new PointAnimationUsingPath();
             centerPointAnimation.PathGeometry = animationPath;
             //centerPointAnimation.Duration = TimeSpan.FromSeconds(5);
-            centerPointAnimation.Duration = TimeSpan.FromMilliseconds(distance / (20 / 8));
+            centerPointAnimation.Duration = TimeSpan.FromMilliseconds(distance*25/(20/8)); // t = s/v,  distance*25 => transfer from inches to mm
             centerPointAnimation.RepeatBehavior = new RepeatBehavior(1);
 
             // Set the animation to target the Center property
@@ -537,8 +536,21 @@ namespace TermWork
         {
             foreach (var ob in gameObjects)
             {
-                if (ob.CompletionIndication)
-                    gameObjects.Remove(ob);
+                if(ob is SpaceShip spaceShip)
+                {
+                    if (spaceShip.CompletionIndication)
+                    {
+                        foreach (var item in BackgroundCanvas.Children)
+                        {
+                            if(item is Path shipElement)
+                            {
+                                if ((Canvas.GetLeft(shipElement) + (shipElement.Width / 2)) == spaceShip.Position.X && (Canvas.GetTop(shipElement) + (shipElement.Height / 2)) == spaceShip.Position.Y)
+                                    BackgroundCanvas.Children.Remove(shipElement);
+                            }
+                        }
+                        gameObjects.Remove(ob);
+                    }
+                }
             }
         }
 
