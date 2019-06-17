@@ -15,16 +15,10 @@ namespace GalacticConquestRemake.Common
         public Planet TargetPlanet { set; get; }
         public int UnitCount { set; get; }
         public List<Point> Path { set; get; }
-        public double CoveredDistance { set; get; }
 
         public override void Update(double lastUpdateTime)
         {
-            // space ship will be moved towards the destination by lastUpdateTime/8
-            double finalDistance = MathClass.GetDistanceBetweenPointsInList(Path);
-            CoveredDistance += lastUpdateTime / 8.0;
-
-            SetPosition();
-            if (CoveredDistance>=finalDistance&&CompletionIndication==false)
+            if (Math.Round(Path[Path.Count-1].X) == Math.Round(Position.X)&& Math.Round(Path[Path.Count - 1].Y) == Math.Round(Position.Y)  && CompletionIndication==false)
             {
                 TargetPlanet.SpaceShipArrival(this);
                 CompletionIndication = true;
@@ -38,22 +32,6 @@ namespace GalacticConquestRemake.Common
             UnitCount = unitCount;
             Path = path;
             OwnerColor = ownerColor;
-        }
-
-        private void SetPosition()
-        {
-            double distance = 0;
-            for (int i = 0; i < Path.Count; i++)
-            {
-                if (i == Path.Count - 1)
-                    break;
-                distance += MathClass.GetDistance(Path[i].X, Path[i + 1].X, Path[i].Y, Path[i + 1].Y);
-                if(CoveredDistance<=distance)
-                {
-                    Position = Path[i + 1];
-                    break;
-                }
-            }
         }
     }
 }

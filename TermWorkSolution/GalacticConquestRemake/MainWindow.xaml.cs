@@ -36,13 +36,15 @@ namespace TermWork
         private DispatcherTimer AITimer = new DispatcherTimer();
         private int RatioOfSentUnits = 50;
         private Planet chosenPlanet;
-        
+
         private Random rand = new Random();
-        
+
         private bool gameWon;
 
         Polyline currentPolyLine = new Polyline();
         Polyline currentAIPolyLine = new Polyline();
+
+        private Dictionary<SpaceShip, Path> spaceShipDict = new Dictionary<SpaceShip, Path>();
 
         public MainWindow()
         {
@@ -76,7 +78,7 @@ namespace TermWork
             int counter = 0;
             foreach (var item in gameObjects)
             {
-                if(item is Planet planet)
+                if (item is Planet planet)
                 {
                     if (planet.OwnerColor == npcColor)
                         counter++;
@@ -89,7 +91,7 @@ namespace TermWork
             }
 
         }
-        
+
         private void GeneratePlanets()
         {
             BackgroundCanvas.Children.Clear();
@@ -253,11 +255,11 @@ namespace TermWork
                 chosenPlanet.UnitCountChanged = true;
                 Planet targetPlanet = FindPlanetByBorder(sender as Border);
                 SpaceShip spaceShip = new SpaceShip(chosenPlanet, targetPlanet, unitCount, currentPolyLine.Points.ToList(), playerColor);
-                AnimateSpaceShipPath(MathClass.GetDistanceBetweenPointsInList(currentPolyLine.Points.ToList()), playerColor, currentPolyLine.Points);
+                AnimateSpaceShipPath(spaceShip, MathClass.GetDistanceBetweenPointsInList(currentPolyLine.Points.ToList()), playerColor, currentPolyLine.Points);
                 gameObjects.Add(spaceShip);
             }
         }
-        public void AnimateSpaceShipPath(double distance, string ownerColor, PointCollection pointCol)
+        public void AnimateSpaceShipPath(SpaceShip spaceShip, double distance, string ownerColor, PointCollection pointCol)
         {
             // Create a NameScope for the page so that
             // we can use Storyboards.
@@ -278,6 +280,8 @@ namespace TermWork
                 Data = animatedEllipseGeometry,
                 Fill = (SolidColorBrush)new BrushConverter().ConvertFromString(ownerColor),
             };
+
+            spaceShipDict.Add(spaceShip, ellipsePath);
 
             BackgroundCanvas.Children.Add(ellipsePath);
 
@@ -606,18 +610,9 @@ namespace TermWork
                 {
                     if (spaceShip.CompletionIndication)
                     {
-                        for (int j = 0; j < BackgroundCanvas.Children.Count; j++)
-                        {
-                            if (BackgroundCanvas.Children[j] is Path shipElement)
-                            {
-                                EllipseGeometry data = (EllipseGeometry)shipElement.Data;
-                                if ((int)data.Center.X == (int)spaceShip.Position.X && (int)data.Center.Y == (int)spaceShip.Position.Y)
-                                {
-                                    BackgroundCanvas.Children.Remove(shipElement);
-                                    gameObjects.Remove(spaceShip);
-                                }
-                            }
-                        }
+                        BackgroundCanvas.Children.Remove(spaceShipDict[spaceShip]);
+                        gameObjects.Remove(spaceShip);
+                        spaceShipDict.Remove(spaceShip);
                     }
                 }
             }
@@ -648,7 +643,11 @@ namespace TermWork
 
                 }
                 if (ob is SpaceShip spaceShip)
+                {
                     spaceShip.Update(MainTimer.Interval.TotalMilliseconds);
+                    EllipseGeometry data = (EllipseGeometry)spaceShipDict[spaceShip].Data;
+                    spaceShip.Position = data.Center;
+                }
             }
         }
 
@@ -737,7 +736,7 @@ namespace TermWork
             originPlanet.UnitCount -= unitCount;
             originPlanet.UnitCountChanged = true;
             SpaceShip spaceShip = new SpaceShip(originPlanet, targetPlanet, unitCount, currentAIPolyLine.Points.ToList(), npcColor);
-            AnimateSpaceShipPath(MathClass.GetDistanceBetweenPointsInList(currentAIPolyLine.Points.ToList()), npcColor, currentAIPolyLine.Points);
+            AnimateSpaceShipPath(spaceShip, MathClass.GetDistanceBetweenPointsInList(currentAIPolyLine.Points.ToList()), npcColor, currentAIPolyLine.Points);
             gameObjects.Add(spaceShip);
         }
         private void CreateAIPath(Planet origin, Planet target)
