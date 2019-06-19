@@ -48,7 +48,7 @@ namespace Encryption
                     str += mat.data[j, i];
                 }
                 str += " ";
-                if (i % 4 == 0&&i!=0)
+                if (i % 4 == 0)
                     str += "\r\n";
             }
             return str;
