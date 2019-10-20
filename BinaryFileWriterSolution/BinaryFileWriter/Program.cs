@@ -13,8 +13,7 @@ namespace BinaryFileWriter
         {
             using (BinaryWriter binWriter = new BinaryWriter(File.Open(fileName, FileMode.Create)))
             {
-                binWriter.Write(4);
-                binWriter.Write(4);
+                binWriter.Write(4);binWriter.Write(4);
                 binWriter.Write(1); binWriter.Write(2); binWriter.Write(20);
                 binWriter.Write(1); binWriter.Write(3); binWriter.Write(5);
                 binWriter.Write(2); binWriter.Write(4); binWriter.Write(30);
