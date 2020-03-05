@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using GalacticConquestRemake.Common;
 using GalacticConquestRemake.MathLibrary;
+
 namespace TermWork
 {
     /// <summary>

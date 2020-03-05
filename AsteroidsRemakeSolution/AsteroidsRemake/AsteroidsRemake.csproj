@@ -4,17 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{CFFFE2D4-FF23-4D09-826B-1B345C36C166}</ProjectGuid>
+    <ProjectGuid>{6F4941DF-1A36-4411-8262-11F7FFC85D26}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>TermWork</RootNamespace>
-    <AssemblyName>TermWork</AssemblyName>
+    <RootNamespace>AsteroidsRemake</RootNamespace>
+    <AssemblyName>AsteroidsRemake</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -38,7 +37,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -95,16 +93,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\GalacticConquestRemake.Common\GalacticConquestRemake.Common.csproj">
-      <Project>{19c28776-fd67-4b86-8c7e-5d8091d20b07}</Project>
-      <Name>GalacticConquestRemake.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\GalacticConquestRemake.MathLibrary\GalacticConquestRemake.MathLibrary.csproj">
-      <Project>{80db98ae-e903-4efa-8ff9-4e482cba782c}</Project>
-      <Name>GalacticConquestRemake.MathLibrary</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
