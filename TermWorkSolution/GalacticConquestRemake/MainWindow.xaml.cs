@@ -770,6 +770,5 @@ namespace TermWork
             BackgroundCanvas.Children.Remove(currentAIPolyLine);
         }
         #endregion
-
     }
 }

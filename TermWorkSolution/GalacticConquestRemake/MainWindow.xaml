@@ -8,9 +8,7 @@
         Title="MainWindow" Height="720" Width="1280">
     <Grid>
         <Viewbox Stretch="UniformToFill">
-            <Canvas x:Name="BackgroundCanvas" Background="DimGray" Width="224" Height="122">
-
-            </Canvas>
+            <Canvas x:Name="BackgroundCanvas" Background="DimGray" Width="224" Height="122"/>
         </Viewbox>
 
     </Grid>
