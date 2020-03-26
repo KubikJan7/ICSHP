@@ -94,5 +94,15 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AsteroidsRemake.Common\AsteroidsRemake.Common.csproj">
+      <Project>{615e0c7a-8f24-41d9-962f-94c9804ce7ba}</Project>
+      <Name>AsteroidsRemake.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AsteroidsRemake.MathLibrary\AsteroidsRemake.MathLibrary.csproj">
+      <Project>{15822b39-e68a-4ed0-ac00-2e7f7d0ef94b}</Project>
+      <Name>AsteroidsRemake.MathLibrary</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

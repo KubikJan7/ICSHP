@@ -7,6 +7,13 @@
         mc:Ignorable="d"
         Title="MainWindow" ResizeMode="NoResize" Height="720" Width="1280" KeyDown="MainWindow1_KeyDown">
     <Grid>
-        <Canvas x:Name="BackgroundCanvas" Background="DimGray"/>
+        <Canvas x:Name="BackgroundCanvas" Background="DimGray">
+            <Polygon x:Name="playerPolygon" Points="640, 360 625, 400 655, 400">
+                <Polygon.RenderTransform>
+                    <RotateTransform x:Name="polygonRotation"/>
+                </Polygon.RenderTransform>
+            </Polygon>
+        </Canvas>
+        
     </Grid>
 </Window>
