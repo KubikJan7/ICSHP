@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AsteroidsRemake"
         mc:Ignorable="d"
-        Title="MainWindow" ResizeMode="NoResize" Height="720" Width="1280">
+        Title="MainWindow" ResizeMode="NoResize" Height="720" Width="1280" KeyDown="MainWindow1_KeyDown">
     <Grid>
-            <Canvas x:Name="BackgroundCanvas" Background="DimGray"/>
+        <Canvas x:Name="BackgroundCanvas" Background="DimGray"/>
     </Grid>
 </Window>

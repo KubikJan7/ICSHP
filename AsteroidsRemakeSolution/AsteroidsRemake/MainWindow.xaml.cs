@@ -23,23 +23,22 @@ namespace AsteroidsRemake
         public MainWindow()
         {
             InitializeComponent();
-            CreateScene();
+            DrawScene();
         }
 
-        private void CreateScene()
+        private void CreatePlayerShip()
         {
-
-            SolidColorBrush blackBrush = new SolidColorBrush();
-            blackBrush.Color = Color.FromRgb(138,148,255);
+            SolidColorBrush colorBrush = new SolidColorBrush();
+            colorBrush.Color = Color.FromRgb(138, 148, 255);
 
             Polygon blackPolygon = new Polygon();
-            blackPolygon.Stroke = blackBrush;
-            blackPolygon.Fill = blackBrush;
+            blackPolygon.Stroke = colorBrush;
+            blackPolygon.Fill = colorBrush;
             blackPolygon.StrokeThickness = 4;
 
-            Point point1 = new Point(MainWindow1.Width/2, MainWindow1.Height/2);
-            Point point2 = new Point(MainWindow1.Width / 2-20, MainWindow1.Height / 2+40);
-            Point point3 = new Point(MainWindow1.Width / 2+20, MainWindow1.Height / 2+40);
+            Point point1 = new Point(MainWindow1.Width / 2, MainWindow1.Height / 2);
+            Point point2 = new Point(MainWindow1.Width / 2 - 15, MainWindow1.Height / 2 + 40);
+            Point point3 = new Point(MainWindow1.Width / 2 + 15, MainWindow1.Height / 2 + 40);
             PointCollection polygonPoints = new PointCollection();
             polygonPoints.Add(point1);
             polygonPoints.Add(point2);
@@ -48,6 +47,26 @@ namespace AsteroidsRemake
             blackPolygon.Points = polygonPoints;
 
             BackgroundCanvas.Children.Add(blackPolygon);
+        }
+
+        private void DrawScene()
+        {
+            CreatePlayerShip();
+        }
+
+        private void MainWindow1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Space)
+            {
+                Ellipse el = new Ellipse
+                {
+                    Height = 50,
+                    Width = 50,
+                    Fill = Brushes.Black,
+                };
+
+                BackgroundCanvas.Children.Add(el);
+            }
         }
     }
 }

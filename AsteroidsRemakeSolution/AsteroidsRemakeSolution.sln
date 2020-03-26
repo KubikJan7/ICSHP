@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.29411.108
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsteroidsRemake", "AsteroidsRemake\AsteroidsRemake.csproj", "{6F4941DF-1A36-4411-8262-11F7FFC85D26}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsteroidsRemake.Common", "AsteroidsRemake.Common\AsteroidsRemake.Common.csproj", "{615E0C7A-8F24-41D9-962F-94C9804CE7BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsteroidsRemake.MathLibrary", "AsteroidsRemake.MathLibrary\AsteroidsRemake.MathLibrary.csproj", "{15822B39-E68A-4ED0-AC00-2E7F7D0EF94B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{6F4941DF-1A36-4411-8262-11F7FFC85D26}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F4941DF-1A36-4411-8262-11F7FFC85D26}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F4941DF-1A36-4411-8262-11F7FFC85D26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{615E0C7A-8F24-41D9-962F-94C9804CE7BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{615E0C7A-8F24-41D9-962F-94C9804CE7BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{615E0C7A-8F24-41D9-962F-94C9804CE7BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{615E0C7A-8F24-41D9-962F-94C9804CE7BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15822B39-E68A-4ED0-AC00-2E7F7D0EF94B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15822B39-E68A-4ED0-AC00-2E7F7D0EF94B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15822B39-E68A-4ED0-AC00-2E7F7D0EF94B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15822B39-E68A-4ED0-AC00-2E7F7D0EF94B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
