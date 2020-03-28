@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AsteroidsRemake"
         mc:Ignorable="d"
-        Title="MainWindow" ResizeMode="NoResize" Height="720" Width="1280" KeyDown="MainWindow1_KeyDown">
+        Title="MainWindow" ResizeMode="NoResize" Height="720" Width="1280" KeyDown="MainWindow1_KeyDown" KeyUp="MainWindow1_KeyUp">
     <Grid>
         <Canvas x:Name="BackgroundCanvas" Background="DimGray">
             <Polygon x:Name="playerPolygon" Points="640, 360 625, 400 655, 400">
@@ -14,6 +14,6 @@
                 </Polygon.RenderTransform>
             </Polygon>
         </Canvas>
-        
+
     </Grid>
 </Window>
