@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AsteroidsRemake.Common;
+using AsteroidsRemake.MathLibrary;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +15,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace AsteroidsRemake
 {
@@ -21,15 +24,39 @@ namespace AsteroidsRemake
     /// </summary>
     public partial class MainWindow : Window
     {
-        Storyboard storyboard;
+        private DispatcherTimer MainTimer = new DispatcherTimer();
+        private Storyboard storyboard;
+        private SpaceShip player;
+        private bool IsAccelerating { get; set; }
         public MainWindow()
         {
             InitializeComponent();
+            InitializeTimers();
             DrawScene();
+        }
+
+        private void InitializeTimers()
+        {
+            MainTimer.Tick += new EventHandler(MainTimer_Tick);
+            MainTimer.Interval = TimeSpan.FromMilliseconds(0.45);
+            MainTimer.Start();
+        }
+        private void MainTimer_Tick(object sender, EventArgs e)
+        {
+            if (IsAccelerating)
+                AccelerateShip();
+        }
+
+        private void DrawScene()
+        {
+            storyboard = new Storyboard();
+            CreatePlayerShip();
         }
 
         private void CreatePlayerShip()
         {
+            player = new SpaceShip(new Point(0, 0));
+
             SolidColorBrush colorBrush = new SolidColorBrush
             {
                 Color = Color.FromRgb(138, 148, 255)
@@ -51,9 +78,16 @@ namespace AsteroidsRemake
             BackgroundCanvas.Children.Add(el);
         }
 
+        private double oldRotation;
         private void AccelerateShip()
         {
+            Point shipCenter = player.Position;
+            Point shipVertex = MathClass.MovePointByGivenDistanceAndAngle(shipCenter, 20, polygonRotation.Angle);
+            player.Position = MathClass.MovePointTowards(shipCenter, shipVertex, -0.5);
+            Canvas.SetLeft(playerPolygon, - player.Position.X);
+            Canvas.SetTop(playerPolygon, player.Position.Y);
 
+            oldRotation = polygonRotation.Angle;
         }
 
         private double goalRotation;
@@ -61,17 +95,13 @@ namespace AsteroidsRemake
         {
             if (goalRotation == polygonRotation.Angle)
             {
-                double cX, cY;
-                Point a = playerPolygon.Points[0];
-                Point b = playerPolygon.Points[1];
-                Point c = playerPolygon.Points[2];
-                (cX, cY) = MathLibrary.MathClass.FindCenterOfTriangle(a.X, b.X, c.X, a.Y, b.Y, c.Y);
-                polygonRotation.CenterX = cX;
-                polygonRotation.CenterY = cY;
+                Point p = GetShipCenter();
+                polygonRotation.CenterX = p.X;
+                polygonRotation.CenterY = p.Y;
 
-                goalRotation = ((direction == "to left") ? polygonRotation.Angle - 360 : polygonRotation.Angle + 360);
+                goalRotation = ((direction == "to left") ? polygonRotation.Angle - 3600 : polygonRotation.Angle + 3600);
 
-                storyboard.Duration = new Duration(TimeSpan.FromSeconds(1));
+                storyboard.Duration = new Duration(TimeSpan.FromSeconds(10));
                 DoubleAnimation rotateAnimation = new DoubleAnimation()
                 {
                     From = polygonRotation.Angle,
@@ -86,25 +116,20 @@ namespace AsteroidsRemake
             }
         }
 
-        private void DrawScene()
-        {
-            storyboard = new Storyboard();
-            CreatePlayerShip();
-        }
-
         private void MainWindow1_KeyDown(object sender, KeyEventArgs e)
         {
             if (!e.IsRepeat) //when a key is held down
             {
-                storyboard.Resume(); //resume animation
-                goalRotation = polygonRotation.Angle;
+                if (e.Key == Key.A || e.Key == Key.Left || e.Key == Key.D || e.Key == Key.Right)
+                {
+                    storyboard.Resume(); //resume animation
+                    goalRotation = polygonRotation.Angle;
+                }
             }
             if (e.Key == Key.W || e.Key == Key.Up)
-                AccelerateShip();
+                IsAccelerating = true;
             else if (e.Key == Key.A || e.Key == Key.Left)
-            {
                 RotateShip("to left");
-            }
             else if (e.Key == Key.D || e.Key == Key.Right)
                 RotateShip("to right");
             else if (e.Key == Key.Space)
@@ -115,6 +140,19 @@ namespace AsteroidsRemake
         {
             if (e.Key == Key.A || e.Key == Key.Left || e.Key == Key.D || e.Key == Key.Right)
                 storyboard.Pause(); //pause rotating animation
+            if (e.Key == Key.W || e.Key == Key.Up)
+                IsAccelerating = false;
+        }
+        #endregion
+
+
+        #region Auxiliary methods
+        private Point GetShipCenter()
+        {
+            Point a = playerPolygon.Points[0];
+            Point b = playerPolygon.Points[1];
+            Point c = playerPolygon.Points[2];
+            return MathClass.FindCenterOfTriangle(a, b, c);
         }
         #endregion
     }
