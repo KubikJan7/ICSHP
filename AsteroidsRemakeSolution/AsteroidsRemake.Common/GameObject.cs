@@ -10,5 +10,9 @@ namespace AsteroidsRemake.Common
     public abstract class GameObject
     {
         public virtual Point Position { set; get; }
+        public virtual bool WasHit { get; set; }
+
+        public abstract void Update();
+
     }
 }

@@ -24,9 +24,10 @@ namespace AsteroidsRemake
     /// </summary>
     public partial class MainWindow : Window
     {
-        private DispatcherTimer MainTimer = new DispatcherTimer();
+        private DispatcherTimer mainTimer;
         private Storyboard storyboard;
-        private SpaceShip player;
+        private PlayerShip player;
+        private Dictionary<Shot, Ellipse> shotDict = new Dictionary<Shot, Ellipse>();
         private bool IsAccelerating { get; set; }
         public MainWindow()
         {
@@ -37,14 +38,17 @@ namespace AsteroidsRemake
 
         private void InitializeTimers()
         {
-            MainTimer.Tick += new EventHandler(MainTimer_Tick);
-            MainTimer.Interval = TimeSpan.FromMilliseconds(0.45);
-            MainTimer.Start();
+            mainTimer = new DispatcherTimer();
+            mainTimer.Tick += new EventHandler(MainTimer_Tick);
+            mainTimer.Interval = TimeSpan.FromMilliseconds(0.45);
+            mainTimer.Start();
         }
         private void MainTimer_Tick(object sender, EventArgs e)
         {
             if (IsAccelerating)
                 AccelerateShip();
+            CreateNoEdgeScreen();
+            Shoot();
         }
 
         private void DrawScene()
@@ -55,7 +59,7 @@ namespace AsteroidsRemake
 
         private void CreatePlayerShip()
         {
-            player = new SpaceShip(new Point(0, 0));
+            player = new PlayerShip(new Point(0, 0));
 
             SolidColorBrush colorBrush = new SolidColorBrush
             {
@@ -65,29 +69,90 @@ namespace AsteroidsRemake
             playerPolygon.Fill = colorBrush;
         }
 
-        #region ship controlling methods
-        private void Shoot()
+        private void CreateNoEdgeScreen()
         {
-            Ellipse el = new Ellipse
+            // Check a collision with a window edge
+            if (player.Position.X > MainWindow1.Width / 2 + 20 || player.Position.X < -(MainWindow1.Width / 2 + 20) 
+                || player.Position.Y > MainWindow1.Height / 2 + 20 || player.Position.Y < -(MainWindow1.Height / 2 + 20))
             {
-                Height = 7,
-                Width = 7,
-                Fill = Brushes.Black,
-            };
+                double relativeScreenW = MainWindow1.Width / 2 + 20;
+                double relativeScreenH = MainWindow1.Height / 2 + 20;
 
-            BackgroundCanvas.Children.Add(el);
+                if (player.Position.X > relativeScreenW)
+                {
+                    player.Position = new Point(-relativeScreenW, player.Position.Y);
+                }
+                else if (player.Position.X < -relativeScreenW)
+                {
+                    player.Position = new Point(relativeScreenW, player.Position.Y);
+                }
+                else if (player.Position.Y > relativeScreenH)
+                {
+                    player.Position = new Point(player.Position.X, -relativeScreenH);
+                }
+                else if (player.Position.Y < -relativeScreenH)
+                {
+                    player.Position = new Point(player.Position.X, relativeScreenH);
+                }
+                Canvas.SetLeft(playerPolygon, player.Position.X);
+                Canvas.SetTop(playerPolygon, player.Position.Y);
+            }
         }
 
-        private double oldRotation;
+        #region ship controlling methods
+        private void PrepareShot()
+        {
+            // Get the shooting starting point
+            Point shotStart = MathClass.MovePointByGivenDistanceAndAngle(player.Position, 30, polygonRotation.Angle);
+            // Calculate the position of the shot vanishing spot
+            Point shotEnd = MathClass.MovePointByGivenDistanceAndAngle(shotStart, 640, polygonRotation.Angle);
+            // Create shot with target set in front of the ship nose
+            Shot shot = new Shot(shotStart,shotEnd);
+            SolidColorBrush colorBrush = new SolidColorBrush
+            {
+                Color = Color.FromRgb(249, 248, 113)
+            };
+            Ellipse el = new Ellipse
+            {
+                Height = 5,
+                Width = 5,
+                Fill = colorBrush,
+            };
+
+            shotDict.Add(shot, el);
+            BackgroundCanvas.Children.Add(el);
+        }
+        private void Shoot()
+        {
+            if(shotDict.Count>0)
+            {
+                KeyValuePair<Shot, Ellipse> item;
+                for (int i = 0; i < shotDict.Count; i++)
+                {
+                    item = shotDict.ElementAt(i);
+                    item.Key.Position = MathClass.MovePointTowards(item.Key.Position, item.Key.Target, 0.4);
+                    Canvas.SetLeft(item.Value, item.Key.Position.X+640);
+                    Canvas.SetTop(item.Value, -item.Key.Position.Y+360);
+
+                    if (MathClass.IsPointInsideCircle(item.Key.Target.X,item.Key.Target.Y,2,item.Key.Position.X,item.Key.Position.Y))
+                    {
+                        BackgroundCanvas.Children.Remove(item.Value);
+                        shotDict.Remove(item.Key);
+                    }
+                }
+            }
+        }
         private void AccelerateShip()
         {
+            // Get the current player position
             Point shipCenter = player.Position;
-            Point shipVertex = MathClass.MovePointByGivenDistanceAndAngle(shipCenter, 20, polygonRotation.Angle);
-            player.Position = MathClass.MovePointTowards(shipCenter, shipVertex, -0.5);
-            Canvas.SetLeft(playerPolygon, - player.Position.X);
-            Canvas.SetTop(playerPolygon, player.Position.Y);
-
-            oldRotation = polygonRotation.Angle;
+            // Calculate the position of the ship front part
+            Point shipNose = MathClass.MovePointByGivenDistanceAndAngle(shipCenter, 20, polygonRotation.Angle);
+            // Move the ship in the forward direction (ship nose) by the specified step
+            player.Position = MathClass.MovePointTowards(shipCenter, shipNose, 0.5);
+            // Display the new position on the canvas
+            Canvas.SetLeft(playerPolygon, player.Position.X);
+            Canvas.SetTop(playerPolygon, -player.Position.Y); // minus sign due to the use of the canvas top component
         }
 
         private double goalRotation;
@@ -98,7 +163,7 @@ namespace AsteroidsRemake
                 Point p = GetShipCenter();
                 polygonRotation.CenterX = p.X;
                 polygonRotation.CenterY = p.Y;
-
+                // Will set the goal rotation depending on the current direction
                 goalRotation = ((direction == "to left") ? polygonRotation.Angle - 3600 : polygonRotation.Angle + 3600);
 
                 storyboard.Duration = new Duration(TimeSpan.FromSeconds(10));
@@ -118,11 +183,13 @@ namespace AsteroidsRemake
 
         private void MainWindow1_KeyDown(object sender, KeyEventArgs e)
         {
-            if (!e.IsRepeat) //when a key is held down
+            // Check if a key is held down
+            if (!e.IsRepeat)
             {
                 if (e.Key == Key.A || e.Key == Key.Left || e.Key == Key.D || e.Key == Key.Right)
                 {
-                    storyboard.Resume(); //resume animation
+                    // Resume animation
+                    storyboard.Resume();
                     goalRotation = polygonRotation.Angle;
                 }
             }
@@ -133,13 +200,13 @@ namespace AsteroidsRemake
             else if (e.Key == Key.D || e.Key == Key.Right)
                 RotateShip("to right");
             else if (e.Key == Key.Space)
-                Shoot();
+                PrepareShot();
         }
 
         private void MainWindow1_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.A || e.Key == Key.Left || e.Key == Key.D || e.Key == Key.Right)
-                storyboard.Pause(); //pause rotating animation
+                storyboard.Pause(); // Pause the animation of rotation
             if (e.Key == Key.W || e.Key == Key.Up)
                 IsAccelerating = false;
         }

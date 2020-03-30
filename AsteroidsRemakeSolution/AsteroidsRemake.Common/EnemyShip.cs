@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AsteroidsRemake.Common
 {
-    public class Asteroid:GameObject
+    public class EnemyShip:GameObject
     {
         public override void Update()
         {

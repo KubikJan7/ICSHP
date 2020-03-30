@@ -7,13 +7,17 @@ using System.Windows;
 
 namespace AsteroidsRemake.Common
 {
-    public class SpaceShip : GameObject
+    public class PlayerShip : GameObject
     {
         public int Lives { get; set; }
 
-        public SpaceShip(Point position)
+        public PlayerShip(Point position)
         {
             Position = position;
+        }
+        public override void Update()
+        {
+
         }
     }
 }

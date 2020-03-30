@@ -15,22 +15,6 @@ namespace AsteroidsRemake.MathLibrary
         }
 
         /// <summary>
-        /// Rotate a point around an origin
-        /// </summary>
-        /// <param name="origin"></param>
-        /// <param name="pointToRotate"></param>
-        /// <param name="angle"></param>
-        /// <returns>Rotated point</returns>
-        public static Point RotatePointAroundOrigin(Point origin, Point pointToRotate, double angle)
-        {
-            Point result = new Point();
-            double x = pointToRotate.X - origin.X;
-            double y = pointToRotate.Y - origin.Y;
-            result.X = (x*Math.Cos(angle))-(y*Math.Sin(angle))+origin.X;
-            result.Y = (y*Math.Cos(angle))-(x*Math.Sin(angle))+origin.Y;
-            return result;
-        }
-        /// <summary>
         /// Move point A closer to point B by given step
         /// </summary>
         /// <param name="a"></param>
@@ -45,9 +29,33 @@ namespace AsteroidsRemake.MathLibrary
             return new Point(a.X + unitVector.X * step, a.Y + unitVector.Y * step);
         }
 
+        /// <summary>
+        /// Will move a point to a coordination specified by a distance and angle
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="dist"></param>
+        /// <param name="angle"></param>
+        /// <returns>Point with new coordination</returns>
         public static Point MovePointByGivenDistanceAndAngle(Point point, double dist, double angle)
         {
             return new Point(point.X + (Math.Sin(Math.PI / 180 * angle) * dist), point.Y + (Math.Cos(Math.PI / 180 * angle) * dist));
+        }
+
+        /// <summary>
+        /// Compare radius of circle with distance of its center from given point 
+        /// </summary>
+        /// <param name="circle_x"></param>
+        /// <param name="circle_y"></param>
+        /// <param name="radius"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns>Boolean</returns>
+        public static bool IsPointInsideCircle(double circle_x, double circle_y, int radius, double x, double y)
+        {
+            if ((x - circle_x) * (x - circle_x) + (y - circle_y) * (y - circle_y) <= radius * radius)
+                return true;
+            else
+                return false;
         }
     }
 }
