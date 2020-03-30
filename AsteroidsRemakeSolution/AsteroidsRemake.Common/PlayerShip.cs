@@ -11,14 +11,16 @@ namespace AsteroidsRemake.Common
     {
         public int Lives { get; set; }
         public int Score { get; set; }
-        public double Speed { get; set; }
+        public double Velocity { get; set; }
+        /// <summary>
+        /// Stores value of the direction in which is the ship moving 
+        /// Used to simulate the inertia motion
+        /// </summary>
+        public double MotionDirection { get; set; } 
 
         public PlayerShip(Point position)
         {
             Position = position;
-            Lives = 0;
-            Score = 0;
-            Speed = 0;
         }
         public override void Update()
         {

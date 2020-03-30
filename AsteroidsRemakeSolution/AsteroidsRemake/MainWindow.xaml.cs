@@ -45,8 +45,8 @@ namespace AsteroidsRemake
         }
         private void MainTimer_Tick(object sender, EventArgs e)
         {
-            ManageProgressiveSpeed();
-            if (player.Speed > 0)
+            ManageVelocity(); // increase or decrease the ship velocity through the time
+            if (player.Velocity > -0.2)
             {
                 AccelerateShip();
             }
@@ -76,11 +76,11 @@ namespace AsteroidsRemake
         private void CreateNoEdgeScreen()
         {
             // Check a collision with a window edge
-            if (player.Position.X > MainWindow1.Width / 2 + 20 || player.Position.X < -(MainWindow1.Width / 2 + 20)
-                || player.Position.Y > MainWindow1.Height / 2 + 20 || player.Position.Y < -(MainWindow1.Height / 2 + 20))
+            if (player.Position.X > MainWindow1.Width / 2 || player.Position.X < -(MainWindow1.Width / 2 )
+                || player.Position.Y > MainWindow1.Height / 2 || player.Position.Y < -(MainWindow1.Height / 2 ))
             {
-                double relativeScreenW = MainWindow1.Width / 2 + 20;
-                double relativeScreenH = MainWindow1.Height / 2 + 20;
+                double relativeScreenW = MainWindow1.Width / 2;
+                double relativeScreenH = MainWindow1.Height / 2-10;
 
                 if (player.Position.X > relativeScreenW)
                 {
@@ -146,29 +146,36 @@ namespace AsteroidsRemake
                 }
             }
         }
-        private double flightRotation;
         private void AccelerateShip()
         {
+            double movementStep = 0.5;
             // Get the current player position
             Point shipCenter = player.Position;
-
+            // Key W is pressed
             if (IsAccelerating)
-                flightRotation = polygonRotation.Angle;
+            {
+                double angleDifference = MathClass.FindDifferenceOfTwoAngles(player.MotionDirection, polygonRotation.Angle);
+                // Check if the ship is moving backwards
+                if (angleDifference >= 120 && angleDifference <= 240)
+                    player.Velocity *= -0.3; // set negative value to move slowly backwards (inertia)
+                
+                player.MotionDirection = polygonRotation.Angle;
+            }
             // Calculate the position of the ship front part
-            Point shipNose = MathClass.MovePointByGivenDistanceAndAngle(shipCenter, 20, flightRotation);
+            Point shipNose = MathClass.MovePointByGivenDistanceAndAngle(shipCenter, 20, player.MotionDirection);
             // Move the ship in the forward direction (ship nose) by the specified step
-            player.Position = MathClass.MovePointTowards(shipCenter, shipNose, 0.5 * player.Speed);
+            player.Position = MathClass.MovePointTowards(shipCenter, shipNose, movementStep * player.Velocity);
             // Display the new position on the canvas
             Canvas.SetLeft(playerPolygon, player.Position.X);
             Canvas.SetTop(playerPolygon, -player.Position.Y); // minus sign due to the use of the canvas top component
         }
 
-        private void ManageProgressiveSpeed()
+        private void ManageVelocity()
         {
-            if (IsAccelerating && player.Speed < 1)
-                player.Speed += 0.0001;
-            else if (!IsAccelerating && player.Speed > 0)
-                player.Speed -= 0.0001;
+            if (IsAccelerating && player.Velocity < 1 )
+                player.Velocity += 0.0001; // accelerating
+            else if (!IsAccelerating && player.Velocity > 0)
+                player.Velocity -= 0.0001; // slowing down
         }
 
         private double goalRotation;
