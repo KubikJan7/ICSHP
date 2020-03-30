@@ -45,8 +45,12 @@ namespace AsteroidsRemake
         }
         private void MainTimer_Tick(object sender, EventArgs e)
         {
-            if (IsAccelerating)
+            ManageProgressiveSpeed();
+            if (player.Speed > 0)
+            {
                 AccelerateShip();
+            }
+
             CreateNoEdgeScreen();
             Shoot();
         }
@@ -72,7 +76,7 @@ namespace AsteroidsRemake
         private void CreateNoEdgeScreen()
         {
             // Check a collision with a window edge
-            if (player.Position.X > MainWindow1.Width / 2 + 20 || player.Position.X < -(MainWindow1.Width / 2 + 20) 
+            if (player.Position.X > MainWindow1.Width / 2 + 20 || player.Position.X < -(MainWindow1.Width / 2 + 20)
                 || player.Position.Y > MainWindow1.Height / 2 + 20 || player.Position.Y < -(MainWindow1.Height / 2 + 20))
             {
                 double relativeScreenW = MainWindow1.Width / 2 + 20;
@@ -107,7 +111,7 @@ namespace AsteroidsRemake
             // Calculate the position of the shot vanishing spot
             Point shotEnd = MathClass.MovePointByGivenDistanceAndAngle(shotStart, 640, polygonRotation.Angle);
             // Create shot with target set in front of the ship nose
-            Shot shot = new Shot(shotStart,shotEnd);
+            Shot shot = new Shot(shotStart, shotEnd);
             SolidColorBrush colorBrush = new SolidColorBrush
             {
                 Color = Color.FromRgb(249, 248, 113)
@@ -124,17 +128,17 @@ namespace AsteroidsRemake
         }
         private void Shoot()
         {
-            if(shotDict.Count>0)
+            if (shotDict.Count > 0)
             {
                 KeyValuePair<Shot, Ellipse> item;
                 for (int i = 0; i < shotDict.Count; i++)
                 {
                     item = shotDict.ElementAt(i);
                     item.Key.Position = MathClass.MovePointTowards(item.Key.Position, item.Key.Target, 0.4);
-                    Canvas.SetLeft(item.Value, item.Key.Position.X+640);
-                    Canvas.SetTop(item.Value, -item.Key.Position.Y+360);
+                    Canvas.SetLeft(item.Value, item.Key.Position.X + 640);
+                    Canvas.SetTop(item.Value, -item.Key.Position.Y + 360);
 
-                    if (MathClass.IsPointInsideCircle(item.Key.Target.X,item.Key.Target.Y,2,item.Key.Position.X,item.Key.Position.Y))
+                    if (MathClass.IsPointInsideCircle(item.Key.Target.X, item.Key.Target.Y, 2, item.Key.Position.X, item.Key.Position.Y))
                     {
                         BackgroundCanvas.Children.Remove(item.Value);
                         shotDict.Remove(item.Key);
@@ -142,17 +146,29 @@ namespace AsteroidsRemake
                 }
             }
         }
+        private double flightRotation;
         private void AccelerateShip()
         {
             // Get the current player position
             Point shipCenter = player.Position;
+
+            if (IsAccelerating)
+                flightRotation = polygonRotation.Angle;
             // Calculate the position of the ship front part
-            Point shipNose = MathClass.MovePointByGivenDistanceAndAngle(shipCenter, 20, polygonRotation.Angle);
+            Point shipNose = MathClass.MovePointByGivenDistanceAndAngle(shipCenter, 20, flightRotation);
             // Move the ship in the forward direction (ship nose) by the specified step
-            player.Position = MathClass.MovePointTowards(shipCenter, shipNose, 0.5);
+            player.Position = MathClass.MovePointTowards(shipCenter, shipNose, 0.5 * player.Speed);
             // Display the new position on the canvas
             Canvas.SetLeft(playerPolygon, player.Position.X);
             Canvas.SetTop(playerPolygon, -player.Position.Y); // minus sign due to the use of the canvas top component
+        }
+
+        private void ManageProgressiveSpeed()
+        {
+            if (IsAccelerating && player.Speed < 1)
+                player.Speed += 0.0001;
+            else if (!IsAccelerating && player.Speed > 0)
+                player.Speed -= 0.0001;
         }
 
         private double goalRotation;

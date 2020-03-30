@@ -57,5 +57,18 @@ namespace AsteroidsRemake.MathLibrary
             else
                 return false;
         }
+
+        /// <summary>
+        /// Will find difference between two angles
+        /// </summary>
+        /// <param name="alpha"></param>
+        /// <param name="beta"></param>
+        /// <returns>Difference of two angles</returns>
+        public static double FindDifferenceOfTwoAngles(double alpha, double beta)
+        {
+            double phi = Math.Abs(beta - alpha) % 360;
+            double distance = phi > 180 ? 360 - phi : phi;
+            return distance;
+        }
     }
 }
