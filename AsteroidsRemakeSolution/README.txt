@@ -1,28 +1,28 @@
 ï»¿----------------------------------------------------
-Semestrální práce - ICSHP
+SemestrÃ¡lnÃ­ prÃ¡ce - ICSHP
 ----------------------------------------------------
 
-Téma: Remake videohry Asteroids
+TÃ©ma: Remake videohry Asteroids
 
-Základní body
- - Herní plocha bez hranic (2D torus)
- - Reprezentace herních objektù pomocí základních geometrickıch tvarù
- - Ovládání hráèovi vesmírné lodì klávesami (šipky, wasd -> pohyb; mezerník - støelba; shift - cestování hyperprostorem)
- - Pohyb hráèovi lodì zahrnuje i jednoduchou simulaci setrvaènosti
- - Náhodné generování asteroidù a jejich pohybu na zaèátku hry a po jejich znièení
- - 3 velikosti asteroidù -> pøi kolizi rozpad na 2 menší
- - Jednoduchá AI nepøátelskıch lodí -> pohyb jedním smìrem, støelba
- - Zobrazení herního skóre a ivotù
- - Postupné navyšování obtínosti
+ZÃ¡kladnÃ­ body
+ - HernÃ­ plocha bez hranic (2D torus)
+ - Reprezentace hernÃ­ch objektÅ¯ pomocÃ­ zÃ¡kladnÃ­ch geometrickÃ½ch tvarÅ¯
+ - OvlÃ¡dÃ¡nÃ­ hrÃ¡Äovi vesmÃ­rnÃ© lodÄ› klÃ¡vesami (Å¡ipky, wasd -> pohyb; mezernÃ­k - stÅ™elba; shift - cestovÃ¡nÃ­ hyperprostorem)
+ - Pohyb hrÃ¡Äovi lodÄ› zahrnuje i jednoduchou simulaci setrvaÄnosti
+ - NÃ¡hodnÃ© generovÃ¡nÃ­ asteroidÅ¯ a jejich pohybu na zaÄÃ¡tku hry a po jejich zniÄenÃ­
+ - 3 velikosti asteroidÅ¯ -> pÅ™i kolizi rozpad na 2 menÅ¡Ã­
+ - JednoduchÃ¡ AI nepÅ™Ã¡telskÃ½ch lodÃ­ -> pohyb jednÃ­m smÄ›rem, stÅ™elba
+ - ZobrazenÃ­ hernÃ­ho skÃ³re a Å¾ivotÅ¯
+ - PostupnÃ© navyÅ¡ovÃ¡nÃ­ obtÃ­Å¾nosti
 
-Rozšiøující body
- - Lepší vizualizace -> propracovanìjší reprezentace herních objektù, pøidání pozadí, explozí atd.
- - Pøidání zvukovıch efektù (støelba, kolize, ...)
+RozÅ¡iÅ™ujÃ­cÃ­ body
+ - LepÅ¡Ã­ vizualizace -> propracovanÄ›jÅ¡Ã­ reprezentace hernÃ­ch objektÅ¯, pÅ™idÃ¡nÃ­ pozadÃ­, explozÃ­ atd.
+ - PÅ™idÃ¡nÃ­ zvukovÃ½ch efektÅ¯ (stÅ™elba, kolize, ...)
  
-Poznámka
- - V poadavcích zadání je uvedeno, e má hra obsahovat naèítání 
-   herní mapy/plochy ze souborù. Herní plocha tohoto typu videohry 
-   však neobsahuje objekty, je by byly vhodné pro naèítání. 
-   Jako øešení by se nabízelo odklonìní se od konceptu pùvodní hry 
-   a pøidání pevnıch herních objektù (pøekáek), kterım by se hráè 
-   musel vyhıbat.   
+PoznÃ¡mka
+ - V poÅ¾adavcÃ­ch zadÃ¡nÃ­ je uvedeno, Å¾e mÃ¡ hra obsahovat naÄÃ­tÃ¡nÃ­ 
+   hernÃ­ mapy/plochy ze souborÅ¯. HernÃ­ plocha tohoto typu videohry 
+   vÅ¡ak neobsahuje objekty, jeÅ¾ by byly vhodnÃ© pro naÄÃ­tÃ¡nÃ­. 
+   Jako Å™eÅ¡enÃ­ by se nabÃ­zelo odklonÄ›nÃ­ se od konceptu pÅ¯vodnÃ­ hry 
+   a pÅ™idÃ¡nÃ­ pevnÃ½ch hernÃ­ch objektÅ¯ (pÅ™ekÃ¡Å¾ek), kterÃ½m by se hrÃ¡Ä 
+   musel vyhÃ½bat. 
