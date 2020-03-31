@@ -134,7 +134,7 @@ namespace AsteroidsRemake
                 for (int i = 0; i < shotDict.Count; i++)
                 {
                     item = shotDict.ElementAt(i);
-                    item.Key.Position = MathClass.MovePointTowards(item.Key.Position, item.Key.Target, 0.4);
+                    item.Key.Position = MathClass.MovePointTowards(item.Key.Position, item.Key.Target, 0.45);
                     Canvas.SetLeft(item.Value, item.Key.Position.X + 640);
                     Canvas.SetTop(item.Value, -item.Key.Position.Y + 360);
 
@@ -148,7 +148,7 @@ namespace AsteroidsRemake
         }
         private void AccelerateShip()
         {
-            double movementStep = 0.5;
+            double movementStep = 0.25;
             // Get the current player position
             Point shipCenter = player.Position;
             // Key W is pressed
