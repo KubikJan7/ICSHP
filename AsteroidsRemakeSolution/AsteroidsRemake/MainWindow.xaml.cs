@@ -157,14 +157,16 @@ namespace AsteroidsRemake
                 double angleDifference = MathClass.FindDifferenceOfTwoAngles(player.MotionDirection, polygonRotation.Angle);
                 // Check if the ship is moving backwards
                 if (angleDifference >= 120 && angleDifference <= 240)
-                    player.Velocity *= -0.3; // set negative value to move slowly backwards (inertia)
+                    player.Velocity *= -0.4; // set negative value to move slowly backwards (inertia)
                 
                 player.MotionDirection = polygonRotation.Angle;
             }
             // Calculate the position of the ship front part
-            Point shipNose = MathClass.MovePointByGivenDistanceAndAngle(shipCenter, 20, player.MotionDirection);
+            //Point shipNose = MathClass.MovePointByGivenDistanceAndAngle(shipCenter, 20, player.MotionDirection);
             // Move the ship in the forward direction (ship nose) by the specified step
-            player.Position = MathClass.MovePointTowards(shipCenter, shipNose, movementStep * player.Velocity);
+            //player.Position = MathClass.MovePointTowards(shipCenter, shipNose, movementStep * player.Velocity);
+            player.Position = MathClass.MovePointByGivenDistanceAndAngle(player.Position, movementStep 
+                * player.Velocity, player.MotionDirection);
             // Display the new position on the canvas
             Canvas.SetLeft(playerPolygon, player.Position.X);
             Canvas.SetTop(playerPolygon, -player.Position.Y); // minus sign due to the use of the canvas top component
@@ -175,7 +177,7 @@ namespace AsteroidsRemake
             if (IsAccelerating && player.Velocity < 1 )
                 player.Velocity += 0.0001; // accelerating
             else if (!IsAccelerating && player.Velocity > 0)
-                player.Velocity -= 0.0001; // slowing down
+                player.Velocity -= 0.000001; // slowing down
         }
 
         private double goalRotation;
