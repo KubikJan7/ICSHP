@@ -40,16 +40,13 @@ namespace AsteroidsRemake
         {
             mainTimer = new DispatcherTimer();
             mainTimer.Tick += new EventHandler(MainTimer_Tick);
-            mainTimer.Interval = TimeSpan.FromMilliseconds(0.45);
+            mainTimer.Interval = TimeSpan.FromMilliseconds(0.1);
             mainTimer.Start();
         }
         private void MainTimer_Tick(object sender, EventArgs e)
         {
             ManageVelocity(); // increase or decrease the ship velocity through the time
-            if (player.Velocity > -0.2)
-            {
-                AccelerateShip();
-            }
+            AccelerateShip();
 
             CreateNoEdgeScreen();
             Shoot();
@@ -76,11 +73,11 @@ namespace AsteroidsRemake
         private void CreateNoEdgeScreen()
         {
             // Check a collision with a window edge
-            if (player.Position.X > MainWindow1.Width / 2 || player.Position.X < -(MainWindow1.Width / 2 )
-                || player.Position.Y > MainWindow1.Height / 2 || player.Position.Y < -(MainWindow1.Height / 2 ))
+            if (player.Position.X > MainWindow1.Width / 2 || player.Position.X < -(MainWindow1.Width / 2)
+                || player.Position.Y > MainWindow1.Height / 2 || player.Position.Y < -(MainWindow1.Height / 2))
             {
                 double relativeScreenW = MainWindow1.Width / 2;
-                double relativeScreenH = MainWindow1.Height / 2-10;
+                double relativeScreenH = MainWindow1.Height / 2 - 10;
 
                 if (player.Position.X > relativeScreenW)
                 {
@@ -148,24 +145,23 @@ namespace AsteroidsRemake
         }
         private void AccelerateShip()
         {
-            double movementStep = 0.25;
+            double movementStep = 0.1;
+            double desiredRotation = 0;
             // Get the current player position
             Point shipCenter = player.Position;
             // Key W is pressed
             if (IsAccelerating)
             {
                 double angleDifference = MathClass.FindDifferenceOfTwoAngles(player.MotionDirection, polygonRotation.Angle);
+                if ((angleDifference >= 20 && angleDifference < 160) || (angleDifference > 200 && angleDifference <= 340))
+                    player.Velocity = 0;
                 // Check if the ship is moving backwards
-                if (angleDifference >= 120 && angleDifference <= 240)
-                    player.Velocity *= -0.4; // set negative value to move slowly backwards (inertia)
-                
+                else if (angleDifference >= 160 && angleDifference <= 200)
+                    player.Velocity *= -1; // set negative value to move slowly backwards (inertia)
                 player.MotionDirection = polygonRotation.Angle;
             }
-            // Calculate the position of the ship front part
-            //Point shipNose = MathClass.MovePointByGivenDistanceAndAngle(shipCenter, 20, player.MotionDirection);
             // Move the ship in the forward direction (ship nose) by the specified step
-            //player.Position = MathClass.MovePointTowards(shipCenter, shipNose, movementStep * player.Velocity);
-            player.Position = MathClass.MovePointByGivenDistanceAndAngle(player.Position, movementStep 
+            player.Position = MathClass.MovePointByGivenDistanceAndAngle(player.Position, movementStep
                 * player.Velocity, player.MotionDirection);
             // Display the new position on the canvas
             Canvas.SetLeft(playerPolygon, player.Position.X);
@@ -174,8 +170,8 @@ namespace AsteroidsRemake
 
         private void ManageVelocity()
         {
-            if (IsAccelerating && player.Velocity < 1 )
-                player.Velocity += 0.0001; // accelerating
+            if (IsAccelerating && player.Velocity < 1)
+                player.Velocity += 0.0003; // accelerating
             else if (!IsAccelerating && player.Velocity > 0)
                 player.Velocity -= 0.000001; // slowing down
         }
@@ -206,6 +202,11 @@ namespace AsteroidsRemake
             }
         }
 
+        private void TravelThroughHyperspace()
+        {
+            throw new NotImplementedException();
+        }
+
         private void MainWindow1_KeyDown(object sender, KeyEventArgs e)
         {
             // Check if a key is held down
@@ -226,6 +227,8 @@ namespace AsteroidsRemake
                 RotateShip("to right");
             else if (e.Key == Key.Space)
                 PrepareShot();
+            else if (e.Key == Key.LeftShift || e.Key == Key.RightShift)
+                TravelThroughHyperspace();
         }
 
         private void MainWindow1_KeyUp(object sender, KeyEventArgs e)
