@@ -27,6 +27,8 @@ namespace AsteroidsRemake
         private DispatcherTimer mainTimer;
         private DispatcherTimer activateBtnTimer;
         private Storyboard storyboard;
+
+        private List<GameObject> gameObjects = new List<GameObject>();
         private PlayerShip player;
         private Dictionary<Shot, Ellipse> shotDict = new Dictionary<Shot, Ellipse>();
         private bool IsAccelerating { get; set; }
@@ -68,11 +70,13 @@ namespace AsteroidsRemake
         {
             storyboard = new Storyboard();
             CreatePlayerShip();
+            CreateAsteroids();
         }
 
         private void CreatePlayerShip()
         {
-            player = new PlayerShip(new Point(0, 0));
+            player = new PlayerShip(new Point(0, 0), 40);
+            gameObjects.Add(player);
 
             SolidColorBrush colorBrush = new SolidColorBrush
             {
@@ -80,6 +84,45 @@ namespace AsteroidsRemake
             };
 
             playerPolygon.Fill = colorBrush;
+        }
+
+        private int asteroidCount = 4;
+        private void CreateAsteroids()
+        {
+
+            SolidColorBrush colorBrush = new SolidColorBrush
+            {
+                Color = Color.FromRgb(132, 118, 85)
+            };
+
+            for (int i = 0; i < asteroidCount; i++)
+            {
+                bool hasCollision;
+                Asteroid asteroid = new Asteroid(200);
+                gameObjects.Add(asteroid);
+                do
+                {
+                    Point position = GenerateObjectPosition(asteroid.Size);
+                    asteroid.Position = position;
+
+                    hasCollision = FindCollisionWithOtherObjects(asteroid);
+
+                } while (hasCollision);
+
+                Ellipse el = new Ellipse
+                {
+                    Width = asteroid.Size,
+                    Height = asteroid.Size,
+                    Fill = colorBrush,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                // The substraction by the (asteroid.Size/2) is used so the circle is drawn from its center 
+                Canvas.SetLeft(el, asteroid.Position.X - asteroid.Size / 2);
+                Canvas.SetTop(el, asteroid.Position.Y - asteroid.Size / 2);
+                BackgroundCanvas.Children.Add(el);
+            }
+            asteroidCount++;
         }
 
         private void CreateNoEdgeScreen()
@@ -120,15 +163,15 @@ namespace AsteroidsRemake
             // Calculate the position of the shot vanishing spot
             Point shotEnd = MathClass.MovePointByGivenDistanceAndAngle(shotStart, 640, polygonRotation.Angle);
             // Create shot with target set in front of the ship nose
-            Shot shot = new Shot(shotStart, shotEnd);
+            Shot shot = new Shot(shotStart, shotEnd, 5);
             SolidColorBrush colorBrush = new SolidColorBrush
             {
                 Color = Color.FromRgb(249, 248, 113)
             };
             Ellipse el = new Ellipse
             {
-                Height = 5,
-                Width = 5,
+                Height = shot.Size,
+                Width = shot.Size,
                 Fill = colorBrush,
             };
 
@@ -221,7 +264,8 @@ namespace AsteroidsRemake
             if (HyperDriveActive)
             {
                 HyperDriveActive = false;
-                player.Position = GenerateObjectPosition();
+                Point pos = GenerateObjectPosition(40);
+                player.Position = new Point(pos.X - MainWindow1.Width / 2, pos.Y - MainWindow1.Height / 2); //position relative to the polygon
             }
         }
 
@@ -268,16 +312,36 @@ namespace AsteroidsRemake
             return MathClass.FindCenterOfTriangle(a, b, c);
         }
 
-        private Point GenerateObjectPosition()
+        private Point GenerateObjectPosition(double size)
         {
-            double minWidth = -MainWindow1.Width / 2 + 20;
-            double maxWidth = MainWindow1.Width / 2 - 20;
-            double minHeight = -MainWindow1.Height / 2 + 20;
-            double maxHeight = MainWindow1.Height / 2 - 20;
+            double minWidth = 0 + size / 2.0;
+            double maxWidth = MainWindow1.Width - size / 2.0;
+            double minHeight = 0 + size / 2.0;
+            double maxHeight = MainWindow1.Height - size / 2.0;
 
             double x = random.NextDouble() * (maxWidth - minWidth) + minWidth;
             double y = random.NextDouble() * (maxHeight - minHeight) + minHeight;
             return new Point(x, y);
+        }
+
+        private bool FindCollisionWithOtherObjects(GameObject gameObject)
+        {
+            foreach (var item in gameObjects)
+            {
+                if (gameObject.Equals(item))
+                    continue;
+
+                double dist;
+                if (item is PlayerShip)
+                    dist = MathClass.GetDistance(gameObject.Position.X, item.Position.X + MainWindow1.Width / 2,
+                        gameObject.Position.Y, item.Position.Y + MainWindow1.Height / 2);
+                else
+                dist = MathClass.GetDistance(gameObject.Position.X, item.Position.X, gameObject.Position.Y, item.Position.Y);
+                double radSum = gameObject.Size / 2.0 + item.Size / 2.0;
+                if (dist < radSum)
+                    return true;
+            }
+            return false;
         }
         #endregion
     }

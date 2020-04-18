@@ -16,10 +16,11 @@ namespace AsteroidsRemake.Common
             throw new NotImplementedException();
         }
 
-        public Shot(Point position, Point target)
+        public Shot(Point position, Point target, int size)
         {
             Position = position;
             Target = target;
+            Size = size;
         }
     }
 }

@@ -70,5 +70,18 @@ namespace AsteroidsRemake.MathLibrary
             double distance = phi > 180 ? 360 - phi : phi;
             return distance;
         }
+
+        /// <summary>
+        /// Returns distance between 2 points
+        /// </summary>
+        /// <param name="x1"></param>
+        /// <param name="x2"></param>
+        /// <param name="y1"></param>
+        /// <param name="y2"></param>
+        /// <returns>distance in double</returns>
+        public static double GetDistance(double x1, double x2, double y1, double y2)
+        {
+            return Math.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+        }
     }
 }

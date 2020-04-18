@@ -18,9 +18,10 @@ namespace AsteroidsRemake.Common
         /// </summary>
         public double MotionDirection { get; set; } 
 
-        public PlayerShip(Point position)
+        public PlayerShip(Point position, int size)
         {
             Position = position;
+            Size = size;
         }
         public override void Update()
         {
