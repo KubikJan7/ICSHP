@@ -25,10 +25,12 @@ namespace AsteroidsRemake
     public partial class MainWindow : Window
     {
         private DispatcherTimer mainTimer;
+        private DispatcherTimer activateBtnTimer;
         private Storyboard storyboard;
         private PlayerShip player;
         private Dictionary<Shot, Ellipse> shotDict = new Dictionary<Shot, Ellipse>();
         private bool IsAccelerating { get; set; }
+        private Random random = new Random();
         public MainWindow()
         {
             InitializeComponent();
@@ -42,6 +44,11 @@ namespace AsteroidsRemake
             mainTimer.Tick += new EventHandler(MainTimer_Tick);
             mainTimer.Interval = TimeSpan.FromMilliseconds(0.1);
             mainTimer.Start();
+
+            activateBtnTimer = new DispatcherTimer();
+            activateBtnTimer.Tick += new EventHandler(ActivateBtnTimer_Tick);
+            activateBtnTimer.Interval = TimeSpan.FromSeconds(1);
+            activateBtnTimer.Start();
         }
         private void MainTimer_Tick(object sender, EventArgs e)
         {
@@ -50,6 +57,11 @@ namespace AsteroidsRemake
 
             CreateNoEdgeScreen();
             Shoot();
+        }
+
+        private void ActivateBtnTimer_Tick(object sender, EventArgs e)
+        {
+            HyperDriveActive = true;
         }
 
         private void DrawScene()
@@ -146,7 +158,6 @@ namespace AsteroidsRemake
         private void AccelerateShip()
         {
             double movementStep = 0.1;
-            double desiredRotation = 0;
             // Get the current player position
             Point shipCenter = player.Position;
             // Key W is pressed
@@ -201,10 +212,17 @@ namespace AsteroidsRemake
                 storyboard.Begin();
             }
         }
-
+        private bool HyperDriveActive;
+        /// <summary>
+        /// This method will basically make the player teleport to another location.
+        /// </summary>
         private void TravelThroughHyperspace()
         {
-            throw new NotImplementedException();
+            if (HyperDriveActive)
+            {
+                HyperDriveActive = false;
+                player.Position = GenerateObjectPosition();
+            }
         }
 
         private void MainWindow1_KeyDown(object sender, KeyEventArgs e)
@@ -248,6 +266,18 @@ namespace AsteroidsRemake
             Point b = playerPolygon.Points[1];
             Point c = playerPolygon.Points[2];
             return MathClass.FindCenterOfTriangle(a, b, c);
+        }
+
+        private Point GenerateObjectPosition()
+        {
+            double minWidth = -MainWindow1.Width / 2 + 20;
+            double maxWidth = MainWindow1.Width / 2 - 20;
+            double minHeight = -MainWindow1.Height / 2 + 20;
+            double maxHeight = MainWindow1.Height / 2 - 20;
+
+            double x = random.NextDouble() * (maxWidth - minWidth) + minWidth;
+            double y = random.NextDouble() * (maxHeight - minHeight) + minHeight;
+            return new Point(x, y);
         }
         #endregion
     }
