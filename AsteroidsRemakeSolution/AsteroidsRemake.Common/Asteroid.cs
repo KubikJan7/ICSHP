@@ -9,6 +9,7 @@ namespace AsteroidsRemake.Common
 {
     public class Asteroid : GameObject
     {
+        public double MotionDirection { get; set; }
         public Asteroid(Point position, int size)
         {
             Position = position;

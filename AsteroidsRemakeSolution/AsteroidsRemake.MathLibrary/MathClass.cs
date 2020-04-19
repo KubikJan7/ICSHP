@@ -38,7 +38,7 @@ namespace AsteroidsRemake.MathLibrary
         /// <returns>Point with new coordination</returns>
         public static Point MovePointByGivenDistanceAndAngle(Point point, double dist, double angle)
         {
-            return new Point(point.X + (Math.Sin(Math.PI / 180 * angle) * dist), point.Y + (Math.Cos(Math.PI / 180 * angle) * dist));
+            return new Point(point.X + (Math.Sin(Math.PI / 180.0 * angle) * dist), point.Y + (Math.Cos(Math.PI / 180.0 * angle) * dist));
         }
 
         /// <summary>
@@ -66,8 +66,8 @@ namespace AsteroidsRemake.MathLibrary
         /// <returns>Difference of two angles</returns>
         public static double FindDifferenceOfTwoAngles(double alpha, double beta)
         {
-            double phi = Math.Abs(beta - alpha) % 360;
-            double distance = phi > 180 ? 360 - phi : phi;
+            double phi = Math.Abs(beta - alpha) % 360.0;
+            double distance = phi > 180.0 ? 360.0 - phi : phi;
             return distance;
         }
 
