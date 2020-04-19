@@ -193,7 +193,7 @@ namespace AsteroidsRemake
                     item = shotDict.ElementAt(i);
                     item.Key.Position = MathClass.MovePointTowards(item.Key.Position, item.Key.Target, 5.0);
                     Canvas.SetLeft(item.Value, item.Key.Position.X + screenWidth/2.0 - item.Key.Size/2.0);
-                    Canvas.SetTop(item.Value, -item.Key.Position.Y + screenHeight / 2.0 - item.Key.Size/2.0);
+                    Canvas.SetTop(item.Value, -item.Key.Position.Y + screenHeight / 2.0 + item.Key.Size/2.0);
 
                     if (MathClass.IsPointInsideCircle(item.Key.Target.X, item.Key.Target.Y, 2, item.Key.Position.X, item.Key.Position.Y))
                     {
@@ -319,9 +319,9 @@ namespace AsteroidsRemake
         private Point GenerateObjectPosition(double size)
         {
             double minWidth = 0 + size / 2.0;
-            double maxWidth = screenWidth - size / 2.0;
+            double maxWidth = screenWidth - size / 2.0-20;
             double minHeight = 0 + size / 2.0;
-            double maxHeight = screenHeight - size / 2.0;
+            double maxHeight = screenHeight - size / 2.0-20;
 
             double x = random.NextDouble() * (maxWidth - minWidth) + minWidth;
             double y = random.NextDouble() * (maxHeight - minHeight) + minHeight;
@@ -342,7 +342,7 @@ namespace AsteroidsRemake
                         gameObject.Position.Y, item.Position.Y + screenHeight / 2);
                 else
                 dist = MathClass.GetDistance(gameObject.Position.X, item.Position.X, gameObject.Position.Y, item.Position.Y);
-                double radSum = gameObject.Size / 2.0 + item.Size / 2.0;
+                double radSum = gameObject.Size / 2.0 + item.Size / 2.0+10;
                 if (dist < radSum)
                     return true;
             }
