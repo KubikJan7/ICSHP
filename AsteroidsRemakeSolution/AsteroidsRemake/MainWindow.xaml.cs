@@ -27,6 +27,7 @@ namespace AsteroidsRemake
         private DispatcherTimer mainTimer;
         private DispatcherTimer hyperDriveTimer;
         private DispatcherTimer gunLoadedTimer;
+        private DispatcherTimer enemySpawnTimer;
         private Storyboard storyboard;
 
         private List<GameObject> gameObjects = new List<GameObject>();
@@ -45,6 +46,7 @@ namespace AsteroidsRemake
             screenHeight = BackgroundCanvas.Height;
             InitializeTimers();
             DrawScene();
+            CreateEnemyShip();
         }
 
         private void InitializeTimers()
@@ -63,12 +65,18 @@ namespace AsteroidsRemake
             gunLoadedTimer.Tick += new EventHandler(LoadGun_Tick);
             gunLoadedTimer.Interval = TimeSpan.FromSeconds(0.15);
             gunLoadedTimer.Start();
+
+            enemySpawnTimer = new DispatcherTimer();
+            enemySpawnTimer.Tick += new EventHandler(EnemySpawn_Tick);
+            enemySpawnTimer.Interval = TimeSpan.FromSeconds(20);
+            enemySpawnTimer.Start();
         }
         private void MainTimer_Tick(object sender, EventArgs e)
         {
             ManageVelocity(); // increase or decrease the ship velocity through the time
             AccelerateShip();
             MoveAsteroids();
+            MoveEnemyShips();
 
             CreateNoEdgeScreen();
             Shoot();
@@ -85,6 +93,11 @@ namespace AsteroidsRemake
             GunLoaded = true;
         }
 
+        private void EnemySpawn_Tick(object sender, EventArgs e)
+        {
+            CreateEnemyShip();
+        }
+
         private void DrawScene()
         {
             storyboard = new Storyboard();
@@ -98,35 +111,14 @@ namespace AsteroidsRemake
             gameObjects.Add(player);
             gameObjectDictionary.Add(player, playerPolygon);
 
-            SolidColorBrush fillBrush = new SolidColorBrush
-            {
-                Color = Color.FromRgb(138, 148, 255)
-            };
-
-            SolidColorBrush strokeBrush = new SolidColorBrush
-            {
-                Color = Color.FromRgb(70, 69, 80)
-            };
-
-            playerPolygon.Fill = fillBrush;
-            playerPolygon.Stroke = strokeBrush;
+            playerPolygon.Fill = CreateNewColorBrush(138, 148, 255);
+            playerPolygon.Stroke = CreateNewColorBrush(70, 69, 80);
             playerPolygon.StrokeThickness = 1;
         }
 
         private int asteroidCount = 4;
         private void CreateAsteroids()
         {
-
-            SolidColorBrush fillBrush = new SolidColorBrush
-            {
-                Color = Color.FromRgb(191, 165, 164)
-            };
-
-            SolidColorBrush strokeBrush = new SolidColorBrush
-            {
-                Color = Color.FromRgb(70, 69, 80)
-            };
-
             for (int i = 0; i < asteroidCount; i++)
             {
                 bool hasCollision;
@@ -146,15 +138,12 @@ namespace AsteroidsRemake
                 {
                     Width = asteroid.Size,
                     Height = asteroid.Size,
-                    Fill = fillBrush,
-                    Stroke = strokeBrush,
+                    Fill = CreateNewColorBrush(191,165,164),
+                    Stroke = CreateNewColorBrush(70, 69, 80),
                     StrokeThickness = 1,
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center
                 };
-                // The substraction by the (asteroid.Size/2) is used so the circle is drawn from its center 
-                Canvas.SetLeft(el, asteroid.Position.X - asteroid.Size / 2);
-                Canvas.SetTop(el, asteroid.Position.Y - asteroid.Size / 2);
                 BackgroundCanvas.Children.Add(el);
                 gameObjectDictionary.Add(asteroid, el);
             }
@@ -170,10 +159,69 @@ namespace AsteroidsRemake
                 {
                     if (item.Key is Asteroid asteroid)
                     {
-                        asteroid.Position = MathClass.MovePointByGivenDistanceAndAngle(asteroid.Position, movementStep, asteroid.MotionDirection);
+                        // The substraction by the (asteroid.Size/2) is used so the circle is drawn from its center 
+                        Canvas.SetLeft(item.Value, asteroid.Position.X - asteroid.Size / 2);
+                        Canvas.SetTop(item.Value, asteroid.Position.Y - asteroid.Size / 2);
 
-                        Canvas.SetLeft(item.Value, asteroid.Position.X);
-                        Canvas.SetTop(item.Value, asteroid.Position.Y);
+                        asteroid.Position = MathClass.MovePointByGivenDistanceAndAngle(asteroid.Position, movementStep, asteroid.MotionDirection);
+                    }
+                }
+            }
+        }
+
+        private void CreateEnemyShip()
+        {
+            bool hasCollision;
+            double rndMovementDir = random.NextDouble() * 360;
+            EnemyShip enemy = new EnemyShip(50, rndMovementDir);
+            gameObjects.Add(enemy);
+            do
+            {
+                Point position = GenerateObjectPosition(enemy.Size);
+                // will choose side (based on enemy movement direction) from which the enemy will occur
+                if(enemy.MotionDirection>315|| enemy.MotionDirection <=45)
+                    position.Y = screenHeight + enemy.Size/2;
+                else if (enemy.MotionDirection > 45 || enemy.MotionDirection <= 135)
+                    position.X = 0 - enemy.Size/2;
+                else if (enemy.MotionDirection > 135 || enemy.MotionDirection <= 225)
+                    position.Y = 0 - enemy.Size/2;
+                else if (enemy.MotionDirection > 225 || enemy.MotionDirection <= 315)
+                    position.X = screenWidth + enemy.Size / 2;
+
+                enemy.Position = position;
+
+                hasCollision = FindCollisionWithOtherObjects(enemy);
+
+            } while (hasCollision);
+
+            Rectangle rec = new Rectangle
+            {
+                Width = enemy.Size,
+                Height = enemy.Size,
+                Fill = CreateNewColorBrush(253, 112, 118),
+                Stroke = CreateNewColorBrush(70, 69, 80),
+                StrokeThickness = 1,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            BackgroundCanvas.Children.Add(rec);
+            gameObjectDictionary.Add(enemy, rec);
+        }
+
+        private void MoveEnemyShips()
+        {
+            if (gameObjectDictionary.Count > 0)
+            {
+                double movementStep = 0.75;
+                foreach (var item in gameObjectDictionary)
+                {
+                    if (item.Key is EnemyShip enemy)
+                    {
+                        // The substraction by the (asteroid.Size/2) is used so the circle is drawn from its center 
+                        Canvas.SetLeft(item.Value, enemy.Position.X - enemy.Size / 2);
+                        Canvas.SetTop(item.Value, enemy.Position.Y - enemy.Size / 2);
+
+                        enemy.Position = MathClass.MovePointByGivenDistanceAndAngle(enemy.Position, movementStep, enemy.MotionDirection);
                     }
                 }
             }
@@ -239,15 +287,12 @@ namespace AsteroidsRemake
                 Point shotEnd = MathClass.MovePointByGivenDistanceAndAngle(shotStart, maximumDistance, polygonRotation.Angle);
                 // Create shot with target set in front of the ship nose
                 Shot shot = new Shot(shotStart, shotEnd, 5, maximumDistance);
-                SolidColorBrush colorBrush = new SolidColorBrush
-                {
-                    Color = Color.FromRgb(249, 248, 113)
-                };
+
                 Ellipse el = new Ellipse
                 {
                     Height = shot.Size,
                     Width = shot.Size,
-                    Fill = colorBrush,
+                    Fill = CreateNewColorBrush(249, 248, 113),
                 };
 
                 gameObjectDictionary.Add(shot, el);
@@ -384,6 +429,15 @@ namespace AsteroidsRemake
 
 
         #region Auxiliary methods
+        private SolidColorBrush CreateNewColorBrush(byte r, byte g, byte b)
+        {
+            SolidColorBrush colorBrush = new SolidColorBrush
+            {
+                Color = Color.FromRgb(r, g, b)
+            };
+            return colorBrush;
+        }
+
         private Point GetShipCenter()
         {
             Point a = playerPolygon.Points[0];

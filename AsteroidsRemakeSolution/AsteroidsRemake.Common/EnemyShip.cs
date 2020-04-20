@@ -9,10 +9,10 @@ namespace AsteroidsRemake.Common
 {
     public class EnemyShip:GameObject
     {
-        public EnemyShip(Point position, int size)
+        public EnemyShip(int size, double motionDirection)
         {
-            Position = position;
             Size = size;
+            MotionDirection = motionDirection;
         }
         public override void Update()
         {

@@ -9,8 +9,9 @@ namespace AsteroidsRemake.Common
 {
     public abstract class GameObject
     {
-        public int Size { get; set; }
+        public virtual int Size { get; set; }
         public virtual Point Position { set; get; }
+        public virtual double MotionDirection { get; set; }
         public virtual bool WasHit { get; set; }
 
         public abstract void Update();
