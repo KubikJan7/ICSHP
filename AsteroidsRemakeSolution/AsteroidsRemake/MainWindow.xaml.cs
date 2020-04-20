@@ -25,12 +25,13 @@ namespace AsteroidsRemake
     public partial class MainWindow : Window
     {
         private DispatcherTimer mainTimer;
-        private DispatcherTimer activateBtnTimer;
+        private DispatcherTimer hyperDriveTimer;
+        private DispatcherTimer gunLoadedTimer;
         private Storyboard storyboard;
 
         private List<GameObject> gameObjects = new List<GameObject>();
         private PlayerShip player;
-        private Dictionary<Shot, Ellipse> shotDict = new Dictionary<Shot, Ellipse>();
+        private Dictionary<GameObject, Shape> gameObjectDictionary = new Dictionary<GameObject, Shape>();
         private bool IsAccelerating { get; set; }
         private Random random = new Random();
 
@@ -53,23 +54,35 @@ namespace AsteroidsRemake
             mainTimer.Interval = TimeSpan.FromSeconds(0.01);
             mainTimer.Start();
 
-            activateBtnTimer = new DispatcherTimer();
-            activateBtnTimer.Tick += new EventHandler(ActivateBtnTimer_Tick);
-            activateBtnTimer.Interval = TimeSpan.FromSeconds(1);
-            activateBtnTimer.Start();
+            hyperDriveTimer = new DispatcherTimer();
+            hyperDriveTimer.Tick += new EventHandler(ActivateHyperDrive_Tick);
+            hyperDriveTimer.Interval = TimeSpan.FromSeconds(1);
+            hyperDriveTimer.Start();
+
+            gunLoadedTimer = new DispatcherTimer();
+            gunLoadedTimer.Tick += new EventHandler(LoadGun_Tick);
+            gunLoadedTimer.Interval = TimeSpan.FromSeconds(0.15);
+            gunLoadedTimer.Start();
         }
         private void MainTimer_Tick(object sender, EventArgs e)
         {
             ManageVelocity(); // increase or decrease the ship velocity through the time
             AccelerateShip();
+            MoveAsteroids();
 
             CreateNoEdgeScreen();
             Shoot();
         }
 
-        private void ActivateBtnTimer_Tick(object sender, EventArgs e)
+        private bool HyperDriveActive { get; set; }
+        private void ActivateHyperDrive_Tick(object sender, EventArgs e)
         {
             HyperDriveActive = true;
+        }
+        private bool GunLoaded { get; set; }
+        private void LoadGun_Tick(object sender, EventArgs e)
+        {
+            GunLoaded = true;
         }
 
         private void DrawScene()
@@ -83,28 +96,42 @@ namespace AsteroidsRemake
         {
             player = new PlayerShip(new Point(0, 0), 40);
             gameObjects.Add(player);
+            gameObjectDictionary.Add(player, playerPolygon);
 
-            SolidColorBrush colorBrush = new SolidColorBrush
+            SolidColorBrush fillBrush = new SolidColorBrush
             {
                 Color = Color.FromRgb(138, 148, 255)
             };
 
-            playerPolygon.Fill = colorBrush;
+            SolidColorBrush strokeBrush = new SolidColorBrush
+            {
+                Color = Color.FromRgb(70, 69, 80)
+            };
+
+            playerPolygon.Fill = fillBrush;
+            playerPolygon.Stroke = strokeBrush;
+            playerPolygon.StrokeThickness = 1;
         }
 
         private int asteroidCount = 4;
         private void CreateAsteroids()
         {
 
-            SolidColorBrush colorBrush = new SolidColorBrush
+            SolidColorBrush fillBrush = new SolidColorBrush
             {
-                Color = Color.FromRgb(132, 118, 85)
+                Color = Color.FromRgb(191, 165, 164)
+            };
+
+            SolidColorBrush strokeBrush = new SolidColorBrush
+            {
+                Color = Color.FromRgb(70, 69, 80)
             };
 
             for (int i = 0; i < asteroidCount; i++)
             {
                 bool hasCollision;
-                Asteroid asteroid = new Asteroid(200);
+                double rndMovementDir = random.NextDouble() * 360;
+                Asteroid asteroid = new Asteroid(300, rndMovementDir);
                 gameObjects.Add(asteroid);
                 do
                 {
@@ -119,7 +146,9 @@ namespace AsteroidsRemake
                 {
                     Width = asteroid.Size,
                     Height = asteroid.Size,
-                    Fill = colorBrush,
+                    Fill = fillBrush,
+                    Stroke = strokeBrush,
+                    StrokeThickness = 1,
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center
                 };
@@ -127,78 +156,124 @@ namespace AsteroidsRemake
                 Canvas.SetLeft(el, asteroid.Position.X - asteroid.Size / 2);
                 Canvas.SetTop(el, asteroid.Position.Y - asteroid.Size / 2);
                 BackgroundCanvas.Children.Add(el);
+                gameObjectDictionary.Add(asteroid, el);
             }
             asteroidCount++;
         }
+
+        private void MoveAsteroids()
+        {
+            if (gameObjectDictionary.Count > 0)
+            {
+                double movementStep = 0.75;
+                foreach (var item in gameObjectDictionary)
+                {
+                    if (item.Key is Asteroid asteroid)
+                    {
+                        asteroid.Position = MathClass.MovePointByGivenDistanceAndAngle(asteroid.Position, movementStep, asteroid.MotionDirection);
+
+                        Canvas.SetLeft(item.Value, asteroid.Position.X);
+                        Canvas.SetTop(item.Value, asteroid.Position.Y);
+                    }
+                }
+            }
+        }
+
         private void CreateNoEdgeScreen()
         {
-            // Check a collision with a window edge
-            if (player.Position.X > screenWidth / 2 || player.Position.X < -(screenWidth / 2)
-                || player.Position.Y > screenHeight / 2 || player.Position.Y < -(screenHeight / 2))
+            double minScreenW, maxScreenW, minScreenH, maxScreenH;
+            foreach (var item in gameObjectDictionary)
             {
-                double relativeScreenW = screenWidth / 2;
-                double relativeScreenH = screenHeight / 2;
+                GameObject gameObject = item.Key;
+                if(gameObject is PlayerShip || gameObject is Shot)
+                {
+                    minScreenW = -screenWidth / 2 - gameObject.Size / 2;
+                    maxScreenW = screenWidth / 2 + gameObject.Size / 2;
+                    minScreenH = -screenHeight / 2 - gameObject.Size / 2;
+                    maxScreenH = screenHeight / 2 + gameObject.Size / 2;
+                }
+                else
+                {
+                    minScreenW = 0 - gameObject.Size;
+                    maxScreenW = screenWidth + gameObject.Size;
+                    minScreenH = 0 - gameObject.Size;
+                    maxScreenH = screenHeight + gameObject.Size;
+                }
 
-                if (player.Position.X > relativeScreenW)
+                // Check a collision with a window edge
+                if (gameObject.Position.X > maxScreenW || gameObject.Position.X < minScreenW
+                    || gameObject.Position.Y > maxScreenH || gameObject.Position.Y < minScreenH)
                 {
-                    player.Position = new Point(-relativeScreenW, player.Position.Y);
+                    if (gameObject.Position.X > maxScreenW)
+                    {
+                        gameObject.Position = new Point(minScreenW, gameObject.Position.Y);
+                    }
+                    else if (gameObject.Position.X < minScreenW)
+                    {
+                        gameObject.Position = new Point(maxScreenW, gameObject.Position.Y);
+                    }
+                    else if (gameObject.Position.Y > maxScreenH)
+                    {
+                        gameObject.Position = new Point(gameObject.Position.X, minScreenH);
+                    }
+                    else if (gameObject.Position.Y < minScreenH)
+                    {
+                        gameObject.Position = new Point(gameObject.Position.X, maxScreenH);
+                    }
+                    Canvas.SetLeft(item.Value, gameObject.Position.X);
+                    Canvas.SetTop(item.Value, gameObject.Position.Y);
                 }
-                else if (player.Position.X < -relativeScreenW)
-                {
-                    player.Position = new Point(relativeScreenW, player.Position.Y);
-                }
-                else if (player.Position.Y > relativeScreenH)
-                {
-                    player.Position = new Point(player.Position.X, -relativeScreenH);
-                }
-                else if (player.Position.Y < -relativeScreenH)
-                {
-                    player.Position = new Point(player.Position.X, relativeScreenH);
-                }
-                Canvas.SetLeft(playerPolygon, player.Position.X);
-                Canvas.SetTop(playerPolygon, player.Position.Y);
             }
         }
 
         #region ship controlling methods
         private void PrepareShot()
         {
-            // Get the shooting starting point
-            Point shotStart = MathClass.MovePointByGivenDistanceAndAngle(new Point(player.Position.X, player.Position.Y), 30, polygonRotation.Angle);
-            // Calculate the position of the shot vanishing spot
-            Point shotEnd = MathClass.MovePointByGivenDistanceAndAngle(shotStart, 640, polygonRotation.Angle);
-            // Create shot with target set in front of the ship nose
-            Shot shot = new Shot(shotStart, shotEnd, 5);
-            SolidColorBrush colorBrush = new SolidColorBrush
+            if (GunLoaded)
             {
-                Color = Color.FromRgb(249, 248, 113)
-            };
-            Ellipse el = new Ellipse
-            {
-                Height = shot.Size,
-                Width = shot.Size,
-                Fill = colorBrush,
-            };
+                GunLoaded = false;
+                double maximumDistance = screenWidth / 3;
+                // Get the shooting starting point
+                Point shotStart = MathClass.MovePointByGivenDistanceAndAngle(new Point(player.Position.X, player.Position.Y), 30, polygonRotation.Angle);
+                // Calculate the position of the shot vanishing spot
+                Point shotEnd = MathClass.MovePointByGivenDistanceAndAngle(shotStart, maximumDistance, polygonRotation.Angle);
+                // Create shot with target set in front of the ship nose
+                Shot shot = new Shot(shotStart, shotEnd, 5, maximumDistance);
+                SolidColorBrush colorBrush = new SolidColorBrush
+                {
+                    Color = Color.FromRgb(249, 248, 113)
+                };
+                Ellipse el = new Ellipse
+                {
+                    Height = shot.Size,
+                    Width = shot.Size,
+                    Fill = colorBrush,
+                };
 
-            shotDict.Add(shot, el);
-            BackgroundCanvas.Children.Add(el);
+                gameObjectDictionary.Add(shot, el);
+                BackgroundCanvas.Children.Add(el);
+            }
         }
         private void Shoot()
         {
-            if (shotDict.Count > 0)
+            if (gameObjectDictionary.Count > 0)
             {
-                KeyValuePair<Shot, Ellipse> item;
-                for (int i = 0; i < shotDict.Count; i++)
+                KeyValuePair<GameObject, Shape> item;
+                for (int i = 0; i < gameObjectDictionary.Count; i++)
                 {
-                    item = shotDict.ElementAt(i);
-                    item.Key.Position = MathClass.MovePointTowards(item.Key.Position, item.Key.Target, 5.0);
-                    Canvas.SetLeft(item.Value, item.Key.Position.X + screenWidth/2.0 - item.Key.Size/2.0);
-                    Canvas.SetTop(item.Value, -item.Key.Position.Y + screenHeight / 2.0 + item.Key.Size/2.0);
-
-                    if (MathClass.IsPointInsideCircle(item.Key.Target.X, item.Key.Target.Y, 2, item.Key.Position.X, item.Key.Position.Y))
+                    item = gameObjectDictionary.ElementAt(i);
+                    if (item.Key is Shot shot)
                     {
-                        BackgroundCanvas.Children.Remove(item.Value);
-                        shotDict.Remove(item.Key);
+                        shot.Position = MathClass.MovePointTowards(shot.Position, shot.Target, 8.0);
+                        Canvas.SetLeft(item.Value, shot.Position.X + screenWidth / 2.0 - shot.Size / 2.0);
+                        Canvas.SetTop(item.Value, -shot.Position.Y + screenHeight / 2.0 + shot.Size / 2.0);
+                        shot.TraveledDistance += 8;
+
+                        if (shot.TraveledDistance >= shot.MaximumDistance)
+                        {
+                            BackgroundCanvas.Children.Remove(item.Value);
+                            gameObjectDictionary.Remove(item.Key);
+                        }
                     }
                 }
             }
@@ -259,7 +334,6 @@ namespace AsteroidsRemake
                 storyboard.Begin();
             }
         }
-        private bool HyperDriveActive;
         /// <summary>
         /// This method will basically make the player teleport to another location.
         /// </summary>
@@ -268,8 +342,8 @@ namespace AsteroidsRemake
             if (HyperDriveActive)
             {
                 HyperDriveActive = false;
-                Point pos = GenerateObjectPosition(40);
-                player.Position = new Point(pos.X - BackgroundCanvas.Width / 2, pos.Y - BackgroundCanvas.Height / 2); //position relative to the polygon
+                Point pos = GenerateObjectPosition(player.Size);
+                player.Position = new Point(pos.X - screenWidth / 2, pos.Y - screenHeight / 2); //position relative to the polygon
             }
         }
 
@@ -292,7 +366,9 @@ namespace AsteroidsRemake
             else if (e.Key == Key.D || e.Key == Key.Right)
                 RotateShip("to right");
             else if (e.Key == Key.Space)
+            {
                 PrepareShot();
+            }
             else if (e.Key == Key.LeftShift || e.Key == Key.RightShift)
                 TravelThroughHyperspace();
         }
@@ -319,9 +395,9 @@ namespace AsteroidsRemake
         private Point GenerateObjectPosition(double size)
         {
             double minWidth = 0 + size / 2.0;
-            double maxWidth = screenWidth - size / 2.0-20;
+            double maxWidth = screenWidth - size / 2.0 - 20;
             double minHeight = 0 + size / 2.0;
-            double maxHeight = screenHeight - size / 2.0-20;
+            double maxHeight = screenHeight - size / 2.0 - 20;
 
             double x = random.NextDouble() * (maxWidth - minWidth) + minWidth;
             double y = random.NextDouble() * (maxHeight - minHeight) + minHeight;
@@ -338,11 +414,11 @@ namespace AsteroidsRemake
                 double dist;
                 // changes playership coordinations since its origin is situated in the canvas center
                 if (item is PlayerShip)
-                    dist = MathClass.GetDistance(gameObject.Position.X, item.Position.X + screenWidth / 2,
-                        gameObject.Position.Y, item.Position.Y + screenHeight / 2);
+                    dist = MathClass.GetDistance(gameObject.Position.X, item.Position.X - screenWidth / 2,
+                        gameObject.Position.Y, item.Position.Y - screenHeight / 2);
                 else
-                dist = MathClass.GetDistance(gameObject.Position.X, item.Position.X, gameObject.Position.Y, item.Position.Y);
-                double radSum = gameObject.Size / 2.0 + item.Size / 2.0+10;
+                    dist = MathClass.GetDistance(gameObject.Position.X, item.Position.X, gameObject.Position.Y, item.Position.Y);
+                double radSum = gameObject.Size / 2.0 + item.Size / 2.0 + 10;
                 if (dist < radSum)
                     return true;
             }
