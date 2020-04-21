@@ -11,7 +11,6 @@ namespace AsteroidsRemake.Common
     {
         public int Lives { get; set; }
         public int Score { get; set; }
-        public double Velocity { get; set; }
 
         public PlayerShip(Point position, int size)
         {

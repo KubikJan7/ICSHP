@@ -9,6 +9,7 @@ namespace AsteroidsRemake.Common
 {
     public class Shot : GameObject
     {
+        public GameObject Owner { get; set; }
         public Point Target { get; set; }
         public double TraveledDistance { get; set; }
         public double MaximumDistance { get; set; }
@@ -18,11 +19,13 @@ namespace AsteroidsRemake.Common
             throw new NotImplementedException();
         }
 
-        public Shot(Point position, int size, double maximumDistance, double motionDirection)
+        public Shot(GameObject owner,Point position, int size, double velocityM, double maximumDistance, double motionDirection)
         {
+            Owner = owner;
             Position = position;
             Size = size;
             TraveledDistance = 0;
+            VelocityMultiplier = velocityM;
             MaximumDistance = maximumDistance;
             MotionDirection = motionDirection;
         }

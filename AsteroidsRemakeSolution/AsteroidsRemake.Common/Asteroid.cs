@@ -9,15 +9,11 @@ namespace AsteroidsRemake.Common
 {
     public class Asteroid : GameObject
     {
-        public Asteroid(Point position, int size, double motionDirection)
-        {
-            Position = position;
-            Size = size;
-            MotionDirection = motionDirection;
-        }
-        public Asteroid(int size, double motionDirection)
+
+        public Asteroid(int size, double velocityM, double motionDirection)
         {
             Size = size;
+            VelocityMultiplier = velocityM;
             MotionDirection = motionDirection;
         }
         public override void Update()

@@ -12,8 +12,8 @@ namespace AsteroidsRemake.Common
         public virtual int Size { get; set; }
         public virtual Point Position { set; get; }
         public virtual double MotionDirection { get; set; }
-        public virtual bool WasHit { get; set; }
-
+        public virtual bool Completed { get; set; }
+        public virtual double VelocityMultiplier { get; set; }
         public abstract void Update();
 
     }

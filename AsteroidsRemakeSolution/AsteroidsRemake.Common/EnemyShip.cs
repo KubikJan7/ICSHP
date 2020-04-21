@@ -9,9 +9,11 @@ namespace AsteroidsRemake.Common
 {
     public class EnemyShip:GameObject
     {
-        public EnemyShip(int size, double motionDirection)
+        public bool CanVanish { get; set; }
+        public EnemyShip(int size, double velocityM, double motionDirection)
         {
             Size = size;
+            VelocityMultiplier = velocityM;
             MotionDirection = motionDirection;
         }
         public override void Update()
