@@ -28,6 +28,7 @@ namespace AsteroidsRemake
         private DispatcherTimer hyperDriveTimer;
         private DispatcherTimer gunLoadedTimer;
         private DispatcherTimer enemySpawnTimer;
+        private DispatcherTimer AIShootTimer;
         private Storyboard storyboard;
 
         private List<GameObject> gameObjects = new List<GameObject>();
@@ -70,6 +71,11 @@ namespace AsteroidsRemake
             enemySpawnTimer.Tick += new EventHandler(EnemySpawn_Tick);
             enemySpawnTimer.Interval = TimeSpan.FromSeconds(20);
             enemySpawnTimer.Start();
+
+            AIShootTimer = new DispatcherTimer();
+            AIShootTimer.Tick += new EventHandler(AIShoot_Tick);
+            AIShootTimer.Interval = TimeSpan.FromSeconds(2);
+            AIShootTimer.Start();
         }
         private void MainTimer_Tick(object sender, EventArgs e)
         {
@@ -87,6 +93,7 @@ namespace AsteroidsRemake
         {
             HyperDriveActive = true;
         }
+
         private bool GunLoaded { get; set; }
         private void LoadGun_Tick(object sender, EventArgs e)
         {
@@ -96,6 +103,18 @@ namespace AsteroidsRemake
         private void EnemySpawn_Tick(object sender, EventArgs e)
         {
             CreateEnemyShip();
+        }
+
+        private void AIShoot_Tick(object sender, EventArgs e)
+        {
+            if (gameObjects.Count > 0)
+                foreach (var item in gameObjects)
+                {
+                    if (item is EnemyShip enemy)
+                    {
+                        PrepareShot(enemy, enemy.Size, random.NextDouble() * 360);
+                    }
+                }
         }
 
         private void DrawScene()
@@ -138,7 +157,7 @@ namespace AsteroidsRemake
                 {
                     Width = asteroid.Size,
                     Height = asteroid.Size,
-                    Fill = CreateNewColorBrush(191,165,164),
+                    Fill = CreateNewColorBrush(191, 165, 164),
                     Stroke = CreateNewColorBrush(70, 69, 80),
                     StrokeThickness = 1,
                     HorizontalAlignment = HorizontalAlignment.Center,
@@ -174,17 +193,16 @@ namespace AsteroidsRemake
             bool hasCollision;
             double rndMovementDir = random.NextDouble() * 360;
             EnemyShip enemy = new EnemyShip(50, rndMovementDir);
-            gameObjects.Add(enemy);
             do
             {
                 Point position = GenerateObjectPosition(enemy.Size);
                 // will choose side (based on enemy movement direction) from which the enemy will occur
-                if(enemy.MotionDirection>315|| enemy.MotionDirection <=45)
-                    position.Y = screenHeight + enemy.Size/2;
+                if (enemy.MotionDirection > 315 || enemy.MotionDirection <= 45)
+                    position.Y = screenHeight + enemy.Size / 2;
                 else if (enemy.MotionDirection > 45 || enemy.MotionDirection <= 135)
-                    position.X = 0 - enemy.Size/2;
+                    position.X = 0 - enemy.Size / 2;
                 else if (enemy.MotionDirection > 135 || enemy.MotionDirection <= 225)
-                    position.Y = 0 - enemy.Size/2;
+                    position.Y = 0 - enemy.Size / 2;
                 else if (enemy.MotionDirection > 225 || enemy.MotionDirection <= 315)
                     position.X = screenWidth + enemy.Size / 2;
 
@@ -206,6 +224,7 @@ namespace AsteroidsRemake
             };
             BackgroundCanvas.Children.Add(rec);
             gameObjectDictionary.Add(enemy, rec);
+            gameObjects.Add(enemy);
         }
 
         private void MoveEnemyShips()
@@ -233,7 +252,7 @@ namespace AsteroidsRemake
             foreach (var item in gameObjectDictionary)
             {
                 GameObject gameObject = item.Key;
-                if(gameObject is PlayerShip || gameObject is Shot)
+                if (gameObject is PlayerShip || gameObject is Shot)
                 {
                     minScreenW = -screenWidth / 2 - gameObject.Size / 2;
                     maxScreenW = screenWidth / 2 + gameObject.Size / 2;
@@ -275,24 +294,25 @@ namespace AsteroidsRemake
         }
 
         #region ship controlling methods
-        private void PrepareShot()
+        private void PrepareShot(GameObject gameObject, double distFromCentroid, double shotAngle)
         {
-            if (GunLoaded)
+            if (GunLoaded || gameObject is EnemyShip)
             {
-                GunLoaded = false;
+                if (!(gameObject is EnemyShip))
+                    GunLoaded = false;
                 double maximumDistance = screenWidth / 3;
-                // Get the shooting starting point
-                Point shotStart = MathClass.MovePointByGivenDistanceAndAngle(new Point(player.Position.X, player.Position.Y), 30, polygonRotation.Angle);
-                // Calculate the position of the shot vanishing spot
-                Point shotEnd = MathClass.MovePointByGivenDistanceAndAngle(shotStart, maximumDistance, polygonRotation.Angle);
+                // Get the starting point of the shot
+                Point shotStart = MathClass.MovePointByGivenDistanceAndAngle(gameObject.Position, distFromCentroid, shotAngle);
                 // Create shot with target set in front of the ship nose
-                Shot shot = new Shot(shotStart, shotEnd, 5, maximumDistance);
+                Shot shot = new Shot(shotStart, 8, maximumDistance, shotAngle);
 
                 Ellipse el = new Ellipse
                 {
                     Height = shot.Size,
                     Width = shot.Size,
                     Fill = CreateNewColorBrush(249, 248, 113),
+                    Stroke = CreateNewColorBrush(70, 69, 80),
+                    StrokeThickness = 1,
                 };
 
                 gameObjectDictionary.Add(shot, el);
@@ -309,7 +329,7 @@ namespace AsteroidsRemake
                     item = gameObjectDictionary.ElementAt(i);
                     if (item.Key is Shot shot)
                     {
-                        shot.Position = MathClass.MovePointTowards(shot.Position, shot.Target, 8.0);
+                        shot.Position = MathClass.MovePointByGivenDistanceAndAngle(shot.Position, 8.0, shot.MotionDirection);
                         Canvas.SetLeft(item.Value, shot.Position.X + screenWidth / 2.0 - shot.Size / 2.0);
                         Canvas.SetTop(item.Value, -shot.Position.Y + screenHeight / 2.0 + shot.Size / 2.0);
                         shot.TraveledDistance += 8;
@@ -412,7 +432,7 @@ namespace AsteroidsRemake
                 RotateShip("to right");
             else if (e.Key == Key.Space)
             {
-                PrepareShot();
+                PrepareShot(player, player.Size, polygonRotation.Angle);
             }
             else if (e.Key == Key.LeftShift || e.Key == Key.RightShift)
                 TravelThroughHyperspace();

@@ -18,13 +18,13 @@ namespace AsteroidsRemake.Common
             throw new NotImplementedException();
         }
 
-        public Shot(Point position, Point target, int size, double maximumDistance)
+        public Shot(Point position, int size, double maximumDistance, double motionDirection)
         {
             Position = position;
-            Target = target;
             Size = size;
             TraveledDistance = 0;
             MaximumDistance = maximumDistance;
+            MotionDirection = motionDirection;
         }
     }
 }
