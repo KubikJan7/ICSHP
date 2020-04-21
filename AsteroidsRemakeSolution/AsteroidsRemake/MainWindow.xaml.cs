@@ -35,7 +35,6 @@ namespace AsteroidsRemake
         private PlayerShip player;
         private Dictionary<GameObject, Shape> gameObjectDictionary = new Dictionary<GameObject, Shape>();
         private bool IsAccelerating { get; set; }
-        private Random random = new Random();
 
         double screenWidth;
         double screenHeight;
@@ -86,6 +85,7 @@ namespace AsteroidsRemake
 
             CreateNoEdgeScreen();
             Shoot();
+            ResolveCollisions();
             RemoveCompletedObjects();
         }
 
@@ -113,11 +113,11 @@ namespace AsteroidsRemake
                 {
                     if (item is EnemyShip enemy)
                     {
-                        PrepareShot(enemy, enemy.Size, random.NextDouble() * 360);
+                        PrepareShot(enemy, enemy.Size, MathClass.GetRandomDouble(0,359));
 
                         if (counter % 4 == 0) // Get called every 4 seconds
                             // Enemy motion direction changed by value from interval <-60;60>
-                            enemy.MotionDirection += random.NextDouble() * (61 - (-60)) + (-60); 
+                            enemy.MotionDirection += MathClass.GetRandomDouble(-60, 60); 
                     }
                 }
             counter++;
@@ -149,8 +149,8 @@ namespace AsteroidsRemake
             for (int i = 0; i < asteroidCount; i++)
             {
                 bool hasCollision;
-                double rndMovementDir = random.NextDouble() * 360;
-                Asteroid asteroid = new Asteroid(300, 0.75, rndMovementDir);
+                double rndMovementDir = MathClass.GetRandomDouble(0, 359);
+                Asteroid asteroid = new Asteroid(250, 0.75, rndMovementDir);
                 gameObjects.Add(asteroid);
                 do
                 {
@@ -197,7 +197,7 @@ namespace AsteroidsRemake
 
         private void CreateEnemyShip()
         {
-            double rndMovementDir = random.NextDouble() * 360;
+            double rndMovementDir = MathClass.GetRandomDouble(0, 359);
             EnemyShip enemy = new EnemyShip(40, 1, rndMovementDir);
 
             Point position = GenerateObjectPosition(enemy.Size);
@@ -482,6 +482,15 @@ namespace AsteroidsRemake
         }
         #endregion
 
+        private void ResolveCollisions()
+        {
+            foreach (var item in gameObjectDictionary)
+            {
+                if (FindCollisionWithOtherObjects(item.Key))
+                    item.Key.Completed = true;
+            }
+        }
+
         private void RemoveCompletedObjects()
         {
             for (int i = 0; i < gameObjectDictionary.Count; i++)
@@ -523,8 +532,8 @@ namespace AsteroidsRemake
             double minHeight = 0 + size / 2.0;
             double maxHeight = screenHeight - size / 2.0 - 20;
 
-            double x = random.NextDouble() * (maxWidth - minWidth) + minWidth;
-            double y = random.NextDouble() * (maxHeight - minHeight) + minHeight;
+            double x = MathClass.GetRandomDouble(minWidth, maxWidth);
+            double y = MathClass.GetRandomDouble(minHeight, maxHeight);
             return new Point(x, y);
         }
 
@@ -542,7 +551,7 @@ namespace AsteroidsRemake
                         gameObject.Position.Y, item.Position.Y - screenHeight / 2);
                 else
                     dist = MathClass.GetDistance(gameObject.Position.X, item.Position.X, gameObject.Position.Y, item.Position.Y);
-                double radSum = gameObject.Size / 2.0 + item.Size / 2.0 + 10;
+                double radSum = gameObject.Size / 2.0 + item.Size / 2.0;
                 if (dist < radSum)
                     return true;
             }
