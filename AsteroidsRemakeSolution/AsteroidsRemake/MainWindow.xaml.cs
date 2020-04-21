@@ -114,9 +114,16 @@ namespace AsteroidsRemake
                     if (item is EnemyShip enemy)
                     {
                         PrepareShot(enemy, enemy.Size, random.NextDouble() * 360);
+
+                        if (counter % 4 == 0) // Get called every 4 seconds
+                            // Enemy motion direction changed by value from interval <-60;60>
+                            enemy.MotionDirection += random.NextDouble() * (61 - (-60)) + (-60); 
                     }
                 }
+            counter++;
         }
+
+        private int counter;
 
         private void DrawScene()
         {
@@ -193,18 +200,18 @@ namespace AsteroidsRemake
             double rndMovementDir = random.NextDouble() * 360;
             EnemyShip enemy = new EnemyShip(40, 1, rndMovementDir);
 
-                Point position = GenerateObjectPosition(enemy.Size);
-                // will choose side (based on enemy movement direction) from which the enemy will occur
-                if (enemy.MotionDirection > 315 || enemy.MotionDirection <= 45)
-                    position.Y = screenHeight + enemy.Size / 2;
-                else if (enemy.MotionDirection > 45 || enemy.MotionDirection <= 135)
-                    position.X = 0 - enemy.Size / 2;
-                else if (enemy.MotionDirection > 135 || enemy.MotionDirection <= 225)
-                    position.Y = 0 - enemy.Size / 2;
-                else if (enemy.MotionDirection > 225 || enemy.MotionDirection <= 315)
-                    position.X = screenWidth + enemy.Size / 2;
+            Point position = GenerateObjectPosition(enemy.Size);
+            // will choose side (based on enemy movement direction) from which the enemy will occur
+            if (enemy.MotionDirection > 315 || enemy.MotionDirection <= 45)
+                position.Y = screenHeight + enemy.Size / 2;
+            else if (enemy.MotionDirection > 45 || enemy.MotionDirection <= 135)
+                position.X = 0 - enemy.Size / 2;
+            else if (enemy.MotionDirection > 135 || enemy.MotionDirection <= 225)
+                position.Y = 0 - enemy.Size / 2;
+            else if (enemy.MotionDirection > 225 || enemy.MotionDirection <= 315)
+                position.X = screenWidth + enemy.Size / 2;
 
-                enemy.Position = position;
+            enemy.Position = position;
 
             Rectangle rec = new Rectangle
             {
@@ -223,7 +230,7 @@ namespace AsteroidsRemake
             da.To = 360;
             da.Duration = new Duration(TimeSpan.FromSeconds(1.5));
             da.RepeatBehavior = RepeatBehavior.Forever;
-            RotateTransform rt = new RotateTransform(0,enemy.Size/2, enemy.Size / 2);
+            RotateTransform rt = new RotateTransform(0, enemy.Size / 2, enemy.Size / 2);
             rec.RenderTransform = rt;
             rt.BeginAnimation(RotateTransform.AngleProperty, da);
             #endregion
@@ -347,7 +354,7 @@ namespace AsteroidsRemake
                     if (item.Key is Shot shot)
                     {
                         shot.Position = MathClass.MovePointByGivenDistanceAndAngle(shot.Position, 8.0 * shot.VelocityMultiplier, shot.MotionDirection);
-                        
+
                         #region Set ship position
                         if (shot.Owner is PlayerShip)
                         {
