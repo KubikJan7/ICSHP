@@ -53,7 +53,7 @@ namespace AsteroidsRemake
         {
             mainTimer = new DispatcherTimer(DispatcherPriority.Render);
             mainTimer.Tick += new EventHandler(MainTimer_Tick);
-            mainTimer.Interval = TimeSpan.FromSeconds(0.01);
+            mainTimer.Interval = TimeSpan.FromSeconds(0.02);
             mainTimer.Start();
 
             hyperDriveTimer = new DispatcherTimer();
@@ -113,11 +113,11 @@ namespace AsteroidsRemake
                 {
                     if (item is EnemyShip enemy)
                     {
-                        PrepareShot(enemy, enemy.Size, MathClass.GetRandomDouble(0,359));
+                        PrepareShot(enemy, enemy.Size, MathClass.GetRandomDouble(0, 359));
 
                         if (counter % 4 == 0) // Get called every 4 seconds
                             // Enemy motion direction changed by value from interval <-60;60>
-                            enemy.MotionDirection += MathClass.GetRandomDouble(-60, 60); 
+                            enemy.MotionDirection += MathClass.GetRandomDouble(-60, 60);
                     }
                 }
             counter++;
@@ -157,7 +157,7 @@ namespace AsteroidsRemake
                     Point position = GenerateObjectPosition(asteroid.Size);
                     asteroid.Position = position;
 
-                    hasCollision = FindCollisionWithOtherObjects(asteroid);
+                    hasCollision = FindCollisionWithOtherObjects(asteroid, out GameObject g);
 
                 } while (hasCollision);
 
@@ -171,6 +171,9 @@ namespace AsteroidsRemake
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center
                 };
+                // The substraction by the (asteroid.Size/2) is used so the circle is drawn from its center 
+                Canvas.SetLeft(el, asteroid.Position.X - asteroid.Size / 2);
+                Canvas.SetBottom(el, asteroid.Position.Y - asteroid.Size / 2);
                 BackgroundCanvas.Children.Add(el);
                 gameObjectDictionary.Add(asteroid, el);
             }
@@ -187,7 +190,7 @@ namespace AsteroidsRemake
                     {
                         // The substraction by the (asteroid.Size/2) is used so the circle is drawn from its center 
                         Canvas.SetLeft(item.Value, asteroid.Position.X - asteroid.Size / 2);
-                        Canvas.SetTop(item.Value, asteroid.Position.Y - asteroid.Size / 2);
+                        Canvas.SetBottom(item.Value, asteroid.Position.Y - asteroid.Size / 2);
 
                         asteroid.Position = MathClass.MovePointByGivenDistanceAndAngle(asteroid.Position, asteroid.VelocityMultiplier, asteroid.MotionDirection);
                     }
@@ -237,7 +240,7 @@ namespace AsteroidsRemake
 
             // The substraction by the (asteroid.Size/2) is used so the circle is drawn from its center 
             Canvas.SetLeft(rec, enemy.Position.X - enemy.Size / 2);
-            Canvas.SetTop(rec, enemy.Position.Y - enemy.Size / 2);
+            Canvas.SetBottom(rec, enemy.Position.Y - enemy.Size / 2);
             BackgroundCanvas.Children.Add(rec);
             gameObjectDictionary.Add(enemy, rec);
             gameObjects.Add(enemy);
@@ -253,7 +256,7 @@ namespace AsteroidsRemake
                     {
                         // The substraction by the (asteroid.Size/2) is used so the circle is drawn from its center 
                         Canvas.SetLeft(item.Value, enemy.Position.X - enemy.Size / 2);
-                        Canvas.SetTop(item.Value, enemy.Position.Y - enemy.Size / 2);
+                        Canvas.SetBottom(item.Value, enemy.Position.Y - enemy.Size / 2);
 
                         enemy.Position = MathClass.MovePointByGivenDistanceAndAngle(enemy.Position, enemy.VelocityMultiplier, enemy.MotionDirection);
                         // will make sure that the enemy ship will vanish after it will leave the screen for the second time (and not the first)
@@ -301,7 +304,7 @@ namespace AsteroidsRemake
                         gameObject.Position = new Point(gameObject.Position.X, maxScreenH);
                     }
                     Canvas.SetLeft(item.Value, gameObject.Position.X);
-                    Canvas.SetTop(item.Value, gameObject.Position.Y);
+                    Canvas.SetBottom(item.Value, gameObject.Position.Y);
                 }
             }
         }
@@ -328,17 +331,11 @@ namespace AsteroidsRemake
                     StrokeThickness = 1,
                 };
 
-                #region Set ship position
-                if (shot.Owner is PlayerShip)
-                {
-                    Canvas.SetLeft(el, shot.Position.X - shot.Size / 2.0);
-                    Canvas.SetTop(el, 691 - (shot.Position.Y - shot.Size / 2.0));
-                }
-                else // Enemy ship
-                {
-                    Canvas.SetLeft(el, shot.Position.X - shot.Size / 2.0);
-                    Canvas.SetTop(el, shot.Position.Y - shot.Size / 2.0);
-                }
+                #region Set shot position
+
+                Canvas.SetLeft(el, shot.Position.X - shot.Size / 2.0);
+                Canvas.SetBottom(el, shot.Position.Y - shot.Size / 2.0);
+
                 #endregion
 
                 gameObjectDictionary.Add(shot, el);
@@ -355,17 +352,11 @@ namespace AsteroidsRemake
                     {
                         shot.Position = MathClass.MovePointByGivenDistanceAndAngle(shot.Position, 8.0 * shot.VelocityMultiplier, shot.MotionDirection);
 
-                        #region Set ship position
-                        if (shot.Owner is PlayerShip)
-                        {
-                            Canvas.SetLeft(item.Value, shot.Position.X - shot.Size / 2.0);
-                            Canvas.SetTop(item.Value, 691 - (shot.Position.Y - shot.Size / 2.0));
-                        }
-                        else // Enemy ship
-                        {
-                            Canvas.SetLeft(item.Value, shot.Position.X - shot.Size / 2.0);
-                            Canvas.SetTop(item.Value, shot.Position.Y - shot.Size / 2.0);
-                        }
+                        #region Set shot position
+
+                        Canvas.SetLeft(item.Value, shot.Position.X - shot.Size / 2.0);
+                        Canvas.SetBottom(item.Value, shot.Position.Y - shot.Size / 2.0);
+
                         #endregion
 
                         shot.TraveledDistance += 8.0;
@@ -398,13 +389,13 @@ namespace AsteroidsRemake
                 * player.VelocityMultiplier, player.MotionDirection);
             // Display the new position on the canvas
             Canvas.SetLeft(playerPolygon, player.Position.X - player.Size / 2);
-            Canvas.SetTop(playerPolygon, screenHeight - (player.Position.Y + player.Size / 2)); // substraction from screenHeight used to invert the y axis
+            Canvas.SetTop(playerPolygon, screenHeight - player.Position.Y - player.Size / 2); // substraction from screenHeight used to invert the y axis
         }
 
         private void ManageVelocity()
         {
             if (IsAccelerating && player.VelocityMultiplier < 1)
-                player.VelocityMultiplier += 0.003; // accelerating
+                player.VelocityMultiplier += 0.03; // accelerating
             else if (!IsAccelerating && player.VelocityMultiplier > 0)
                 player.VelocityMultiplier -= 0.0001; // slowing down
         }
@@ -486,8 +477,11 @@ namespace AsteroidsRemake
         {
             foreach (var item in gameObjectDictionary)
             {
-                if (FindCollisionWithOtherObjects(item.Key))
+                if (FindCollisionWithOtherObjects(item.Key, out GameObject collidedObj))
+                {
                     item.Key.Completed = true;
+                    collidedObj.Completed = true;
+                }
             }
         }
 
@@ -537,24 +531,23 @@ namespace AsteroidsRemake
             return new Point(x, y);
         }
 
-        private bool FindCollisionWithOtherObjects(GameObject gameObject)
+        private bool FindCollisionWithOtherObjects(GameObject objectToCheck, out GameObject foundObject)
         {
             foreach (var item in gameObjects)
             {
-                if (gameObject.Equals(item))
+                if (objectToCheck.Equals(item))
                     continue;
 
                 double dist;
-                // changes playership coordinations since its origin is situated in the canvas center
-                if (item is PlayerShip)
-                    dist = MathClass.GetDistance(gameObject.Position.X, item.Position.X - screenWidth / 2,
-                        gameObject.Position.Y, item.Position.Y - screenHeight / 2);
-                else
-                    dist = MathClass.GetDistance(gameObject.Position.X, item.Position.X, gameObject.Position.Y, item.Position.Y);
-                double radSum = gameObject.Size / 2.0 + item.Size / 2.0;
+                dist = MathClass.GetDistance(objectToCheck.Position.X, item.Position.X, objectToCheck.Position.Y, item.Position.Y);
+                double radSum = objectToCheck.Size / 2.0 + item.Size / 2.0;
                 if (dist < radSum)
+                {
+                    foundObject = item;
                     return true;
+                }
             }
+            foundObject = null;
             return false;
         }
 
