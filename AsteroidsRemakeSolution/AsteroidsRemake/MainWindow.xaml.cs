@@ -129,12 +129,12 @@ namespace AsteroidsRemake
         {
             storyboard = new Storyboard();
             CreatePlayerShip();
-            CreateAsteroids();
+            CreateNewSetOfAsteroids();
         }
 
         private void CreatePlayerShip()
         {
-            player = new PlayerShip(new Point(637, 325.5), 40);
+            player = new PlayerShip(new Point(637, 325.5), 40, 3);
             gameObjects.Add(player);
             gameObjectDictionary.Add(player, playerPolygon);
 
@@ -144,13 +144,13 @@ namespace AsteroidsRemake
         }
 
         private int asteroidCount = 4;
-        private void CreateAsteroids()
+        private readonly int defaultAsteroidSize = 250;
+        private void CreateNewSetOfAsteroids()
         {
             for (int i = 0; i < asteroidCount; i++)
             {
                 bool hasCollision;
-                double rndMovementDir = MathClass.GetRandomDouble(0, 359);
-                Asteroid asteroid = new Asteroid(250, 0.75, rndMovementDir);
+                Asteroid asteroid = new Asteroid(defaultAsteroidSize, 0.75, MathClass.GetRandomDouble(0, 359));
                 gameObjects.Add(asteroid);
                 do
                 {
@@ -161,23 +161,38 @@ namespace AsteroidsRemake
 
                 } while (hasCollision);
 
-                Ellipse el = new Ellipse
-                {
-                    Width = asteroid.Size,
-                    Height = asteroid.Size,
-                    Fill = CreateNewColorBrush(191, 165, 164),
-                    Stroke = CreateNewColorBrush(70, 69, 80),
-                    StrokeThickness = 1,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center
-                };
-                // The substraction by the (asteroid.Size/2) is used so the circle is drawn from its center 
-                Canvas.SetLeft(el, asteroid.Position.X - asteroid.Size / 2);
-                Canvas.SetBottom(el, asteroid.Position.Y - asteroid.Size / 2);
-                BackgroundCanvas.Children.Add(el);
-                gameObjectDictionary.Add(asteroid, el);
+                RenderAsteroid(asteroid);
             }
             asteroidCount++;
+        }
+
+        private void CreateAsteroidFragments(Asteroid parent, double speedIncrease)
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                Asteroid asteroid = new Asteroid(parent.Position, parent.Size / 2, parent.VelocityMultiplier * speedIncrease, MathClass.GetRandomDouble(0, 359));
+                gameObjects.Add(asteroid);
+                RenderAsteroid(asteroid);
+            }
+        }
+
+        private void RenderAsteroid(Asteroid asteroid)
+        {
+            Ellipse el = new Ellipse
+            {
+                Width = asteroid.Size,
+                Height = asteroid.Size,
+                Fill = CreateNewColorBrush(191, 165, 164),
+                Stroke = CreateNewColorBrush(70, 69, 80),
+                StrokeThickness = 1,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            // The substraction by the (asteroid.Size/2) is used so the circle is drawn from its center 
+            Canvas.SetLeft(el, asteroid.Position.X - asteroid.Size / 2);
+            Canvas.SetBottom(el, asteroid.Position.Y - asteroid.Size / 2);
+            BackgroundCanvas.Children.Add(el);
+            gameObjectDictionary.Add(asteroid, el);
         }
 
         private void MoveAsteroids()
@@ -475,8 +490,9 @@ namespace AsteroidsRemake
 
         private void ResolveCollisions()
         {
-            foreach (var item in gameObjectDictionary)
+            for (int i = 0; i < gameObjectDictionary.Count; i++)
             {
+                var item = gameObjectDictionary.ElementAt(i);
                 if (FindCollisionWithOtherObjects(item.Key, out GameObject collidedObj))
                 {
                     item.Key.Completed = true;
@@ -490,8 +506,29 @@ namespace AsteroidsRemake
             for (int i = 0; i < gameObjectDictionary.Count; i++)
             {
                 var item = gameObjectDictionary.ElementAt(i);
+
                 if (item.Key.Completed)
                 {
+                    // Create child asteroids
+                    if (item.Key is Asteroid)
+                    {
+                        if (item.Key.Size > defaultAsteroidSize / 4) //Make sure that it won't get smaller infinitely
+                            CreateAsteroidFragments((Asteroid)item.Key, 1.1);
+                    }
+
+                    if(item.Key is PlayerShip player)
+                    {
+                        player.Lives--;
+                        if (player.Lives == 0)
+                            EndGame();
+                        else
+                        {
+                            MakePlayerInvulnerable();
+                            item.Key.Completed = false;
+                            continue;
+                        }
+                    }
+
                     if (!(item.Key is Shot))
                         gameObjects.Remove(item.Key);
 
@@ -499,6 +536,25 @@ namespace AsteroidsRemake
                     gameObjectDictionary.Remove(item.Key);
                 }
             }
+        }
+
+        private void EndGame()
+        {
+        }
+
+        private void MakePlayerInvulnerable()
+        {
+            DispatcherTimer timer = new DispatcherTimer() { Interval = TimeSpan.FromSeconds(1) };
+            timer.Tick += delegate (object sender, EventArgs e)
+            {
+                ((DispatcherTimer)timer).Stop();
+                playerPolygon.Fill = CreateNewColorBrush(138, 148, 255);
+                playerPolygon.Stroke = CreateNewColorBrush(70, 69, 80);
+            };
+
+            playerPolygon.Fill = null;
+            playerPolygon.Stroke = null;
+            timer.Start();
         }
 
         #region Auxiliary methods
@@ -535,7 +591,7 @@ namespace AsteroidsRemake
         {
             foreach (var item in gameObjects)
             {
-                if (objectToCheck.Equals(item))
+                if (objectToCheck.Equals(item) || (objectToCheck is Asteroid && item is Asteroid))
                     continue;
 
                 double dist;
