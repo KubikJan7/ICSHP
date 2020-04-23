@@ -11,12 +11,14 @@ namespace AsteroidsRemake.Common
     {
         public int Lives { get; set; }
         public int Score { get; set; }
+        public bool IsInvulnerable { get; set; }
 
         public PlayerShip(Point position, int size, int lives)
         {
             Position = position;
             Size = size;
             Lives = lives;
+            Score = 0;
         }
         public override void Update()
         {

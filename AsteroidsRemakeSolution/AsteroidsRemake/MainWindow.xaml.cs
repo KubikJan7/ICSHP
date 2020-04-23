@@ -129,6 +129,7 @@ namespace AsteroidsRemake
         {
             storyboard = new Storyboard();
             CreatePlayerShip();
+            MakePlayerInvulnerable();
             CreateNewSetOfAsteroids();
         }
 
@@ -299,7 +300,7 @@ namespace AsteroidsRemake
                 {
                     if (gameObject is EnemyShip enemy && enemy.CanVanish)
                     {
-                        enemy.Completed = true;
+                        enemy.HadCollision = true;
                     }
 
                     if (gameObject.Position.X > maxScreenW)
@@ -378,7 +379,7 @@ namespace AsteroidsRemake
 
                         if (shot.TraveledDistance >= shot.MaximumDistance)
                         {
-                            item.Key.Completed = true;
+                            item.Key.HadCollision = true;
                         }
                     }
                 }
@@ -495,8 +496,12 @@ namespace AsteroidsRemake
                 var item = gameObjectDictionary.ElementAt(i);
                 if (FindCollisionWithOtherObjects(item.Key, out GameObject collidedObj))
                 {
-                    item.Key.Completed = true;
-                    collidedObj.Completed = true;
+                    item.Key.collidedWith = collidedObj;
+                    collidedObj.collidedWith = item.Key;
+                    if ((item.Key is PlayerShip || collidedObj is PlayerShip) && player.IsInvulnerable)
+                        continue;
+                    item.Key.HadCollision = true;
+                    collidedObj.HadCollision = true;
                 }
             }
         }
@@ -507,24 +512,46 @@ namespace AsteroidsRemake
             {
                 var item = gameObjectDictionary.ElementAt(i);
 
-                if (item.Key.Completed)
+                if (item.Key.HadCollision)
                 {
-                    // Create child asteroids
+                    
                     if (item.Key is Asteroid)
                     {
+                        // Create child asteroids
                         if (item.Key.Size > defaultAsteroidSize / 4) //Make sure that it won't get smaller infinitely
                             CreateAsteroidFragments((Asteroid)item.Key, 1.1);
                     }
 
-                    if(item.Key is PlayerShip player)
+                    if (item.Key is Shot shot)
                     {
-                        player.Lives--;
-                        if (player.Lives == 0)
+                        if (shot.Owner is PlayerShip)
+                        {
+                            if (item.Key.collidedWith is Asteroid)
+                                if (item.Key.collidedWith.Size == defaultAsteroidSize)
+                                    player.Score += 20;
+                                else if (item.Key.collidedWith.Size == defaultAsteroidSize / 2)
+                                    player.Score += 50;
+                                else
+                                    player.Score += 100;
+                            if (item.Key.collidedWith is EnemyShip)
+                                player.Score += 250;
+
+                            ScoreTextBlock.Text = "Score: " + player.Score.ToString();
+                        }
+                    }
+
+                    if (item.Key is PlayerShip ps)
+                    {
+                        LivesTextBlock.Text = "Lives: " + (--ps.Lives).ToString();
+                        if (ps.Lives == 0)
                             EndGame();
                         else
                         {
+                            ps.Position = new Point(637, 325.5);
+                            ps.VelocityMultiplier = 0;
+
                             MakePlayerInvulnerable();
-                            item.Key.Completed = false;
+                            item.Key.HadCollision = false;
                             continue;
                         }
                     }
@@ -540,20 +567,33 @@ namespace AsteroidsRemake
 
         private void EndGame()
         {
+            GameOverTextBlock.Text = "Game over";
         }
 
         private void MakePlayerInvulnerable()
         {
-            DispatcherTimer timer = new DispatcherTimer() { Interval = TimeSpan.FromSeconds(1) };
+            player.IsInvulnerable = true;
+
+            int counter = 0;
+            DispatcherTimer timer = new DispatcherTimer() { Interval = TimeSpan.FromSeconds(0.2) };
             timer.Tick += delegate (object sender, EventArgs e)
             {
-                ((DispatcherTimer)timer).Stop();
-                playerPolygon.Fill = CreateNewColorBrush(138, 148, 255);
-                playerPolygon.Stroke = CreateNewColorBrush(70, 69, 80);
+                if (++counter % 2 == 0)
+                {
+                    playerPolygon.Fill = CreateNewColorBrush(138, 148, 255);
+                    playerPolygon.Stroke = CreateNewColorBrush(70, 69, 80);
+                }
+                else if (counter == 11)
+                {
+                    timer.Stop();
+                    player.IsInvulnerable = false;
+                }
+                else
+                {
+                    playerPolygon.Fill = null;
+                    playerPolygon.Stroke = null;
+                }
             };
-
-            playerPolygon.Fill = null;
-            playerPolygon.Stroke = null;
             timer.Start();
         }
 

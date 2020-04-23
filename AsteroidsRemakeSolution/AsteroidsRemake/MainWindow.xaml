@@ -13,6 +13,9 @@
                     <RotateTransform x:Name="polygonRotation"/>
                 </Polygon.RenderTransform>
             </Polygon>
+            <TextBlock x:Name="LivesTextBlock" TextWrapping="Wrap" Text="Lives: 3" Height="31" Width="119" FontSize="20" Foreground="White" Canvas.Left="10"/>
+            <TextBlock x:Name="ScoreTextBlock" TextWrapping="Wrap" Text="Score: 0" Height="31" Width="119" FontSize="20" Foreground="White" Canvas.Top="31" Canvas.Left="10"/>
+            <TextBlock x:Name="GameOverTextBlock" TextWrapping="Wrap" Height="95" Width="316" FontSize="65" Foreground="White" Canvas.Top="296" Canvas.Left="506" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Canvas>
 
     </Grid>
