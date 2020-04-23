@@ -33,6 +33,7 @@ namespace AsteroidsRemake
 
         private List<GameObject> gameObjects = new List<GameObject>();
         private PlayerShip player;
+        private int numOfObtainedLives;
         private Dictionary<GameObject, Shape> gameObjectDictionary = new Dictionary<GameObject, Shape>();
         private bool IsAccelerating { get; set; }
 
@@ -46,7 +47,6 @@ namespace AsteroidsRemake
             screenHeight = BackgroundCanvas.Height;
             InitializeTimers();
             DrawScene();
-            CreateEnemyShip();
         }
 
         private void InitializeTimers()
@@ -144,11 +144,12 @@ namespace AsteroidsRemake
             playerPolygon.StrokeThickness = 1;
         }
 
-        private int asteroidCount = 4;
+        private int asteroidStartCount = 4;
+        private int asteroidCurrentCount = 0;
         private readonly int defaultAsteroidSize = 250;
         private void CreateNewSetOfAsteroids()
         {
-            for (int i = 0; i < asteroidCount; i++)
+            for (int i = 0; i < asteroidStartCount; i++)
             {
                 bool hasCollision;
                 Asteroid asteroid = new Asteroid(defaultAsteroidSize, 0.75, MathClass.GetRandomDouble(0, 359));
@@ -164,7 +165,7 @@ namespace AsteroidsRemake
 
                 RenderAsteroid(asteroid);
             }
-            asteroidCount++;
+            asteroidCurrentCount = asteroidStartCount++;
         }
 
         private void CreateAsteroidFragments(Asteroid parent, double speedIncrease)
@@ -175,6 +176,7 @@ namespace AsteroidsRemake
                 gameObjects.Add(asteroid);
                 RenderAsteroid(asteroid);
             }
+            ++asteroidCurrentCount;
         }
 
         private void RenderAsteroid(Asteroid asteroid)
@@ -518,8 +520,15 @@ namespace AsteroidsRemake
                     if (item.Key is Asteroid)
                     {
                         // Create child asteroids
-                        if (item.Key.Size > defaultAsteroidSize / 4) //Make sure that it won't get smaller infinitely
+                        if (item.Key.Size == defaultAsteroidSize) //Make sure that it won't get smaller infinitely
                             CreateAsteroidFragments((Asteroid)item.Key, 1.1);
+                        else if (item.Key.Size == defaultAsteroidSize / 2) //Make sure that it won't get smaller infinitely
+                            CreateAsteroidFragments((Asteroid)item.Key, 1.5);
+                        else
+                             --asteroidCurrentCount;
+
+                        if (asteroidCurrentCount == 0)
+                            CreateNewSetOfAsteroids();
                     }
                     #endregion
 
@@ -537,6 +546,13 @@ namespace AsteroidsRemake
                                     player.Score += 100;
                             if (item.Key.collidedWith is EnemyShip)
                                 player.Score += 250;
+
+                            // Will add a new life after reaching the score of 10000
+                            if((player.Score/10000) > numOfObtainedLives)
+                            {
+                                numOfObtainedLives++;
+                                LivesTextBlock.Text = "Lives: " + (++player.Lives).ToString();
+                            }
 
                             ScoreTextBlock.Text = "Score: " + player.Score.ToString();
                         }
