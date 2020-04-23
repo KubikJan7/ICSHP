@@ -514,14 +514,16 @@ namespace AsteroidsRemake
 
                 if (item.Key.HadCollision)
                 {
-                    
+                    #region Create asteroid fragments
                     if (item.Key is Asteroid)
                     {
                         // Create child asteroids
                         if (item.Key.Size > defaultAsteroidSize / 4) //Make sure that it won't get smaller infinitely
                             CreateAsteroidFragments((Asteroid)item.Key, 1.1);
                     }
+                    #endregion
 
+                    #region Calculate the score
                     if (item.Key is Shot shot)
                     {
                         if (shot.Owner is PlayerShip)
@@ -539,7 +541,9 @@ namespace AsteroidsRemake
                             ScoreTextBlock.Text = "Score: " + player.Score.ToString();
                         }
                     }
+                    #endregion
 
+                    #region Hit the player ship
                     if (item.Key is PlayerShip ps)
                     {
                         LivesTextBlock.Text = "Lives: " + (--ps.Lives).ToString();
@@ -555,6 +559,7 @@ namespace AsteroidsRemake
                             continue;
                         }
                     }
+                    #endregion
 
                     if (!(item.Key is Shot))
                         gameObjects.Remove(item.Key);
