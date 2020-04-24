@@ -27,18 +27,21 @@ namespace AsteroidsRemake
         private DispatcherTimer mainTimer;
         private DispatcherTimer hyperDriveTimer;
         private DispatcherTimer gunLoadedTimer;
+        private double enemySpawnTime = 30;
         private DispatcherTimer enemySpawnTimer;
         private DispatcherTimer AIShootTimer;
+
         private Storyboard storyboard;
 
         private List<GameObject> gameObjects = new List<GameObject>();
         private PlayerShip player;
-        private int numOfObtainedLives;
         private Dictionary<GameObject, Shape> gameObjectDictionary = new Dictionary<GameObject, Shape>();
+
+        private int numOfObtainedLives;
         private bool IsAccelerating { get; set; }
 
-        double screenWidth;
-        double screenHeight;
+        private readonly double screenWidth;
+        private readonly double screenHeight;
 
         public MainWindow()
         {
@@ -53,7 +56,7 @@ namespace AsteroidsRemake
         {
             mainTimer = new DispatcherTimer(DispatcherPriority.Render);
             mainTimer.Tick += new EventHandler(MainTimer_Tick);
-            mainTimer.Interval = TimeSpan.FromSeconds(0.02);
+            mainTimer.Interval = TimeSpan.FromSeconds(0.01);
             mainTimer.Start();
 
             hyperDriveTimer = new DispatcherTimer();
@@ -68,7 +71,7 @@ namespace AsteroidsRemake
 
             enemySpawnTimer = new DispatcherTimer();
             enemySpawnTimer.Tick += new EventHandler(EnemySpawn_Tick);
-            enemySpawnTimer.Interval = TimeSpan.FromSeconds(20);
+            enemySpawnTimer.Interval = TimeSpan.FromSeconds(enemySpawnTime);
             enemySpawnTimer.Start();
 
             AIShootTimer = new DispatcherTimer();
@@ -104,6 +107,12 @@ namespace AsteroidsRemake
         private void EnemySpawn_Tick(object sender, EventArgs e)
         {
             CreateEnemyShip();
+
+            // The enemy spawn interval will get lower until it reach 5
+            if (enemySpawnTime > 5)
+                enemySpawnTime -= 1;
+
+            enemySpawnTimer.Interval = TimeSpan.FromSeconds(enemySpawnTime);
         }
 
         private void AIShoot_Tick(object sender, EventArgs e)
@@ -152,7 +161,7 @@ namespace AsteroidsRemake
             for (int i = 0; i < asteroidStartCount; i++)
             {
                 bool hasCollision;
-                Asteroid asteroid = new Asteroid(defaultAsteroidSize, 0.75, MathClass.GetRandomDouble(0, 359));
+                Asteroid asteroid = new Asteroid(defaultAsteroidSize, 0.8, MathClass.GetRandomDouble(0, 359));
                 gameObjects.Add(asteroid);
                 do
                 {
@@ -219,7 +228,7 @@ namespace AsteroidsRemake
         private void CreateEnemyShip()
         {
             double rndMovementDir = MathClass.GetRandomDouble(0, 359);
-            EnemyShip enemy = new EnemyShip(40, 1, rndMovementDir);
+            EnemyShip enemy = new EnemyShip(40, 1.2, rndMovementDir);
 
             Point position = GenerateObjectPosition(enemy.Size);
             // will choose side (based on enemy movement direction) from which the enemy will occur
@@ -338,7 +347,7 @@ namespace AsteroidsRemake
                 // Get the starting point of the shot
                 Point shotStart = MathClass.MovePointByGivenDistanceAndAngle(gameObject.Position, distFromCentroid, shotAngle);
                 // Create shot with target set in front of the ship nose
-                Shot shot = new Shot(gameObject, shotStart, 8, 1, maximumDistance, shotAngle);
+                Shot shot = new Shot(gameObject, shotStart, 8, 1.5, maximumDistance, shotAngle);
 
                 Ellipse el = new Ellipse
                 {
@@ -389,7 +398,7 @@ namespace AsteroidsRemake
         }
         private void AccelerateShip()
         {
-            double movementStep = 5.0;
+            double movementStep = 2.5;
 
             // Get the current player position
             if (IsAccelerating) // Key W is pressed
@@ -469,7 +478,10 @@ namespace AsteroidsRemake
                 }
             }
             if (e.Key == Key.W || e.Key == Key.Up)
+            {
                 IsAccelerating = true;
+                RenderCollisionOrThrust(player, 5, 8);
+            }
             else if (e.Key == Key.A || e.Key == Key.Left)
                 RotateShip("to left");
             else if (e.Key == Key.D || e.Key == Key.Right)
@@ -490,6 +502,71 @@ namespace AsteroidsRemake
                 IsAccelerating = false;
         }
         #endregion
+
+        /// <summary>
+        /// Will depict collisions by drawing small circles in the center of collided objects
+        /// </summary>
+        /// <param name="gameObject"></param>
+        private void RenderCollisionOrThrust(GameObject gameObject, int particleCountMin, int particleCountMax)
+        {
+            List<Ellipse> elArray = new List<Ellipse>();
+            Ellipse el;
+            int counter = MathClass.GetRandomInt(particleCountMin, particleCountMax);
+            bool explosionFinished = false;
+            DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromSeconds(0.033) };
+            timer.Tick += delegate (object sender, EventArgs e)
+            {
+                if (counter-- > 0)
+                {
+                    int size = MathClass.GetRandomInt(5, 10);
+                    el = new Ellipse
+                    {
+                        Fill = (MathClass.GetRandomInt(0, 1) == 1) ? CreateNewColorBrush(255, 206, 106)
+                        : CreateNewColorBrush(255, 165, 140),
+
+                        Stroke = CreateNewColorBrush(70, 69, 80),
+                        Width = size,
+                        Height = size
+                    };
+
+                    Point pos;
+                    if (gameObject is PlayerShip)
+                    {
+                        pos = MathClass.MovePointByGivenDistanceAndAngle(gameObject.Position, 45.0, (polygonRotation.Angle + 180.0) % 360.0);
+                        pos.X += MathClass.GetRandomDouble(-20.0, 20.0);
+                        pos.Y += MathClass.GetRandomDouble(-20.0, 20.0);
+                    }
+                    else
+                        pos = new Point(gameObject.Position.X + MathClass.GetRandomDouble(-gameObject.Size / 4.0, gameObject.Size / 4.0),
+                            gameObject.Position.Y + MathClass.GetRandomDouble(-gameObject.Size / 4.0, gameObject.Size / 4.0));
+
+                    Canvas.SetLeft(el, pos.X - size / 2.0);
+                    Canvas.SetBottom(el, pos.Y - size / 2.0 - 6);
+                    BackgroundCanvas.Children.Add(el);
+                    elArray.Add(el);
+                }
+                else
+                    explosionFinished = true;
+            };
+            timer.Tick += delegate (object sender, EventArgs e)
+            {
+                int rndNum = MathClass.GetRandomInt(0, 2);
+
+                if (rndNum > 0 && elArray.Count != 0)
+                {
+                    Ellipse elFirst = elArray.First();
+                    BackgroundCanvas.Children.Remove(elArray.First());
+                    elArray.Remove(elFirst);
+                }
+
+                if (elArray.Count == 0 && explosionFinished)
+                {
+                    timer.Stop();
+                }
+
+            };
+            timer.Start();
+        }
 
         private void ResolveCollisions()
         {
@@ -521,11 +598,11 @@ namespace AsteroidsRemake
                     {
                         // Create child asteroids
                         if (item.Key.Size == defaultAsteroidSize) //Make sure that it won't get smaller infinitely
-                            CreateAsteroidFragments((Asteroid)item.Key, 1.1);
+                            CreateAsteroidFragments((Asteroid)item.Key, 1);
                         else if (item.Key.Size == defaultAsteroidSize / 2) //Make sure that it won't get smaller infinitely
-                            CreateAsteroidFragments((Asteroid)item.Key, 1.5);
+                            CreateAsteroidFragments((Asteroid)item.Key, 1.2);
                         else
-                             --asteroidCurrentCount;
+                            --asteroidCurrentCount;
 
                         if (asteroidCurrentCount == 0)
                             CreateNewSetOfAsteroids();
@@ -548,7 +625,7 @@ namespace AsteroidsRemake
                                 player.Score += 250;
 
                             // Will add a new life after reaching the score of 10000
-                            if((player.Score/10000) > numOfObtainedLives)
+                            if ((player.Score / 10000) > numOfObtainedLives)
                             {
                                 numOfObtainedLives++;
                                 LivesTextBlock.Text = "Lives: " + (++player.Lives).ToString();
@@ -578,7 +655,10 @@ namespace AsteroidsRemake
                     #endregion
 
                     if (!(item.Key is Shot))
+                    {
                         gameObjects.Remove(item.Key);
+                        RenderCollisionOrThrust(item.Key, 10, 20);
+                    }
 
                     BackgroundCanvas.Children.Remove(item.Value);
                     gameObjectDictionary.Remove(item.Key);
@@ -591,12 +671,15 @@ namespace AsteroidsRemake
             GameOverTextBlock.Text = "Game over";
         }
 
+        /// <summary>
+        /// Will set the player invulnerability to true and make the ship flickering
+        /// </summary>
         private void MakePlayerInvulnerable()
         {
             player.IsInvulnerable = true;
 
             int counter = 0;
-            DispatcherTimer timer = new DispatcherTimer() { Interval = TimeSpan.FromSeconds(0.2) };
+            DispatcherTimer timer = new DispatcherTimer() { Interval = TimeSpan.FromSeconds(0.1) };
             timer.Tick += delegate (object sender, EventArgs e)
             {
                 if (++counter % 2 == 0)
@@ -604,7 +687,7 @@ namespace AsteroidsRemake
                     playerPolygon.Fill = CreateNewColorBrush(138, 148, 255);
                     playerPolygon.Stroke = CreateNewColorBrush(70, 69, 80);
                 }
-                else if (counter == 11)
+                else if (counter == 21)
                 {
                     timer.Stop();
                     player.IsInvulnerable = false;
