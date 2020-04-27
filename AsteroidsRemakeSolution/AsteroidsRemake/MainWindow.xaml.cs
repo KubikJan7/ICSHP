@@ -1,5 +1,6 @@
 ﻿using AsteroidsRemake.Common;
 using AsteroidsRemake.MathLibrary;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -160,6 +161,11 @@ namespace AsteroidsRemake
             playerPolygon.Fill = CreateNewColorBrush(138, 148, 255);
             playerPolygon.Stroke = CreateNewColorBrush(70, 69, 80);
             playerPolygon.StrokeThickness = 1;
+        }
+
+        private void LoadObjectsFromFile(string fileName)
+        {
+
         }
 
         private int asteroidStartCount = 4;
@@ -786,7 +792,10 @@ namespace AsteroidsRemake
 
         private void LoadFromFileTextBlock_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Text files (*.txt)|*.txt";
+            if (openFileDialog.ShowDialog() == true)
+                LoadObjectsFromFile(openFileDialog.FileName);
         }
 
         private void BackToMenuTextBlock_MouseDown(object sender, MouseButtonEventArgs e)
