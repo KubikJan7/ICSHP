@@ -8,14 +8,18 @@
         Title="MainWindow" ResizeMode="NoResize" Height="720" Width="1280" KeyDown="MainWindow1_KeyDown" KeyUp="MainWindow1_KeyUp">
     <Grid>
         <Canvas x:Name="BackgroundCanvas" Background="DimGray" Width="1274" Height="691">
-            <Polygon x:Name="playerPolygon" Points="20, 0 5, 40 35, 40" Width="40" Height="40" VerticalAlignment="Center" Canvas.Top="325.5" Canvas.Left="617" Panel.ZIndex="2">
+            <Polygon x:Name="playerPolygon" Points="20,0 5,40 35,40" Width="40" Height="40" VerticalAlignment="Center" Canvas.Top="325.5" Canvas.Left="617" Panel.ZIndex="2">
                 <Polygon.RenderTransform>
                     <RotateTransform x:Name="polygonRotation"/>
                 </Polygon.RenderTransform>
             </Polygon>
-            <TextBlock x:Name="LivesTextBlock" TextWrapping="Wrap" Text="Lives: 3" Height="31" Width="119" FontSize="20" Foreground="White" Canvas.Left="10" Panel.ZIndex="1"/>
-            <TextBlock x:Name="ScoreTextBlock" TextWrapping="Wrap" Text="Score: 0" Height="31" Width="119" FontSize="20" Foreground="White" Canvas.Top="31" Canvas.Left="10" Panel.ZIndex="1"/>
-            <TextBlock x:Name="GameOverTextBlock" TextWrapping="Wrap" Height="95" Width="316" FontSize="65" Foreground="White" Canvas.Top="296" Canvas.Left="506" HorizontalAlignment="Center" VerticalAlignment="Center" Panel.ZIndex="1"/>
+            <TextBlock x:Name="TitleTextBlock" TextWrapping="Wrap" Height="118" Width="632" FontSize="80" Foreground="#FF8A94FF" Canvas.Top="178" Canvas.Left="321" Text="Asteroids Remake" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock x:Name="LivesTextBlock" TextWrapping="Wrap" Text="Lives: 3" Height="31" Width="119" FontSize="20" Foreground="White" Canvas.Left="10" Panel.ZIndex="1" Visibility="Hidden"/>
+            <TextBlock x:Name="ScoreTextBlock" TextWrapping="Wrap" Text="Score: 0" Height="31" Width="119" FontSize="20" Foreground="White" Canvas.Top="31" Canvas.Left="10" Panel.ZIndex="1" Visibility="Hidden"/>
+            <TextBlock x:Name="GameOverTextBlock" TextWrapping="Wrap" Height="95" Width="390" FontSize="80" Foreground="#FFFD7076" Canvas.Top="226" Canvas.Left="439" HorizontalAlignment="Center" VerticalAlignment="Center" Panel.ZIndex="1" Text="Game over" Visibility="Hidden"/>
+            <TextBlock x:Name="PlayGameTextBlock" TextWrapping="Wrap" Text="Play game" Height="65" Width="188" FontSize="40" Foreground="White" Canvas.Left="545" Panel.ZIndex="1" Canvas.Top="326" MouseEnter="TextBlockBtn_MouseEnter" MouseLeave="TextBlockBtn_MouseLeave" MouseDown="PlayGameTextBlock_MouseDown"/>
+            <TextBlock x:Name="LoadFromFileTextBlock" TextWrapping="Wrap" Text="Load from file" Height="49" Width="250" FontSize="40" Foreground="White" Canvas.Left="512" Panel.ZIndex="1" Canvas.Top="396" MouseEnter="TextBlockBtn_MouseEnter" MouseLeave="TextBlockBtn_MouseLeave" MouseDown="LoadFromFileTextBlock_MouseDown" Visibility="Hidden"/>
+            <TextBlock x:Name="RestartGameTextBlock" TextWrapping="Wrap" Text="Restart game" Height="81" Width="250" FontSize="40" Foreground="White" Canvas.Left="512" Panel.ZIndex="1" Canvas.Top="342" MouseEnter="TextBlockBtn_MouseEnter" MouseLeave="TextBlockBtn_MouseLeave" MouseDown="BackToMenuTextBlock_MouseDown" Visibility="Hidden"/>
         </Canvas>
 
     </Grid>

@@ -48,10 +48,19 @@ namespace AsteroidsRemake
             InitializeComponent();
             screenWidth = BackgroundCanvas.Width;
             screenHeight = BackgroundCanvas.Height;
+        }
+
+        private void StartGame()
+        {
             InitializeTimers();
             DrawScene();
         }
 
+        private void RestartApplication()
+        {
+            System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
+            Application.Current.Shutdown();
+        }
         private void InitializeTimers()
         {
             mainTimer = new DispatcherTimer(DispatcherPriority.Render);
@@ -336,7 +345,7 @@ namespace AsteroidsRemake
             }
         }
 
-        #region ship controlling methods
+        #region ship control methods
         private void PrepareShot(GameObject gameObject, double distFromCentroid, double shotAngle)
         {
             if (GunLoaded || gameObject is EnemyShip)
@@ -463,43 +472,6 @@ namespace AsteroidsRemake
                 Point pos = GenerateObjectPosition(player.Size);
                 player.Position = new Point(pos.X - screenWidth / 2, pos.Y - screenHeight / 2); //position relative to the polygon
             }
-        }
-
-        private void MainWindow1_KeyDown(object sender, KeyEventArgs e)
-        {
-            // Check if a key is held down
-            if (!e.IsRepeat)
-            {
-                if (e.Key == Key.A || e.Key == Key.Left || e.Key == Key.D || e.Key == Key.Right)
-                {
-                    // Resume animation
-                    storyboard.Resume();
-                    goalRotation = polygonRotation.Angle;
-                }
-            }
-            if (e.Key == Key.W || e.Key == Key.Up)
-            {
-                IsAccelerating = true;
-                RenderCollisionOrThrust(player, 5, 8);
-            }
-            else if (e.Key == Key.A || e.Key == Key.Left)
-                RotateShip("to left");
-            else if (e.Key == Key.D || e.Key == Key.Right)
-                RotateShip("to right");
-            else if (e.Key == Key.Space)
-            {
-                PrepareShot(player, player.Size, polygonRotation.Angle);
-            }
-            else if (e.Key == Key.LeftShift || e.Key == Key.RightShift)
-                TravelThroughHyperspace();
-        }
-
-        private void MainWindow1_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.A || e.Key == Key.Left || e.Key == Key.D || e.Key == Key.Right)
-                storyboard.Pause(); // Pause the animation of rotation
-            if (e.Key == Key.W || e.Key == Key.Up)
-                IsAccelerating = false;
         }
         #endregion
 
@@ -668,7 +640,8 @@ namespace AsteroidsRemake
 
         private void EndGame()
         {
-            GameOverTextBlock.Text = "Game over";
+            GameOverTextBlock.Visibility = Visibility.Visible;
+            RestartGameTextBlock.Visibility = Visibility.Visible;
         }
 
         /// <summary>
@@ -751,9 +724,92 @@ namespace AsteroidsRemake
             return false;
         }
 
+        #region UI control methods
+        private void MainWindow1_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Check if a key is held down
+            if (!e.IsRepeat)
+            {
+                if (e.Key == Key.A || e.Key == Key.Left || e.Key == Key.D || e.Key == Key.Right)
+                {
+                    // Resume animation
+                    storyboard.Resume();
+                    goalRotation = polygonRotation.Angle;
+                }
+            }
+            if (e.Key == Key.W || e.Key == Key.Up)
+            {
+                IsAccelerating = true;
+                RenderCollisionOrThrust(player, 5, 8);
+            }
+            else if (e.Key == Key.A || e.Key == Key.Left)
+                RotateShip("to left");
+            else if (e.Key == Key.D || e.Key == Key.Right)
+                RotateShip("to right");
+            else if (e.Key == Key.Space)
+            {
+                PrepareShot(player, player.Size, polygonRotation.Angle);
+            }
+            else if (e.Key == Key.LeftShift || e.Key == Key.RightShift)
+                TravelThroughHyperspace();
+        }
+
+        private void MainWindow1_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.A || e.Key == Key.Left || e.Key == Key.D || e.Key == Key.Right)
+                storyboard.Pause(); // Pause the animation of rotation
+            if (e.Key == Key.W || e.Key == Key.Up)
+                IsAccelerating = false;
+        }
+
         private bool CheckIfPositionIsInsideScreen(Point position)
         {
             return (position.X > 0 && position.X < screenWidth && position.Y > 0 && position.Y < screenHeight);
+        }
+        #endregion
+
+        private void TextBlockBtn_MouseEnter(object sender, MouseEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Hand;
+        }
+
+        private void TextBlockBtn_MouseLeave(object sender, MouseEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Arrow;
+        }
+
+        private void PlayGameTextBlock_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            StartGame();
+            EnableUIGameElements();
+        }
+
+        private void LoadFromFileTextBlock_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void BackToMenuTextBlock_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            RestartApplication();
+        }
+
+        private void EnableUIGameElements()
+        {
+            LivesTextBlock.Visibility = Visibility.Visible;
+            ScoreTextBlock.Visibility = Visibility.Visible;
+            TitleTextBlock.Visibility = Visibility.Hidden;
+            PlayGameTextBlock.Visibility = Visibility.Hidden;
+            LoadFromFileTextBlock.Visibility = Visibility.Hidden;
+        }
+
+        private void EnableUIMenuElements()
+        {
+            LivesTextBlock.Visibility = Visibility.Hidden;
+            ScoreTextBlock.Visibility = Visibility.Hidden;
+            TitleTextBlock.Visibility = Visibility.Visible;
+            PlayGameTextBlock.Visibility = Visibility.Visible;
+            LoadFromFileTextBlock.Visibility = Visibility.Visible;
         }
         #endregion
     }
