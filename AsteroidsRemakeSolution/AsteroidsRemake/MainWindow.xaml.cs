@@ -3,6 +3,7 @@ using AsteroidsRemake.MathLibrary;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -51,10 +52,17 @@ namespace AsteroidsRemake
             screenHeight = BackgroundCanvas.Height;
         }
 
-        private void StartGame()
+        private void StartOrdinaryGame()
         {
             InitializeTimers();
             DrawScene();
+        }
+
+        private void StartCustomGame()
+        {
+            InitializeTimers();
+            storyboard = new Storyboard();
+            MakePlayerInvulnerable();
         }
 
         private void RestartApplication()
@@ -116,7 +124,7 @@ namespace AsteroidsRemake
 
         private void EnemySpawn_Tick(object sender, EventArgs e)
         {
-            CreateEnemyShip();
+            CreateEnemyShip(default);
 
             // The enemy spawn interval will get lower until it reach 5
             if (enemySpawnTime > 5)
@@ -147,14 +155,14 @@ namespace AsteroidsRemake
         private void DrawScene()
         {
             storyboard = new Storyboard();
-            CreatePlayerShip();
+            CreatePlayerShip(new Point(637, 325.5));
             MakePlayerInvulnerable();
             CreateNewSetOfAsteroids();
         }
 
-        private void CreatePlayerShip()
+        private void CreatePlayerShip(Point position)
         {
-            player = new PlayerShip(new Point(637, 325.5), 40, 3);
+            player = new PlayerShip(position, 40, 3);
             gameObjects.Add(player);
             gameObjectDictionary.Add(player, playerPolygon);
 
@@ -165,7 +173,44 @@ namespace AsteroidsRemake
 
         private void LoadObjectsFromFile(string fileName)
         {
+            int asteroidCount = 0;
+            if (File.Exists(fileName))
+            {
+                using (StreamReader file = new StreamReader(fileName))
+                {
+                    int lnCount = 0;
+                    string ln;
+                    string[] words;
+                    Point position;
 
+                    while ((ln = file.ReadLine()) != null)
+                    {
+                        if (++lnCount <= 2)
+                            continue;
+
+                        words = ln.Split(null);
+                        position = new Point(Convert.ToDouble(words[1]), Convert.ToDouble(words[2]));
+                        switch (words[0])
+                        {
+                            case "asteroid":
+                                CreateAsteroid(position);
+                                asteroidCount++;
+                                break;
+                            case "enemyShip":
+                                CreateEnemyShip(position);
+                                break;
+                            case "playerShip":
+                                if (player == null) // To prevent creating of more than 1 player
+                                    CreatePlayerShip(position);
+                                break;
+                        }
+                    }
+                    file.Close();
+                }
+            }
+            asteroidCurrentCount = asteroidCount;
+            StartCustomGame();
+            EnableUIGameElements();
         }
 
         private int asteroidStartCount = 4;
@@ -190,6 +235,13 @@ namespace AsteroidsRemake
                 RenderAsteroid(asteroid);
             }
             asteroidCurrentCount = asteroidStartCount++;
+        }
+
+        private void CreateAsteroid(Point position)
+        {
+            Asteroid asteroid = new Asteroid(position, defaultAsteroidSize, 0.8, MathClass.GetRandomDouble(0, 359));
+            gameObjects.Add(asteroid);
+            RenderAsteroid(asteroid);
         }
 
         private void CreateAsteroidFragments(Asteroid parent, double speedIncrease)
@@ -240,21 +292,24 @@ namespace AsteroidsRemake
             }
         }
 
-        private void CreateEnemyShip()
+        private void CreateEnemyShip(Point position)
         {
             double rndMovementDir = MathClass.GetRandomDouble(0, 359);
             EnemyShip enemy = new EnemyShip(40, 1.2, rndMovementDir);
 
-            Point position = GenerateObjectPosition(enemy.Size);
-            // will choose side (based on enemy movement direction) from which the enemy will occur
-            if (enemy.MotionDirection > 315 || enemy.MotionDirection <= 45)
-                position.Y = screenHeight + enemy.Size / 2;
-            else if (enemy.MotionDirection > 45 || enemy.MotionDirection <= 135)
-                position.X = 0 - enemy.Size / 2;
-            else if (enemy.MotionDirection > 135 || enemy.MotionDirection <= 225)
-                position.Y = 0 - enemy.Size / 2;
-            else if (enemy.MotionDirection > 225 || enemy.MotionDirection <= 315)
-                position.X = screenWidth + enemy.Size / 2;
+            if (position == default)
+            {
+                position = GenerateObjectPosition(enemy.Size);
+                // will choose side (based on enemy movement direction) from which the enemy will occur
+                if (enemy.MotionDirection > 315 || enemy.MotionDirection <= 45)
+                    position.Y = screenHeight + enemy.Size / 2;
+                else if (enemy.MotionDirection > 45 || enemy.MotionDirection <= 135)
+                    position.X = 0 - enemy.Size / 2;
+                else if (enemy.MotionDirection > 135 || enemy.MotionDirection <= 225)
+                    position.Y = 0 - enemy.Size / 2;
+                else if (enemy.MotionDirection > 225 || enemy.MotionDirection <= 315)
+                    position.X = screenWidth + enemy.Size / 2;
+            }
 
             enemy.Position = position;
 
@@ -786,7 +841,7 @@ namespace AsteroidsRemake
 
         private void PlayGameTextBlock_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            StartGame();
+            StartOrdinaryGame();
             EnableUIGameElements();
         }
 
@@ -810,15 +865,6 @@ namespace AsteroidsRemake
             TitleTextBlock.Visibility = Visibility.Hidden;
             PlayGameTextBlock.Visibility = Visibility.Hidden;
             LoadFromFileTextBlock.Visibility = Visibility.Hidden;
-        }
-
-        private void EnableUIMenuElements()
-        {
-            LivesTextBlock.Visibility = Visibility.Hidden;
-            ScoreTextBlock.Visibility = Visibility.Hidden;
-            TitleTextBlock.Visibility = Visibility.Visible;
-            PlayGameTextBlock.Visibility = Visibility.Visible;
-            LoadFromFileTextBlock.Visibility = Visibility.Visible;
         }
         #endregion
     }
