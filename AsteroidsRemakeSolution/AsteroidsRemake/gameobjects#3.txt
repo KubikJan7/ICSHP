@@ -1,0 +1,9 @@
+object		x	y
+-----------------------------
+playerShip	637	345,5
+enemyShip	100	245,5
+enemyShip	820	65,5
+enemyShip	329,56	5,25
+enemyShip	200	650
+asteroid	1247	345,5
+playerShip	200	200

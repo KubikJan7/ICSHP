@@ -1,0 +1,6 @@
+object		x	y
+-----------------------------
+asteroid	600	500
+asteroid	1200	0
+playerShip	200	200
+enemyShip	400	400

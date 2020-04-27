@@ -1,0 +1,7 @@
+object		x	y
+-----------------------------
+asteroid	125	125
+asteroid	125	566
+asteroid	1149	125
+asteroid	1149	566
+playerShip	637	691
