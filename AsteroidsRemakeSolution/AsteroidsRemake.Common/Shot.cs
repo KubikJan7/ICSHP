@@ -14,11 +14,6 @@ namespace AsteroidsRemake.Common
         public double TraveledDistance { get; set; }
         public double MaximumDistance { get; set; }
 
-        public override void Update()
-        {
-            throw new NotImplementedException();
-        }
-
         public Shot(GameObject owner,Point position, int size, double velocityM, double maximumDistance, double motionDirection)
         {
             Owner = owner;

@@ -16,9 +16,5 @@ namespace AsteroidsRemake.Common
             VelocityMultiplier = velocityM;
             MotionDirection = motionDirection;
         }
-        public override void Update()
-        {
-
-        }
     }
 }

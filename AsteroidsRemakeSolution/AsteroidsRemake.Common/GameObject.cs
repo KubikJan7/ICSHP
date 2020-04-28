@@ -14,9 +14,6 @@ namespace AsteroidsRemake.Common
         public virtual double MotionDirection { get; set; }
         public virtual bool HadCollision { get; set; }
         public virtual double VelocityMultiplier { get; set; }
-        public virtual GameObject collidedWith { get; set; }
-
-        public abstract void Update();
-
+        public virtual GameObject CollidedWith { get; set; }
     }
 }

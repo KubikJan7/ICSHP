@@ -20,9 +20,5 @@ namespace AsteroidsRemake.Common
             Lives = lives;
             Score = 0;
         }
-        public override void Update()
-        {
-
-        }
     }
 }

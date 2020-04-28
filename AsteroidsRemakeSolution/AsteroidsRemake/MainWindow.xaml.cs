@@ -142,12 +142,11 @@ namespace AsteroidsRemake
                     {
                         PrepareShot(enemy, enemy.Size, MathClass.GetRandomDouble(0, 359));
 
-                        if (counter % 4 == 0) // Get called every 4 seconds
-                            // Enemy motion direction changed by value from interval <-60;60>
+                        if (++counter % 2 == 0) // Get called every 4 seconds
+                            // Enemy motion direction changed by value within interval <-60;60>
                             enemy.MotionDirection += MathClass.GetRandomDouble(-60, 60);
                     }
                 }
-            counter++;
         }
 
         private int counter;
@@ -174,8 +173,7 @@ namespace AsteroidsRemake
         private void LoadObjectsFromFile(string fileName)
         {
             int asteroidCount = 0;
-            if (File.Exists(fileName))
-            {
+            
                 using (StreamReader file = new StreamReader(fileName))
                 {
                     int lnCount = 0;
@@ -207,7 +205,6 @@ namespace AsteroidsRemake
                     }
                     file.Close();
                 }
-            }
             asteroidCurrentCount = asteroidCount;
             StartCustomGame();
             EnableUIGameElements();
@@ -302,11 +299,11 @@ namespace AsteroidsRemake
                 position = GenerateObjectPosition(enemy.Size);
                 // will choose side (based on enemy movement direction) from which the enemy will occur
                 if (enemy.MotionDirection > 315 || enemy.MotionDirection <= 45)
-                    position.Y = screenHeight + enemy.Size / 2;
+                    position.Y = 0 - enemy.Size / 2;
                 else if (enemy.MotionDirection > 45 || enemy.MotionDirection <= 135)
                     position.X = 0 - enemy.Size / 2;
                 else if (enemy.MotionDirection > 135 || enemy.MotionDirection <= 225)
-                    position.Y = 0 - enemy.Size / 2;
+                    position.Y = screenHeight + enemy.Size / 2;
                 else if (enemy.MotionDirection > 225 || enemy.MotionDirection <= 315)
                     position.X = screenWidth + enemy.Size / 2;
             }
@@ -325,11 +322,13 @@ namespace AsteroidsRemake
             };
 
             #region Add rotation
-            DoubleAnimation da = new DoubleAnimation();
-            da.From = 0;
-            da.To = 360;
-            da.Duration = new Duration(TimeSpan.FromSeconds(1.5));
-            da.RepeatBehavior = RepeatBehavior.Forever;
+            DoubleAnimation da = new DoubleAnimation
+            {
+                From = 0,
+                To = 360,
+                Duration = new Duration(TimeSpan.FromSeconds(1.5)),
+                RepeatBehavior = RepeatBehavior.Forever
+            };
             RotateTransform rt = new RotateTransform(0, enemy.Size / 2, enemy.Size / 2);
             rec.RenderTransform = rt;
             rt.BeginAnimation(RotateTransform.AngleProperty, da);
@@ -608,8 +607,8 @@ namespace AsteroidsRemake
                 var item = gameObjectDictionary.ElementAt(i);
                 if (FindCollisionWithOtherObjects(item.Key, out GameObject collidedObj))
                 {
-                    item.Key.collidedWith = collidedObj;
-                    collidedObj.collidedWith = item.Key;
+                    item.Key.CollidedWith = collidedObj;
+                    collidedObj.CollidedWith = item.Key;
                     if ((item.Key is PlayerShip || collidedObj is PlayerShip) && player.IsInvulnerable)
                         continue;
                     item.Key.HadCollision = true;
@@ -647,14 +646,14 @@ namespace AsteroidsRemake
                     {
                         if (shot.Owner is PlayerShip)
                         {
-                            if (item.Key.collidedWith is Asteroid)
-                                if (item.Key.collidedWith.Size == defaultAsteroidSize)
+                            if (item.Key.CollidedWith is Asteroid)
+                                if (item.Key.CollidedWith.Size == defaultAsteroidSize)
                                     player.Score += 20;
-                                else if (item.Key.collidedWith.Size == defaultAsteroidSize / 2)
+                                else if (item.Key.CollidedWith.Size == defaultAsteroidSize / 2)
                                     player.Score += 50;
                                 else
                                     player.Score += 100;
-                            if (item.Key.collidedWith is EnemyShip)
+                            if (item.Key.CollidedWith is EnemyShip)
                                 player.Score += 250;
 
                             // Will add a new life after reaching the score of 10000
