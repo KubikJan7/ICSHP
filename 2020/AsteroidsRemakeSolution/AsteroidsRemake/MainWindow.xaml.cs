@@ -154,7 +154,7 @@ namespace AsteroidsRemake
         private void DrawScene()
         {
             storyboard = new Storyboard();
-            CreatePlayerShip(new Point(637, 325.5));
+            CreatePlayerShip(new Point(637, 345.5));
             MakePlayerInvulnerable();
             CreateNewSetOfAsteroids();
         }
@@ -173,38 +173,38 @@ namespace AsteroidsRemake
         private void LoadObjectsFromFile(string fileName)
         {
             int asteroidCount = 0;
-            
-                using (StreamReader file = new StreamReader(fileName))
+
+            using (StreamReader file = new StreamReader(fileName))
+            {
+                int lnCount = 0;
+                string ln;
+                string[] words;
+                Point position;
+
+                while ((ln = file.ReadLine()) != null)
                 {
-                    int lnCount = 0;
-                    string ln;
-                    string[] words;
-                    Point position;
+                    if (++lnCount <= 2)
+                        continue;
 
-                    while ((ln = file.ReadLine()) != null)
+                    words = ln.Split(null);
+                    position = new Point(Convert.ToDouble(words[1]), Convert.ToDouble(words[2]));
+                    switch (words[0])
                     {
-                        if (++lnCount <= 2)
-                            continue;
-
-                        words = ln.Split(null);
-                        position = new Point(Convert.ToDouble(words[1]), Convert.ToDouble(words[2]));
-                        switch (words[0])
-                        {
-                            case "asteroid":
-                                CreateAsteroid(position);
-                                asteroidCount++;
-                                break;
-                            case "enemyShip":
-                                CreateEnemyShip(position);
-                                break;
-                            case "playerShip":
-                                if (player == null) // To prevent creating of more than 1 player
-                                    CreatePlayerShip(position);
-                                break;
-                        }
+                        case "asteroid":
+                            CreateAsteroid(position);
+                            asteroidCount++;
+                            break;
+                        case "enemyShip":
+                            CreateEnemyShip(position);
+                            break;
+                        case "playerShip":
+                            if (player == null) // To prevent creating of more than 1 player
+                                CreatePlayerShip(position);
+                            break;
                     }
-                    file.Close();
                 }
+                file.Close();
+            }
             asteroidCurrentCount = asteroidCount;
             StartCustomGame();
             EnableUIGameElements();
@@ -265,8 +265,8 @@ namespace AsteroidsRemake
                 VerticalAlignment = VerticalAlignment.Center
             };
             // The substraction by the (asteroid.Size/2) is used so the circle is drawn from its center 
-            Canvas.SetLeft(el, asteroid.Position.X - asteroid.Size / 2);
-            Canvas.SetBottom(el, asteroid.Position.Y - asteroid.Size / 2);
+            Canvas.SetLeft(el, asteroid.Position.X - asteroid.Size / 2.0);
+            Canvas.SetBottom(el, asteroid.Position.Y - asteroid.Size / 2.0);
             BackgroundCanvas.Children.Add(el);
             gameObjectDictionary.Add(asteroid, el);
         }
@@ -280,8 +280,8 @@ namespace AsteroidsRemake
                     if (item.Key is Asteroid asteroid)
                     {
                         // The substraction by the (asteroid.Size/2) is used so the circle is drawn from its center 
-                        Canvas.SetLeft(item.Value, asteroid.Position.X - asteroid.Size / 2);
-                        Canvas.SetBottom(item.Value, asteroid.Position.Y - asteroid.Size / 2);
+                        Canvas.SetLeft(item.Value, asteroid.Position.X - asteroid.Size / 2.0);
+                        Canvas.SetBottom(item.Value, asteroid.Position.Y - asteroid.Size / 2.0);
 
                         asteroid.Position = MathClass.MovePointByGivenDistanceAndAngle(asteroid.Position, asteroid.VelocityMultiplier, asteroid.MotionDirection);
                     }
@@ -299,13 +299,13 @@ namespace AsteroidsRemake
                 position = GenerateObjectPosition(enemy.Size);
                 // will choose side (based on enemy movement direction) from which the enemy will occur
                 if (enemy.MotionDirection > 315 || enemy.MotionDirection <= 45)
-                    position.Y = 0 - enemy.Size / 2;
+                    position.Y = 0 - enemy.Size / 2.0;
                 else if (enemy.MotionDirection > 45 || enemy.MotionDirection <= 135)
-                    position.X = 0 - enemy.Size / 2;
+                    position.X = 0 - enemy.Size / 2.0;
                 else if (enemy.MotionDirection > 135 || enemy.MotionDirection <= 225)
-                    position.Y = screenHeight + enemy.Size / 2;
+                    position.Y = screenHeight + enemy.Size / 2.0;
                 else if (enemy.MotionDirection > 225 || enemy.MotionDirection <= 315)
-                    position.X = screenWidth + enemy.Size / 2;
+                    position.X = screenWidth + enemy.Size / 2.0;
             }
 
             enemy.Position = position;
@@ -335,8 +335,8 @@ namespace AsteroidsRemake
             #endregion
 
             // The substraction by the (asteroid.Size/2) is used so the circle is drawn from its center 
-            Canvas.SetLeft(rec, enemy.Position.X - enemy.Size / 2);
-            Canvas.SetBottom(rec, enemy.Position.Y - enemy.Size / 2);
+            Canvas.SetLeft(rec, enemy.Position.X - enemy.Size / 2.0);
+            Canvas.SetBottom(rec, enemy.Position.Y - enemy.Size / 2.0);
             BackgroundCanvas.Children.Add(rec);
             gameObjectDictionary.Add(enemy, rec);
             gameObjects.Add(enemy);
@@ -484,8 +484,8 @@ namespace AsteroidsRemake
             player.Position = MathClass.MovePointByGivenDistanceAndAngle(player.Position, movementStep
                 * player.VelocityMultiplier, player.MotionDirection);
             // Display the new position on the canvas
-            Canvas.SetLeft(playerPolygon, player.Position.X - player.Size / 2);
-            Canvas.SetTop(playerPolygon, screenHeight - player.Position.Y - player.Size / 2); // substraction from screenHeight used to invert the y axis
+            Canvas.SetLeft(playerPolygon, player.Position.X - player.Size / 2.0);
+            Canvas.SetBottom(playerPolygon, player.Position.Y - player.Size / 2.0); // substraction from screenHeight used to invert the y axis
         }
 
         private void ManageVelocity()
@@ -501,7 +501,7 @@ namespace AsteroidsRemake
         {
             if (goalRotation == polygonRotation.Angle)
             {
-                Point p = GetPlayerShipCenter();
+                Point p = new Point(20,20);
                 polygonRotation.CenterX = p.X;
                 polygonRotation.CenterY = p.Y;
                 // Will set the goal rotation depending on the current direction
@@ -573,7 +573,7 @@ namespace AsteroidsRemake
                             gameObject.Position.Y + MathClass.GetRandomDouble(-gameObject.Size / 4.0, gameObject.Size / 4.0));
 
                     Canvas.SetLeft(el, pos.X - size / 2.0);
-                    Canvas.SetBottom(el, pos.Y - size / 2.0 - 6);
+                    Canvas.SetBottom(el, pos.Y - size / 2.0);
                     BackgroundCanvas.Children.Add(el);
                     elArray.Add(el);
                 }
@@ -742,14 +742,6 @@ namespace AsteroidsRemake
                 Color = Color.FromRgb(r, g, b)
             };
             return colorBrush;
-        }
-
-        private Point GetPlayerShipCenter()
-        {
-            Point a = playerPolygon.Points[0];
-            Point b = playerPolygon.Points[1];
-            Point c = playerPolygon.Points[2];
-            return MathClass.FindCenterOfTriangle(a, b, c);
         }
 
         private Point GenerateObjectPosition(double size)

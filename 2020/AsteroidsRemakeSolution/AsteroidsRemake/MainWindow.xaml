@@ -8,7 +8,7 @@
         Title="MainWindow" ResizeMode="NoResize" Height="720" Width="1280" KeyDown="MainWindow1_KeyDown" KeyUp="MainWindow1_KeyUp">
     <Grid>
         <Canvas x:Name="BackgroundCanvas" Background="DimGray" Width="1274" Height="691">
-            <Polygon x:Name="playerPolygon" Points="20,0 5,40 35,40" Width="40" Height="40" VerticalAlignment="Center" Canvas.Top="325.5" Canvas.Left="617" Panel.ZIndex="2">
+            <Polygon x:Name="playerPolygon" Points="20,0 5,40 35,40" Width="40" Height="40" VerticalAlignment="Center" Canvas.Bottom="325.5" Canvas.Left="617" Panel.ZIndex="2">
                 <Polygon.RenderTransform>
                     <RotateTransform x:Name="polygonRotation"/>
                 </Polygon.RenderTransform>

@@ -16,21 +16,6 @@ namespace AsteroidsRemake.MathLibrary
         }
 
         /// <summary>
-        /// Move point A closer to point B by given step
-        /// </summary>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        /// <param name="step"></param>
-        /// <returns>Point moved by given step</returns>
-        public static Point MovePointTowards(Point a, Point b, double step)
-        {
-            Point vector = new Point(b.X - a.X, b.Y - a.Y);
-            double length = Math.Sqrt(vector.X * vector.X + vector.Y * vector.Y);
-            Point unitVector = new Point(vector.X / length, vector.Y / length);
-            return new Point(a.X + unitVector.X * step, a.Y + unitVector.Y * step);
-        }
-
-        /// <summary>
         /// Will move a point to a coordination specified by a distance and angle
         /// </summary>
         /// <param name="point"></param>
@@ -40,23 +25,6 @@ namespace AsteroidsRemake.MathLibrary
         public static Point MovePointByGivenDistanceAndAngle(Point point, double dist, double angle)
         {
             return new Point(point.X + (Math.Sin(Math.PI / 180.0 * angle) * dist), point.Y + (Math.Cos(Math.PI / 180.0 * angle) * dist));
-        }
-
-        /// <summary>
-        /// Compare radius of circle with distance of its center from given point 
-        /// </summary>
-        /// <param name="circle_x"></param>
-        /// <param name="circle_y"></param>
-        /// <param name="radius"></param>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns>Boolean</returns>
-        public static bool IsPointInsideCircle(double circle_x, double circle_y, int radius, double x, double y)
-        {
-            if ((x - circle_x) * (x - circle_x) + (y - circle_y) * (y - circle_y) <= radius * radius)
-                return true;
-            else
-                return false;
         }
 
         /// <summary>
