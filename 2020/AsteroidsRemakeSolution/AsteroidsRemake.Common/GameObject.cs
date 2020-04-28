@@ -9,11 +9,11 @@ namespace AsteroidsRemake.Common
 {
     public abstract class GameObject
     {
-        public virtual int Size { get; set; }
-        public virtual Point Position { set; get; }
-        public virtual double MotionDirection { get; set; }
-        public virtual bool HadCollision { get; set; }
-        public virtual double VelocityMultiplier { get; set; }
-        public virtual GameObject CollidedWith { get; set; }
+        public int Size { get; set; }
+        public Point Position { set; get; }
+        public double MotionDirection { get; set; }
+        public bool HadCollision { get; set; }
+        public double VelocityMultiplier { get; set; }
+        public GameObject CollidedWith { get; set; }
     }
 }
