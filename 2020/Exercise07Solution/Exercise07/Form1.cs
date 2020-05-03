@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -84,16 +86,25 @@ namespace Exercise07
                 br.Close();
             }
 
-            //BinaryWriter bw = new BinaryWriter(File.OpenWrite("export.bmp"));
-            //bw.Write(imageData);
-            //bw.Close();
+            BinaryWriter bw = new BinaryWriter(File.OpenWrite("export.bmp"));
+            bw.Write(imageData);
+            bw.Close();
 
+            #region Turning byte array into bitmap
+            // Create the Bitmap to the know height, width and format
+            Bitmap bmp = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            Bitmap bmp = new Bitmap(width, height);
-            using (var ms = new MemoryStream(imageData))
-            {
-                bmp = new Bitmap(ms);
-            }
+            // Create a BitmapData and Lock all pixels to be written
+            BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), 
+                ImageLockMode.WriteOnly, bmp.PixelFormat);
+
+            // Copy the data from the byte array into BitmapData.Scan0
+            Marshal.Copy(imageData, 0, bmpData.Scan0, imageData.Length);
+
+            // Unlock the pixels
+            bmp.UnlockBits(bmpData);
+            #endregion
+
             return bmp;
         }
 
