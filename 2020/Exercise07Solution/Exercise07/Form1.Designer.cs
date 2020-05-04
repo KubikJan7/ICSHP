@@ -51,7 +51,7 @@
             // 
             this.loadFileBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.loadFileBtn.AutoSize = true;
-            this.loadFileBtn.Location = new System.Drawing.Point(370, 424);
+            this.loadFileBtn.Location = new System.Drawing.Point(370, 422);
             this.loadFileBtn.Name = "loadFileBtn";
             this.loadFileBtn.Size = new System.Drawing.Size(75, 23);
             this.loadFileBtn.TabIndex = 1;

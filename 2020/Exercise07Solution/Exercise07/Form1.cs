@@ -41,7 +41,7 @@ namespace Exercise07
                 short yEnd = br.ReadInt16();
                 width = (xEnd - xStart + 1);
                 height = (yEnd - yStart + 1);
-                aspectRatio = (double) height / (double)width;
+                aspectRatio = (double)height / (double)width;
                 Width = (int)Math.Round(Height / aspectRatio);
 
                 // Calculate the number of bytes required to hold a decoded scan line 
@@ -49,7 +49,6 @@ namespace Exercise07
                 byte numBitPlanes = br.ReadByte();
                 short bytesPerLine = br.ReadInt16();
                 scanLineLength = (numBitPlanes * bytesPerLine);
-
                 linePaddingSize = ((bytesPerLine * numBitPlanes) * (8 / bitsPerPixel)) - ((xEnd - yStart) + 1);
                 #endregion
 
@@ -69,9 +68,6 @@ namespace Exercise07
                         {
                             runCount = (byte)(@byte & 0x3F);
                             runValue = br.ReadByte();
-
-                            
-
                         }
                         else
                         {
@@ -80,50 +76,56 @@ namespace Exercise07
                         }
 
                         // Write the pixel run to the buffer
-                        if (j <= scanLineLength)
-                            while (runCount != 0)
-                            {
-                                imageData[position++] = runValue;
-                                runCount--;
-                                j++;
-                            }
+                        while (runCount != 0)
+                        {
+                            imageData[position++] = runValue;
+                            runCount--;
+                            j++;
+                        }
                     }
                 }
                 #endregion
 
                 #region Reading the color palette
-                br.BaseStream.Seek(-769, SeekOrigin.End);
-                if (br.ReadByte() == 0x0C) // number 12
-                {
-                }
+                //br.BaseStream.Seek(-769, SeekOrigin.End);
+                //if (br.ReadByte() == 0x0C) // number 12
+                //{
+                //}
                 #endregion
 
                 br.Close();
             }
-            for (int i = 0; i < height; i++)
-            {
-                for (int j = 0; j < width; j++)
-                {
 
-                }
-            }
 
             #region Turning byte array into bitmap
             // Create the Bitmap to the know height, width and format
             Bitmap bmp = new Bitmap(width, height, PixelFormat.Format24bppRgb);
+            int pos = 0;
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int arrayIndex = y * width + x;
+                    Color c = Color.FromArgb(imageData[pos], imageData[pos + width], imageData[pos + 2 * width]);
+                    bmp.SetPixel(x, y, c);
+                    if (x == width - 1)
+                        pos += 2 * width + 3;
+                    pos++;
+                }
+            }
 
-            // Create a BitmapData and Lock all pixels to be written
-            BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height),
-                ImageLockMode.WriteOnly, bmp.PixelFormat);
+            //// Create a BitmapData and Lock all pixels to be written
+            //BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height),
+            //    ImageLockMode.WriteOnly, bmp.PixelFormat);
 
-            // Copy the data from the byte array into BitmapData.Scan0
+            //// Copy the data from the byte array into BitmapData.Scan0
 
-            Marshal.Copy(imageData, 0, bmpData.Scan0, imageData.Length);
-            // Unlock the pixels
-            bmp.UnlockBits(bmpData);
+            //Marshal.Copy(imageData, 0, bmpData.Scan0, imageData.Length);
+            //// Unlock the pixels
+            //bmp.UnlockBits(bmpData);
             #endregion
 
-            bmp.Save("bmp.bmp");
+            //bmp.Save("bmp.bmp");
 
             return bmp;
         }
@@ -153,7 +155,7 @@ namespace Exercise07
 
         private void Form1_Resize(object sender, EventArgs e)
         {
-            Width = (int)Math.Round(Height / aspectRatio);
+            Width = (int)Math.Round(Height / aspectRatio) - 100;
         }
     }
 }
