@@ -13,8 +13,9 @@ using System.Windows.Forms;
 
 namespace Exercise07
 {
-    public partial class Form1 : Form
+    public partial class Form1 : System.Windows.Forms.Form
     {
+        private double aspectRatio = 1;
         public Form1()
         {
             InitializeComponent();
@@ -40,6 +41,8 @@ namespace Exercise07
                 short yEnd = br.ReadInt16();
                 width = (xEnd - xStart + 1);
                 height = (yEnd - yStart + 1);
+                aspectRatio = (double) height / (double)width;
+                Width = (int)Math.Round(Height / aspectRatio);
 
                 // Calculate the number of bytes required to hold a decoded scan line 
                 br.BaseStream.Seek(65, SeekOrigin.Begin);
@@ -51,59 +54,76 @@ namespace Exercise07
                 #endregion
 
                 #region Reading the PCX file data
-                imageData = new byte[scanLineLength];
+                imageData = new byte[scanLineLength * height];
+                int position = 0;
                 byte @byte;
                 byte runCount;
                 byte runValue;
                 br.BaseStream.Seek(128, SeekOrigin.Begin);
-                for (int i = 0; i < imageData.Length; i++)
+                for (int i = 0; i < height; i++)
                 {
-                    @byte = br.ReadByte();
-                    if ((@byte & 0xC0) == 0xC0) // Two high bits are set
+                    for (int j = 0; j < scanLineLength; j++)
                     {
-                        runCount = (byte)(@byte & 0x3F);
-                        runValue = br.ReadByte();
-                    }
-                    else
-                    {
-                        runCount = 1;
-                        runValue = @byte;
-                    }
+                        @byte = br.ReadByte();
+                        if ((@byte & 0xC0) == 0xC0) // Two high bits are set
+                        {
+                            runCount = (byte)(@byte & 0x3F);
+                            runValue = br.ReadByte();
 
-                    // Write the pixel run to the buffer
-                    while (runCount != 0)
-                    {
-                        if (i >= imageData.Length)
-                            break;
-                        imageData[i] = runValue;
-                        runCount--;
-                        i++;
+                            
+
+                        }
+                        else
+                        {
+                            runCount = 1;
+                            runValue = @byte;
+                        }
+
+                        // Write the pixel run to the buffer
+                        if (j <= scanLineLength)
+                            while (runCount != 0)
+                            {
+                                imageData[position++] = runValue;
+                                runCount--;
+                                j++;
+                            }
                     }
                 }
+                #endregion
 
+                #region Reading the color palette
+                br.BaseStream.Seek(-769, SeekOrigin.End);
+                if (br.ReadByte() == 0x0C) // number 12
+                {
+                }
                 #endregion
 
                 br.Close();
             }
+            for (int i = 0; i < height; i++)
+            {
+                for (int j = 0; j < width; j++)
+                {
 
-            BinaryWriter bw = new BinaryWriter(File.OpenWrite("export.bmp"));
-            bw.Write(imageData);
-            bw.Close();
+                }
+            }
 
             #region Turning byte array into bitmap
             // Create the Bitmap to the know height, width and format
             Bitmap bmp = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 
             // Create a BitmapData and Lock all pixels to be written
-            BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), 
+            BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height),
                 ImageLockMode.WriteOnly, bmp.PixelFormat);
 
             // Copy the data from the byte array into BitmapData.Scan0
-            Marshal.Copy(imageData, 0, bmpData.Scan0, imageData.Length);
 
+            Marshal.Copy(imageData, 0, bmpData.Scan0, imageData.Length);
             // Unlock the pixels
             bmp.UnlockBits(bmpData);
             #endregion
+
+            bmp.Save("bmp.bmp");
 
             return bmp;
         }
@@ -126,7 +146,14 @@ namespace Exercise07
 
         private void LoadFileBtn_Click(object sender, EventArgs e)
         {
-            pictureBox.Image = LoadPCX(ChooseFile());
+            string filename = ChooseFile();
+            if (filename != string.Empty)
+                pictureBox.Image = LoadPCX(filename);
+        }
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            Width = (int)Math.Round(Height / aspectRatio);
         }
     }
 }
