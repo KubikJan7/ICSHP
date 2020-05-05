@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Media.Imaging;
 
 namespace Exercise07
 {
@@ -23,12 +24,14 @@ namespace Exercise07
 
         private Bitmap LoadPCX(string filename)
         {
+            Bitmap bmp = null;
             byte[] imageData;
             int width;
             int height;
             int scanLineLength;
             int linePaddingSize;
             int bitsPerPixel = 8;
+            bool hasColorPalette = false;
 
             using (BinaryReader br = new BinaryReader(File.OpenRead(filename)))
             {
@@ -76,7 +79,7 @@ namespace Exercise07
                         }
 
                         // Write the pixel run to the buffer
-                        while (runCount != 0)
+                        while (runCount != 0 && j < width)
                         {
                             imageData[position++] = runValue;
                             runCount--;
@@ -87,10 +90,21 @@ namespace Exercise07
                 #endregion
 
                 #region Reading the color palette
-                //br.BaseStream.Seek(-769, SeekOrigin.End);
-                //if (br.ReadByte() == 0x0C) // number 12
-                //{
-                //}
+                br.BaseStream.Seek(-769, SeekOrigin.End);
+                if (br.ReadByte() == 0x0C) // number 12
+                {
+                    hasColorPalette = true;
+
+                    bmp = new Bitmap(width, height, PixelFormat.Format8bppIndexed);
+                    ColorPalette palette = bmp.Palette;
+                    Color[] entries = palette.Entries;
+
+                    for (int i = 0; i < entries.Length; i++)
+                    {
+                        entries[i] = Color.FromArgb(br.ReadByte(), br.ReadByte(), br.ReadByte());
+                    }
+                    bmp.Palette = palette;
+                }
                 #endregion
 
                 br.Close();
@@ -99,33 +113,45 @@ namespace Exercise07
 
             #region Turning byte array into bitmap
             // Create the Bitmap to the know height, width and format
-            Bitmap bmp = new Bitmap(width, height, PixelFormat.Format24bppRgb);
-            int pos = 0;
-            for (int y = 0; y < height; y++)
+            if (!hasColorPalette)
             {
-                for (int x = 0; x < width; x++)
+                bmp = new Bitmap(width, height, PixelFormat.Format24bppRgb);
+                int pos = 0;
+                for (int y = 0; y < height; y++)
                 {
-                    int arrayIndex = y * width + x;
-                    Color c = Color.FromArgb(imageData[pos], imageData[pos + width], imageData[pos + 2 * width]);
-                    bmp.SetPixel(x, y, c);
-                    if (x == width - 1)
-                        pos += 2 * width + 3;
-                    pos++;
+                    for (int x = 0; x < width; x++)
+                    {
+                        Color c;
+
+                        if (hasColorPalette)
+                        {
+                            c = Color.FromArgb(imageData[pos]);
+                        }
+                        else
+                        {
+                            c = Color.FromArgb(imageData[pos], imageData[pos + width], imageData[pos + 2 * width]);
+                            if (x == width - 1)
+                                pos += 2 * width + 3;
+                        }
+                        bmp.SetPixel(x, y, c);
+                        pos++;
+                    }
                 }
             }
+            else
+            {
+                // Create a BitmapData and Lock all pixels to be written
+                BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height),
+                    ImageLockMode.WriteOnly, bmp.PixelFormat);
 
-            //// Create a BitmapData and Lock all pixels to be written
-            //BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height),
-            //    ImageLockMode.WriteOnly, bmp.PixelFormat);
+                // Copy the data from the byte array into BitmapData.Scan0
 
-            //// Copy the data from the byte array into BitmapData.Scan0
-
-            //Marshal.Copy(imageData, 0, bmpData.Scan0, imageData.Length);
-            //// Unlock the pixels
-            //bmp.UnlockBits(bmpData);
-            #endregion
-
-            //bmp.Save("bmp.bmp");
+                Marshal.Copy(imageData, 0, bmpData.Scan0, imageData.Length);
+                // Unlock the pixels
+                bmp.UnlockBits(bmpData);
+                #endregion
+            }
+            bmp.Save(filename.Substring(0, filename.Length - 4) + ".bmp");
 
             return bmp;
         }
