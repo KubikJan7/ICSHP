@@ -52,15 +52,15 @@ namespace Exercise07
                 byte numBitPlanes = br.ReadByte();
                 short bytesPerLine = br.ReadInt16();
                 scanLineLength = (numBitPlanes * bytesPerLine);
-                linePaddingSize = ((bytesPerLine * numBitPlanes) * (8 / bitsPerPixel)) - ((xEnd - yStart) + 1);
+                linePaddingSize = (scanLineLength * (8 / bitsPerPixel)) - width;
                 #endregion
 
                 #region Reading the PCX file data
                 imageData = new byte[scanLineLength * height];
                 int position = 0;
                 byte @byte;
-                byte runCount;
-                byte runValue;
+                byte runCount = 0;
+                byte runValue = 0;
                 br.BaseStream.Seek(128, SeekOrigin.Begin);
                 for (int i = 0; i < height; i++)
                 {
@@ -79,10 +79,9 @@ namespace Exercise07
                         }
 
                         // Write the pixel run to the buffer
-                        while (runCount != 0 && j < width)
+                        while (runCount-- != 0 )
                         {
                             imageData[position++] = runValue;
-                            runCount--;
                             j++;
                         }
                     }
@@ -130,12 +129,12 @@ namespace Exercise07
                         else
                         {
                             c = Color.FromArgb(imageData[pos], imageData[pos + width], imageData[pos + 2 * width]);
-                            if (x == width - 1)
-                                pos += 2 * width + 3;
+
                         }
                         bmp.SetPixel(x, y, c);
                         pos++;
                     }
+                    pos += 2 * width;
                 }
             }
             else
@@ -181,7 +180,7 @@ namespace Exercise07
 
         private void Form1_Resize(object sender, EventArgs e)
         {
-            Width = (int)Math.Round(Height / aspectRatio) - 100;
+            Width = (int)Math.Round(Height / aspectRatio);
         }
     }
 }
