@@ -56,34 +56,47 @@ namespace Exercise07
                 #endregion
 
                 #region Reading the PCX file data
-                imageData = new byte[scanLineLength * height];
+                imageData = new byte[numBitPlanes * (width+1) * height];
+                byte[] scanLine = new byte[scanLineLength];
                 int position = 0;
-                byte @byte;
+                byte @byte = 0;
                 byte runCount = 0;
                 byte runValue = 0;
                 br.BaseStream.Seek(128, SeekOrigin.Begin);
                 for (int i = 0; i < height; i++)
                 {
-                    for (int j = 0; j < scanLineLength; j++)
+                    for (int j = 0; j < numBitPlanes; j++)
                     {
-                        @byte = br.ReadByte();
-                        if ((@byte & 0xC0) == 0xC0) // Two high bits are set
+                        for (int k = 0; k < bytesPerLine; k++)
                         {
-                            runCount = (byte)(@byte & 0x3F);
-                            runValue = br.ReadByte();
-                        }
-                        else
-                        {
-                            runCount = 1;
-                            runValue = @byte;
+                            //Write the pixel run to the buffer
+                            if (runCount == 0)
+                            {
+                                @byte = br.ReadByte();
+                                if ((@byte & 0xC0) == 0xC0) // Two high bits are set
+                                {
+                                    runCount = (byte)(@byte & 0x3F);
+                                    runValue = br.ReadByte();
+                                }
+                                else
+                                {
+                                    runCount = 1;
+                                    runValue = @byte;
+                                }
+                            }
+
+                            while (runCount > 0 && k < bytesPerLine)
+                            {
+                                imageData[position++] = runValue;
+                                runCount--;
+                                k++;
+                            }
                         }
 
-                        // Write the pixel run to the buffer
-                        while (runCount-- != 0 )
-                        {
-                            imageData[position++] = runValue;
-                            j++;
-                        }
+                        //for (int l = 0; l < width; l++)
+                        //{
+                        //    imageData[position++] = scanLine[l]; 
+                        //}
                     }
                 }
                 #endregion
@@ -128,13 +141,13 @@ namespace Exercise07
                         }
                         else
                         {
-                            c = Color.FromArgb(imageData[pos], imageData[pos + width], imageData[pos + 2 * width]);
+                            c = Color.FromArgb(imageData[pos], imageData[pos + (width)], imageData[pos + 2 * (width)]);
 
                         }
                         bmp.SetPixel(x, y, c);
                         pos++;
                     }
-                    pos += 2 * width;
+                    pos += 2 * width+3;
                 }
             }
             else
