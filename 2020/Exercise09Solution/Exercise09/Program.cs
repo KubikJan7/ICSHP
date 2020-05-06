@@ -8,8 +8,11 @@ namespace Exercise09
 {
     class Program
     {
+        
         static void Main(string[] args)
         {
+            Graph graph = new Graph();
+            graph.LoadGraphFromFile("vstup.dat");
         }
     }
 }
