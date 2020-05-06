@@ -70,8 +70,6 @@ namespace Exercise09
             }
         }
 
-
-
         private Node GetNodeWithLabel(string label)
         {
             foreach (var item in nodes)
@@ -90,10 +88,10 @@ namespace Exercise09
             if (defaultNode == null)
                 throw new NullReferenceException("Graph does not contain any node with given label!");
 
-            List<Node> reachable = VisitNodes(defaultNode); 
+            List<Node> reachable = VisitTargetNodes(defaultNode); 
 
             //Will find nodes which are connected to the default node only via the source edge
-            List<Node> unreachSources = FindSourcesAndTargets(defaultNode, reachable, false);
+            List<Node> unreachSources = VisitSelectedSourcesAndTargets(defaultNode, reachable, false);
             unreachSources.Remove(defaultNode); // Exclude the chosen default node
             unreachSources.Sort((node, node1) => node.Id - node1.Id);
 
@@ -112,7 +110,7 @@ namespace Exercise09
                 // If a node is not part of any list, new list will be created and filled with its sources and targets
                 if (!contains)
                 {
-                    List<Node> toAdd = FindSourcesAndTargets(nodeVal, reachable, true);
+                    List<Node> toAdd = VisitSelectedSourcesAndTargets(nodeVal, reachable, true);
                     toAdd.Sort((node, node1) => node.Id - node1.Id);
                     unreachable.Add(toAdd);
                 }
@@ -121,13 +119,14 @@ namespace Exercise09
         }
 
         /// <summary>
-        /// Performs iterative DFS on graph starting from defaultNode
+        /// Performs iterative DFS on graph starting from defaultNode to find only target nodes.
+        /// Is used to get reachable nodes.
         /// </summary>
         /// <param name="defaultNode"></param>
         /// <returns>
         /// List of visited nodes
         /// </returns>
-        private List<Node> VisitNodes(Node defaultNode)
+        private List<Node> VisitTargetNodes(Node defaultNode)
         {
             List<Node> visited = new List<Node>();
             Stack<Node> stack = new Stack<Node>();
@@ -150,7 +149,15 @@ namespace Exercise09
             return visited;
         }
 
-        private List<Node> FindSourcesAndTargets(Node defaultNode, List<Node> nodesToAvoid, bool findTargets)
+        /// <summary>
+        /// Performs iterative DFS on graph starting from defaultNode to get selected source and target nodes.
+        /// Is used to find unreachable parts of graph.
+        /// </summary>
+        /// <param name="defaultNode"></param>
+        /// <param name="nodesToAvoid"></param>
+        /// <param name="findTargets"></param>
+        /// <returns></returns>
+        private List<Node> VisitSelectedSourcesAndTargets(Node defaultNode, List<Node> nodesToAvoid, bool findTargets)
         {
             List<Node> sourcesAndTargets = new List<Node>();
             Stack<Node> stack = new Stack<Node>();
@@ -198,11 +205,12 @@ namespace Exercise09
             {
                 if (list.Count != 0)
                 {
-                    nodeLabels += "=> ";
+                    nodeLabels += "\u2022 ";
                     foreach (var item in list)
                     {
-                        nodeLabels += item.Label + " ";
+                        nodeLabels += item.Label + ", ";
                     }
+                    nodeLabels = nodeLabels.Substring(0, nodeLabels.Length - 2);
                     nodeLabels += "\n";
                 }
             }
