@@ -16,4 +16,30 @@ namespace Exam
 
         }
     }
+
+    class Cas :IComparable
+    {
+        public int Hodiny { get; set; }
+        public int Minuty { get; set; }
+        public int Sekundy { get; set; }
+
+        public virtual void Vypis()
+        {
+            Console.WriteLine("Čas");
+
+        }
+
+        public int CompareTo(object obj)
+        {
+            return this.CompareTo(obj);
+        }
+    }
+
+    class ZonovyCas :Cas
+    {
+        public override void Vypis()
+        {
+            Console.WriteLine("Zonový čas");
+        }
+    }
 }
